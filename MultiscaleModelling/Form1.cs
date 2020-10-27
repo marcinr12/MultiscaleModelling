@@ -17,6 +17,9 @@ namespace MultiscaleModelling
 			SizeYNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
 
 			gridControl.Matrix.SetRandomCells(10);
+
+			bcComboBox.Items.AddRange(EnumsNames.BcNames.Values.ToArray());
+			bcComboBox.SelectedItem = EnumsNames.BcNames[Bc.Absorbing];
 		}
 
 		private void NumericUpDown_MouseWheel(object sender, MouseEventArgs e)
@@ -88,6 +91,16 @@ namespace MultiscaleModelling
 				}
 				gridControl.Draw();
 			});
+		}
+
+		private void BcComboBox_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			ComboBox comboBox = sender as ComboBox;
+
+			if (comboBox.SelectedItem.ToString() == EnumsNames.BcNames[Bc.Absorbing])
+				gridControl.Matrix.BoundaryCondition = Bc.Absorbing;
+			else if (comboBox.SelectedItem.ToString() == EnumsNames.BcNames[Bc.Periodic])
+				gridControl.Matrix.BoundaryCondition = Bc.Periodic;
 		}
 	}
 }

@@ -4,10 +4,18 @@ using System.Text;
 
 namespace MultiscaleModelling
 {
-	enum BoundaryContitions
+	public enum Bc
 	{
-		None,
 		Absorbing,
 		Periodic
+	}
+
+	public static class EnumsNames
+	{
+		public static Dictionary<Bc, string> BcNames = new Dictionary<Bc, string>()
+		{
+			{ Bc.Absorbing, "Absorbing" },
+			{ Bc.Periodic, "Periodic" }
+		};
 	}
 }

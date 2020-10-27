@@ -31,6 +31,7 @@
 			this.gridControl = new MultiscaleModelling.GridControl();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.bcComboBox = new System.Windows.Forms.ComboBox();
 			this.animationCheckBox = new System.Windows.Forms.CheckBox();
 			this.startButton = new System.Windows.Forms.Button();
 			this.iterationButton = new System.Windows.Forms.Button();
@@ -79,6 +80,7 @@
 			// 
 			// groupBox1
 			// 
+			this.groupBox1.Controls.Add(this.bcComboBox);
 			this.groupBox1.Controls.Add(this.animationCheckBox);
 			this.groupBox1.Controls.Add(this.startButton);
 			this.groupBox1.Controls.Add(this.iterationButton);
@@ -96,12 +98,21 @@
 			this.groupBox1.Size = new System.Drawing.Size(194, 565);
 			this.groupBox1.TabIndex = 1;
 			this.groupBox1.TabStop = false;
-			this.groupBox1.Text = "";
+			// 
+			// bcComboBox
+			// 
+			this.bcComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.bcComboBox.FormattingEnabled = true;
+			this.bcComboBox.Location = new System.Drawing.Point(9, 122);
+			this.bcComboBox.Name = "bcComboBox";
+			this.bcComboBox.Size = new System.Drawing.Size(179, 28);
+			this.bcComboBox.TabIndex = 11;
+			this.bcComboBox.SelectedIndexChanged += new System.EventHandler(this.BcComboBox_SelectedIndexChanged);
 			// 
 			// animationCheckBox
 			// 
 			this.animationCheckBox.AutoSize = true;
-			this.animationCheckBox.Location = new System.Drawing.Point(101, 230);
+			this.animationCheckBox.Location = new System.Drawing.Point(101, 264);
 			this.animationCheckBox.Name = "animationCheckBox";
 			this.animationCheckBox.Size = new System.Drawing.Size(87, 24);
 			this.animationCheckBox.TabIndex = 10;
@@ -110,7 +121,7 @@
 			// 
 			// startButton
 			// 
-			this.startButton.Location = new System.Drawing.Point(9, 227);
+			this.startButton.Location = new System.Drawing.Point(9, 261);
 			this.startButton.Name = "startButton";
 			this.startButton.Size = new System.Drawing.Size(86, 29);
 			this.startButton.TabIndex = 9;
@@ -120,7 +131,7 @@
 			// 
 			// iterationButton
 			// 
-			this.iterationButton.Location = new System.Drawing.Point(9, 192);
+			this.iterationButton.Location = new System.Drawing.Point(9, 226);
 			this.iterationButton.Name = "iterationButton";
 			this.iterationButton.Size = new System.Drawing.Size(86, 29);
 			this.iterationButton.TabIndex = 8;
@@ -130,7 +141,7 @@
 			// 
 			// randomNumericUpDown
 			// 
-			this.randomNumericUpDown.Location = new System.Drawing.Point(101, 124);
+			this.randomNumericUpDown.Location = new System.Drawing.Point(101, 158);
 			this.randomNumericUpDown.Maximum = new decimal(new int[] {
             100000,
             0,
@@ -152,7 +163,7 @@
 			// 
 			// clearButton
 			// 
-			this.clearButton.Location = new System.Drawing.Point(9, 157);
+			this.clearButton.Location = new System.Drawing.Point(9, 191);
 			this.clearButton.Name = "clearButton";
 			this.clearButton.Size = new System.Drawing.Size(86, 29);
 			this.clearButton.TabIndex = 6;
@@ -162,7 +173,7 @@
 			// 
 			// randomButton
 			// 
-			this.randomButton.Location = new System.Drawing.Point(9, 122);
+			this.randomButton.Location = new System.Drawing.Point(9, 156);
 			this.randomButton.Name = "randomButton";
 			this.randomButton.Size = new System.Drawing.Size(86, 29);
 			this.randomButton.TabIndex = 5;
@@ -280,6 +291,7 @@
 		private System.Windows.Forms.Button iterationButton;
 		private System.Windows.Forms.Button startButton;
 		private System.Windows.Forms.CheckBox animationCheckBox;
+		private System.Windows.Forms.ComboBox bcComboBox;
 	}
 }
 

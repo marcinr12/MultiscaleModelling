@@ -14,10 +14,24 @@ namespace MultiscaleModelling
 		public int ColumnsCount => rows.ElementAtOrDefault(0)?.Count ?? 0;
 		public double CellSize { get; private set; }
 		public readonly Random Random = new Random();
+		private Bc _boundaryContition;
+
+		public Bc BoundaryCondition
+		{
+			get => _boundaryContition;
+			set 
+			{
+				_boundaryContition = value;
+				SetBoundaryCondition();
+			}
+		}
+
 		public Matrix()
 		{
 			rows = new List<List<Cell>>() { new List<Cell>() { new Cell(0, 0, this) } };
 			copy = new List<List<(int Id, Color Color)>>() { new List<(int Id, Color Color)>() { (Id: 1, Color: Color.White) } };
+
+			BoundaryCondition = Bc.Absorbing;
 		}
 
 		public Cell GetCell(int row, int column)
@@ -84,8 +98,16 @@ namespace MultiscaleModelling
 				RemoveLastColumn();
 			while (ColumnsCount < targetSizeX)
 				AddColumn();
-
-			SetNeighborsAbsorbing("moor");
+			
+		}
+		private void SetBoundaryCondition()
+		{
+			if (BoundaryCondition == Bc.Absorbing)
+				SetNeighborsAbsorbing("moor");
+			else if (BoundaryCondition == Bc.Periodic)
+				SetNeighborsPeriodic("moor");
+			else
+				SetNeighborsAbsorbing("moor");
 		}
 		public void Erase()
 		{
@@ -126,7 +148,7 @@ namespace MultiscaleModelling
 			}
 		}
 
-		public void SetNeighborsAbsorbing(string selectedNeighborhoodPattern)
+		private void SetNeighborsAbsorbing(string selectedNeighborhoodPattern)
 		{
 			int sizeY = rows.Count;
 			int sizeX;
@@ -191,107 +213,119 @@ namespace MultiscaleModelling
 				}
 			}
 		}
-		//private List<List<int>> CheckNeighbourhoodPeriodic()
-		//{
-		//	int sizeY = Matrix.Count;
-		//	int sizeX;
-		//	int[] type = new int[] { 0, 0, 0, 0 };
+		private void SetNeighborsPeriodic(string selectedNeighborhoodPattern)
+		{
+			int sizeY = rows.Count;
+			int sizeX;
 
-		//	List<List<int>> neighbours = new List<List<int>>();
+			for (int i = 0; i < sizeY; i++)
+			{
+				sizeX = rows[i].Count;
+				for (int j = 0; j < sizeX; j++)
+				{
+					Cell cell = GetCell(i, j);
 
-		//	for (int i = 0; i < sizeY; i++)
-		//	{
-		//		sizeX = Matrix[0].Count;
-		//		neighbours.Add(new List<int>());
-		//		for (int j = 0; j < sizeX; j++)
-		//			neighbours[i].Add(0);
-		//	}
+					// cell -> current cell
+					// i+/- and j+/- -> cell's potential heighbor
 
+					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][0] == 1)
+					{
+						if (i + 1 < sizeY && j + 1 < sizeX)
+							cell.NeighboringCells[0] = rows[i + 1][j + 1];
+						else if (i + 1 < sizeY && j + 1 >= sizeX)
+							cell.NeighboringCells[0] = rows[i + 1][0];
+						else if (i + 1 >= sizeY && j + 1 < sizeX)
+							cell.NeighboringCells[0] = rows[0][j + 1];
+						else
+							cell.NeighboringCells[0] = rows[0][0];
+					}
+					else
+						cell.NeighboringCells[0] = null;
 
-		//	for (int i = 0; i < sizeY; i++)
-		//	{
-		//		sizeX = Matrix[0].Count;
-		//		for (int j = 0; j < sizeX; j++)
-		//		{
-		//			type = new int[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][1] == 1)
+					{
+						if (i + 1 < sizeY)
+							cell.NeighboringCells[1] = rows[i + 1][j];
+						else
+							cell.NeighboringCells[1] = rows[0][j];
+					}
+					else
+						cell.NeighboringCells[1] = null;
 
-		//			if (NeighbourhoodTypes[SelectedNeighbourhoodType][0] == 1)
-		//			{
-		//				if (i + 1 < sizeY && j + 1 < sizeX)
-		//					type[0] = Matrix[i + 1][j + 1].Id;
-		//				else if (i + 1 < sizeY && j + 1 >= sizeX)
-		//					type[0] = Matrix[i + 1][0].Id;
-		//				else if (i + 1 >= sizeY && j + 1 < sizeX)
-		//					type[0] = Matrix[0][j + 1].Id;
-		//				else
-		//					type[0] = Matrix[0][0].Id;
-		//			}
-		//			if (NeighbourhoodTypes[SelectedNeighbourhoodType][1] == 1)
-		//			{
-		//				if (i + 1 < sizeY)
-		//					type[1] = Matrix[i + 1][j].Id;
-		//				else
-		//					type[1] = Matrix[0][j].Id;
-		//			}
-		//			if (NeighbourhoodTypes[SelectedNeighbourhoodType][2] == 1)
-		//			{
-		//				if (i + 1 < sizeY && j - 1 >= 0)
-		//					type[2] = Matrix[i + 1][j - 1].Id;
-		//				else if (i + 1 < sizeY && j - 1 < 0)
-		//					type[2] = Matrix[i + 1][sizeX - 1].Id;
-		//				else if (i + 1 >= sizeY && j - 1 >= 0)
-		//					type[2] = Matrix[0][j - 1].Id;
-		//				else
-		//					type[2] = Matrix[0][sizeX - 1].Id;
-		//			}
-		//			if (NeighbourhoodTypes[SelectedNeighbourhoodType][3] == 1)
-		//			{
-		//				if (j - 1 >= 0)
-		//					type[3] = Matrix[i][j - 1].Id;
-		//				else
-		//					type[3] = Matrix[i][sizeX - 1].Id;
-		//			}
-		//			if (NeighbourhoodTypes[SelectedNeighbourhoodType][4] == 1)
-		//			{
-		//				if (i - 1 >= 0 && j - 1 >= 0)
-		//					type[4] = Matrix[i - 1][j - 1].Id;
-		//				else if (i - 1 >= 0 && j - 1 < 0)
-		//					type[4] = Matrix[i - 1][sizeX - 1].Id;
-		//				else if (i - 1 < 0 && j - 1 >= 0)
-		//					type[4] = Matrix[sizeY - 1][j - 1].Id;
-		//				else
-		//					type[4] = Matrix[sizeY - 1][sizeX - 1].Id;
-		//			}
-		//			if (NeighbourhoodTypes[SelectedNeighbourhoodType][5] == 1)
-		//			{
-		//				if (i - 1 >= 0)
-		//					type[5] = Matrix[i - 1][j].Id;
-		//				else
-		//					type[5] = Matrix[sizeY - 1][j].Id;
-		//			}
-		//			if (NeighbourhoodTypes[SelectedNeighbourhoodType][6] == 1)
-		//			{
-		//				if (i - 1 >= 0 && j + 1 < sizeX)
-		//					type[6] = Matrix[i - 1][j + 1].Id;
-		//				else if (i - 1 >= 0 && j + 1 >= sizeX)
-		//					type[6] = Matrix[i - 1][0].Id;
-		//				else if (i - 1 < 0 && j + 1 < sizeX)
-		//					type[6] = Matrix[sizeY - 1][j + 1].Id;
-		//				else
-		//					type[6] = Matrix[sizeY - 1][0].Id;
-		//			}
-		//			if (NeighbourhoodTypes[SelectedNeighbourhoodType][7] == 1)
-		//			{
-		//				if (j + 1 < sizeX)
-		//					type[7] = Matrix[i][j + 1].Id;
-		//				else
-		//					type[7] = Matrix[i][0].Id;
-		//			}
-		//			neighbours[i][j] = GetMostRepeatedElenent(type);
-		//		}
-		//	}
-		//	return neighbours;
-		//}
+					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][2] == 1)
+					{
+						if (i + 1 < sizeY && j - 1 >= 0)
+							cell.NeighboringCells[2] = rows[i + 1][j - 1];
+						else if (i + 1 < sizeY && j - 1 < 0)
+							cell.NeighboringCells[2] = rows[i + 1][sizeX - 1];
+						else if (i + 1 >= sizeY && j - 1 >= 0)
+							cell.NeighboringCells[2] = rows[0][j - 1];
+						else
+							cell.NeighboringCells[2] = rows[0][sizeX - 1];
+					}
+					else
+						cell.NeighboringCells[2] = null;
+
+					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][3] == 1)
+					{
+						if (j - 1 >= 0)
+							cell.NeighboringCells[3] = rows[i][j - 1];
+						else
+							cell.NeighboringCells[3] = rows[i][sizeX - 1];
+					}
+					else
+						cell.NeighboringCells[3] = null;
+
+					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][4] == 1)
+					{
+						if (i - 1 >= 0 && j - 1 >= 0)
+							cell.NeighboringCells[4] = rows[i - 1][j - 1];
+						else if (i - 1 >= 0 && j - 1 < 0)
+							cell.NeighboringCells[4] = rows[i - 1][sizeX - 1];
+						else if (i - 1 < 0 && j - 1 >= 0)
+							cell.NeighboringCells[4] = rows[sizeY - 1][j - 1];
+						else
+							cell.NeighboringCells[4] = rows[sizeY - 1][sizeX - 1];
+					}
+					else
+						cell.NeighboringCells[4] = null;
+
+					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][5] == 1)
+					{
+						if (i - 1 >= 0)
+							cell.NeighboringCells[5] = rows[i - 1][j];
+						else
+							cell.NeighboringCells[5] = rows[sizeY - 1][j];
+					}
+					else
+						cell.NeighboringCells[5] = null;
+
+					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][6] == 1)
+					{
+						if (i - 1 >= 0 && j + 1 < sizeX)
+							cell.NeighboringCells[6] = rows[i - 1][j + 1];
+						else if (i - 1 >= 0 && j + 1 >= sizeX)
+							cell.NeighboringCells[6] = rows[i - 1][0];
+						else if (i - 1 < 0 && j + 1 < sizeX)
+							cell.NeighboringCells[6] = rows[sizeY - 1][j + 1];
+						else
+							cell.NeighboringCells[6] = rows[sizeY - 1][0];
+					}
+					else
+						cell.NeighboringCells[6] = null;
+
+					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][7] == 1)
+					{
+						if (j + 1 < sizeX)
+							cell.NeighboringCells[7] = rows[i][j + 1];
+						else
+							cell.NeighboringCells[7] = rows[i][0];
+					}
+					else
+						cell.NeighboringCells[7] = null;
+				}
+			}
+		}
 		public void CalculateNextGeneration()
 		{
 			Parallel.For(0, RowsCount, i =>
