@@ -83,8 +83,10 @@ namespace MultiscaleModelling
 				while(gridControl.Matrix.GetCells().Where(c => c.Id == 0).FirstOrDefault() is Cell)
 				{
 					gridControl.Matrix.CalculateNextGeneration();
-					gridControl.Draw();
+					if(animationCheckBox.Checked)
+						gridControl.Draw();
 				}
+				gridControl.Draw();
 			});
 		}
 	}

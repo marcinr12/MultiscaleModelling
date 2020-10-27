@@ -31,6 +31,7 @@
 			this.gridControl = new MultiscaleModelling.GridControl();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.animationCheckBox = new System.Windows.Forms.CheckBox();
 			this.startButton = new System.Windows.Forms.Button();
 			this.iterationButton = new System.Windows.Forms.Button();
 			this.randomNumericUpDown = new System.Windows.Forms.NumericUpDown();
@@ -57,7 +58,7 @@
 			this.gridControl.IsGridShowed = false;
 			this.gridControl.Location = new System.Drawing.Point(203, 3);
 			this.gridControl.Name = "gridControl";
-			this.gridControl.Size = new System.Drawing.Size(330, 489);
+			this.gridControl.Size = new System.Drawing.Size(352, 565);
 			this.gridControl.TabIndex = 0;
 			// 
 			// tableLayoutPanel1
@@ -73,11 +74,12 @@
 			this.tableLayoutPanel1.RowCount = 2;
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 87.03704F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 12.96296F));
-			this.tableLayoutPanel1.Size = new System.Drawing.Size(536, 569);
+			this.tableLayoutPanel1.Size = new System.Drawing.Size(558, 657);
 			this.tableLayoutPanel1.TabIndex = 1;
 			// 
 			// groupBox1
 			// 
+			this.groupBox1.Controls.Add(this.animationCheckBox);
 			this.groupBox1.Controls.Add(this.startButton);
 			this.groupBox1.Controls.Add(this.iterationButton);
 			this.groupBox1.Controls.Add(this.randomNumericUpDown);
@@ -91,16 +93,26 @@
 			this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.groupBox1.Location = new System.Drawing.Point(3, 3);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(194, 489);
+			this.groupBox1.Size = new System.Drawing.Size(194, 565);
 			this.groupBox1.TabIndex = 1;
 			this.groupBox1.TabStop = false;
-			this.groupBox1.Text = "groupBox1";
+			this.groupBox1.Text = "";
+			// 
+			// animationCheckBox
+			// 
+			this.animationCheckBox.AutoSize = true;
+			this.animationCheckBox.Location = new System.Drawing.Point(101, 230);
+			this.animationCheckBox.Name = "animationCheckBox";
+			this.animationCheckBox.Size = new System.Drawing.Size(87, 24);
+			this.animationCheckBox.TabIndex = 10;
+			this.animationCheckBox.Text = "Animate";
+			this.animationCheckBox.UseVisualStyleBackColor = true;
 			// 
 			// startButton
 			// 
 			this.startButton.Location = new System.Drawing.Point(9, 227);
 			this.startButton.Name = "startButton";
-			this.startButton.Size = new System.Drawing.Size(94, 29);
+			this.startButton.Size = new System.Drawing.Size(86, 29);
 			this.startButton.TabIndex = 9;
 			this.startButton.Text = "Start";
 			this.startButton.UseVisualStyleBackColor = true;
@@ -110,7 +122,7 @@
 			// 
 			this.iterationButton.Location = new System.Drawing.Point(9, 192);
 			this.iterationButton.Name = "iterationButton";
-			this.iterationButton.Size = new System.Drawing.Size(94, 29);
+			this.iterationButton.Size = new System.Drawing.Size(86, 29);
 			this.iterationButton.TabIndex = 8;
 			this.iterationButton.Text = "Iteration";
 			this.iterationButton.UseVisualStyleBackColor = true;
@@ -118,7 +130,7 @@
 			// 
 			// randomNumericUpDown
 			// 
-			this.randomNumericUpDown.Location = new System.Drawing.Point(110, 124);
+			this.randomNumericUpDown.Location = new System.Drawing.Point(101, 124);
 			this.randomNumericUpDown.Maximum = new decimal(new int[] {
             100000,
             0,
@@ -130,7 +142,7 @@
             0,
             0});
 			this.randomNumericUpDown.Name = "randomNumericUpDown";
-			this.randomNumericUpDown.Size = new System.Drawing.Size(78, 27);
+			this.randomNumericUpDown.Size = new System.Drawing.Size(87, 27);
 			this.randomNumericUpDown.TabIndex = 7;
 			this.randomNumericUpDown.Value = new decimal(new int[] {
             10,
@@ -142,7 +154,7 @@
 			// 
 			this.clearButton.Location = new System.Drawing.Point(9, 157);
 			this.clearButton.Name = "clearButton";
-			this.clearButton.Size = new System.Drawing.Size(94, 29);
+			this.clearButton.Size = new System.Drawing.Size(86, 29);
 			this.clearButton.TabIndex = 6;
 			this.clearButton.Text = "Clear";
 			this.clearButton.UseVisualStyleBackColor = true;
@@ -152,7 +164,7 @@
 			// 
 			this.randomButton.Location = new System.Drawing.Point(9, 122);
 			this.randomButton.Name = "randomButton";
-			this.randomButton.Size = new System.Drawing.Size(94, 29);
+			this.randomButton.Size = new System.Drawing.Size(86, 29);
 			this.randomButton.TabIndex = 5;
 			this.randomButton.Text = "Random";
 			this.randomButton.UseVisualStyleBackColor = true;
@@ -237,7 +249,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(536, 569);
+			this.ClientSize = new System.Drawing.Size(558, 657);
 			this.Controls.Add(this.tableLayoutPanel1);
 			this.MinimumSize = new System.Drawing.Size(500, 400);
 			this.Name = "Form1";
@@ -267,6 +279,7 @@
 		private System.Windows.Forms.Button randomButton;
 		private System.Windows.Forms.Button iterationButton;
 		private System.Windows.Forms.Button startButton;
+		private System.Windows.Forms.CheckBox animationCheckBox;
 	}
 }
 
