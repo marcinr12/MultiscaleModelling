@@ -19,8 +19,6 @@ namespace MultiscaleModelling
 			GridCheckBox.Checked = true;
 
 			gridControl.Matrix.SetRandomCells(10);
-			//gridControl.Matrix.GetCell(0, 1).Color = System.Drawing.Color.Black;
-			gridControl.Refresh();
 		}
 
 		private void NumericUpDown_MouseWheel(object sender, MouseEventArgs e)
@@ -58,7 +56,7 @@ namespace MultiscaleModelling
 			{
 				gridControl.Matrix.Erase();
 				gridControl.Matrix.SetRandomCells(ToInt32(randomNumericUpDown.Value));
-				gridControl.Refresh();
+				gridControl.Draw();
 			});
 		}
 
@@ -67,17 +65,17 @@ namespace MultiscaleModelling
 			Task.Run(() =>
 			{
 				gridControl.Matrix.Erase();
-				gridControl.Refresh();
+				gridControl.Draw();
 			});
 		}
 
 		private void IterationButton_Click(object sender, EventArgs e)
 		{
 			Task.Run(() =>
-			  {
-				  gridControl.Matrix.CalculateNextGeneration();
-				  gridControl.Refresh();
-			  });
+			{
+				gridControl.Matrix.CalculateNextGeneration();
+				gridControl.Draw();
+			});
 		}
 
 		private void StartButton_Click(object sender, EventArgs e)
@@ -85,8 +83,12 @@ namespace MultiscaleModelling
 			Task.Run(() =>
 			{
 				while(gridControl.Matrix.GetCells().Where(c => c.Id == 0).FirstOrDefault() is Cell)
-					gridControl.Matrix.CalculateNextGeneration();
-				gridControl.Refresh();
+				{
+					Task drawTask = Task.Run(() => gridControl.Draw());
+					Task calculationTask = Task.Run(() => gridControl.Matrix.CalculateNextGeneration());
+					drawTask.Wait();
+					calculationTask.Wait();
+				}
 			});
 		}
 	}

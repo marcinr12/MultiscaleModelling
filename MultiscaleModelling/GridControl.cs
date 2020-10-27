@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -10,6 +11,7 @@ namespace MultiscaleModelling
 	public partial class GridControl : UserControl
 	{
 		public readonly Matrix Matrix = new Matrix();
+		public Color EmptySpaceColor { get; set; } = Color.FromArgb(255, 240, 240, 240);
 
 		private int _gridCellWidth;
 		public int GridCellWidth
@@ -19,7 +21,7 @@ namespace MultiscaleModelling
 			{
 				_gridCellWidth = value;
 				Matrix.Rearange(_gridCellWidth, _gridCellHeight);
-				Refresh();
+				Draw();
 			}
 		}
 
@@ -31,7 +33,7 @@ namespace MultiscaleModelling
 			{
 				_gridCellHeight = value;
 				Matrix.Rearange(_gridCellWidth, _gridCellHeight);
-				Refresh();
+				Draw();
 			}
 		}
 
@@ -42,7 +44,7 @@ namespace MultiscaleModelling
 			set
 			{
 				_isGridShowed = value;
-				Refresh();
+				Draw();
 			}
 		}
 
@@ -51,8 +53,9 @@ namespace MultiscaleModelling
 		public GridControl()
 		{
 			InitializeComponent();
+			Draw();
 		}
-		public void PrintGrid(ref Graphics g)
+		public void PrintGrid(Graphics g)
 		{
 			double cellSize = Matrix.CellSize;
 			//vertical
@@ -66,7 +69,7 @@ namespace MultiscaleModelling
 				g.DrawLine(blackPen, 0, ToSingle(i * cellSize) - 1, ToSingle(GridCellWidth * cellSize), ToSingle(i * cellSize) - 1);
 
 		}
-		public void PrintCells(ref Graphics g)
+		public void PrintCells(Graphics g)
 		{
 			for (int i = 0; i < Matrix.RowsCount; i++)
 			{
@@ -88,41 +91,37 @@ namespace MultiscaleModelling
 		protected override void OnResize(EventArgs e)
 		{
 			base.OnResize(e);
-			Refresh();
+			Draw(true);
 		}
-		public override void Refresh()
+		public void Draw(bool newBitmap = false)
 		{
 			CalculateCellSize();
-			if(outputPictureBox.Image == null)
+			if (outputPictureBox.Image == null || newBitmap)
+			{
+				outputPictureBox.Image?.Dispose();
 				outputPictureBox.Image = new Bitmap(outputPictureBox.Width, outputPictureBox.Height);
+			}
 
 			Bitmap bitmap = outputPictureBox.Image as Bitmap;
-			Graphics g = Graphics.FromImage(bitmap);
-			PrintCells(ref g);
-			if (IsGridShowed)
-				PrintGrid(ref g);
 
-			outputPictureBox.Image = bitmap;
-			g.Dispose();
-			//GC.Collect();
-			//GC.WaitForPendingFinalizers();
+			if (IsHandleCreated)
+				outputPictureBox.Invoke(new Action(() =>
+				{
+					Graphics g = Graphics.FromImage(bitmap);
+					g.Clear(EmptySpaceColor);
+
+					PrintCells(g);
+					if (IsGridShowed)
+						PrintGrid(g);
+
+					outputPictureBox.Image = bitmap;
+					g.Dispose();
+				}));
 		}
-		//public override void Refresh()
-		//{
-		//	outputPictureBox.Image = null;
-		//	CalculateCellSize();
-		//	Bitmap bitmap = new Bitmap(outputPictureBox.Width, outputPictureBox.Height);
-		//	Graphics g = Graphics.FromImage(bitmap);
-		//	PrintCells(ref g);
-		//	if (IsGridShowed)
-		//		PrintGrid(ref g);
-
-		//	outputPictureBox.Image?.Dispose();
-		//	outputPictureBox.Image = bitmap;
-		//	g.Dispose();
-		//	GC.Collect();
-		//	GC.WaitForPendingFinalizers();
-		//}
-
+		protected override void OnHandleCreated(EventArgs e)
+		{
+			base.OnHandleCreated(e);
+			Draw();
+		}
 	}
 }

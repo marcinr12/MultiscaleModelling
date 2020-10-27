@@ -51,12 +51,13 @@
 			// gridControl
 			// 
 			this.gridControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.gridControl.EmptySpaceColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
 			this.gridControl.GridCellHeight = 0;
 			this.gridControl.GridCellWidth = 0;
 			this.gridControl.IsGridShowed = false;
 			this.gridControl.Location = new System.Drawing.Point(203, 3);
 			this.gridControl.Name = "gridControl";
-			this.gridControl.Size = new System.Drawing.Size(292, 356);
+			this.gridControl.Size = new System.Drawing.Size(306, 405);
 			this.gridControl.TabIndex = 0;
 			// 
 			// tableLayoutPanel1
@@ -72,7 +73,7 @@
 			this.tableLayoutPanel1.RowCount = 2;
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 87.03704F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 12.96296F));
-			this.tableLayoutPanel1.Size = new System.Drawing.Size(498, 417);
+			this.tableLayoutPanel1.Size = new System.Drawing.Size(512, 473);
 			this.tableLayoutPanel1.TabIndex = 1;
 			// 
 			// groupBox1
@@ -90,7 +91,7 @@
 			this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.groupBox1.Location = new System.Drawing.Point(3, 3);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(194, 356);
+			this.groupBox1.Size = new System.Drawing.Size(194, 405);
 			this.groupBox1.TabIndex = 1;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "groupBox1";
@@ -236,7 +237,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(498, 417);
+			this.ClientSize = new System.Drawing.Size(512, 473);
 			this.Controls.Add(this.tableLayoutPanel1);
 			this.MinimumSize = new System.Drawing.Size(500, 400);
 			this.Name = "Form1";
