@@ -16,8 +16,6 @@ namespace MultiscaleModelling
 			SizeXNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
 			SizeYNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
 
-			GridCheckBox.Checked = true;
-
 			gridControl.Matrix.SetRandomCells(10);
 		}
 
@@ -37,12 +35,12 @@ namespace MultiscaleModelling
 
 		private void SizeXNumericUpDown_ValueChanged(object sender, EventArgs e)
 		{
-			gridControl.GridCellWidth = Convert.ToInt32(SizeXNumericUpDown.Value);
+			gridControl.GridCellWidth = ToInt32(SizeXNumericUpDown.Value);
 		}
 
 		private void SizeYNumericUpDown_ValueChanged(object sender, EventArgs e)
 		{
-			gridControl.GridCellHeight = Convert.ToInt32(SizeYNumericUpDown.Value);
+			gridControl.GridCellHeight = ToInt32(SizeYNumericUpDown.Value);
 		}
 
 		private void GridCheckBox_CheckedChanged(object sender, EventArgs e)
@@ -84,10 +82,8 @@ namespace MultiscaleModelling
 			{
 				while(gridControl.Matrix.GetCells().Where(c => c.Id == 0).FirstOrDefault() is Cell)
 				{
-					Task drawTask = Task.Run(() => gridControl.Draw());
-					Task calculationTask = Task.Run(() => gridControl.Matrix.CalculateNextGeneration());
-					drawTask.Wait();
-					calculationTask.Wait();
+					gridControl.Matrix.CalculateNextGeneration();
+					gridControl.Draw();
 				}
 			});
 		}

@@ -53,7 +53,6 @@ namespace MultiscaleModelling
 		public GridControl()
 		{
 			InitializeComponent();
-			Draw();
 		}
 		public void PrintGrid(Graphics g)
 		{

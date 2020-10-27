@@ -299,16 +299,21 @@ namespace MultiscaleModelling
 				}
 			}
 		}
-		// TODO: Fix
 		private Cell GetMostCommonCell(IEnumerable<Cell> cells)
 		{
-			List<IGrouping<int, Cell>> a = cells.Where(cell => cell is Cell).GroupBy(i => i.Id).OrderBy(g => g.Count()).ToList();
-
-			if (a.Count() > 1)
+			var notNullCells = cells.Where(c => c is Cell);
+			Cell cell = notNullCells.First();
+			int count = 0;
+			foreach(Cell c in notNullCells)
 			{
-				a = a.Where(x => x.Key != 0).ToList();
+				var foundCells = notNullCells.Where(x => x.Id != 0 && x.Id == c.Id);
+				if(foundCells.Count() > count)
+				{
+					count = foundCells.Count();
+					cell = foundCells.First();
+				}
 			}
-			return a.First().First();
+			return cell;
 		}
 	}
 }
