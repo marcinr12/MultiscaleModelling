@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Convert;
@@ -13,19 +8,18 @@ namespace MultiscaleModelling
 {
 	public partial class Form1 : Form
 	{
-		Calculation Calculation { get; set; }
 		public Form1()
 		{
 			InitializeComponent();
-			SizeXNumericUpDown.Value = 10;
-			SizeYNumericUpDown.Value = 10;
-			SizeXNumericUpDown.MouseWheel += NumericUpDown_MouseWheel; 
+			SizeXNumericUpDown.Value = 20;
+			SizeYNumericUpDown.Value = 20;
+			SizeXNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
 			SizeYNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
 
 			GridCheckBox.Checked = true;
 
-			Calculation = new Calculation(gridControl.CellsMatrix);
-			Calculation.SetRandomCells(10);
+			gridControl.Matrix.SetRandomCells(10);
+			//gridControl.Matrix.GetCell(0, 1).Color = System.Drawing.Color.Black;
 			gridControl.Refresh();
 		}
 
@@ -62,8 +56,8 @@ namespace MultiscaleModelling
 		{
 			Task.Run(() =>
 			{
-				Calculation.Clear();
-				Calculation.SetRandomCells(ToInt32(randomNumericUpDown.Value));
+				gridControl.Matrix.Erase();
+				gridControl.Matrix.SetRandomCells(ToInt32(randomNumericUpDown.Value));
 				gridControl.Refresh();
 			});
 		}
@@ -72,7 +66,7 @@ namespace MultiscaleModelling
 		{
 			Task.Run(() =>
 			{
-				Calculation.Clear();
+				gridControl.Matrix.Erase();
 				gridControl.Refresh();
 			});
 		}
@@ -81,9 +75,19 @@ namespace MultiscaleModelling
 		{
 			Task.Run(() =>
 			  {
-				  Calculation.CalculateNextGeneration();
+				  gridControl.Matrix.CalculateNextGeneration();
 				  gridControl.Refresh();
 			  });
+		}
+
+		private void StartButton_Click(object sender, EventArgs e)
+		{
+			Task.Run(() =>
+			{
+				while(gridControl.Matrix.GetCells().Where(c => c.Id == 0).FirstOrDefault() is Cell)
+					gridControl.Matrix.CalculateNextGeneration();
+				gridControl.Refresh();
+			});
 		}
 	}
 }

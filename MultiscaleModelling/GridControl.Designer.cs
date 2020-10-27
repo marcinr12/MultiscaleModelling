@@ -38,7 +38,7 @@
 			this.outputPictureBox.Location = new System.Drawing.Point(0, 0);
 			this.outputPictureBox.Name = "outputPictureBox";
 			this.outputPictureBox.Size = new System.Drawing.Size(312, 304);
-			this.outputPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+			this.outputPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
 			this.outputPictureBox.TabIndex = 0;
 			this.outputPictureBox.TabStop = false;
 			// 
@@ -51,6 +51,8 @@
 			this.Size = new System.Drawing.Size(312, 304);
 			((System.ComponentModel.ISupportInitialize)(this.outputPictureBox)).EndInit();
 			this.ResumeLayout(false);
+			this.PerformLayout();
+
 		}
 
 		#endregion

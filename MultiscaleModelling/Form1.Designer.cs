@@ -31,6 +31,8 @@
 			this.gridControl = new MultiscaleModelling.GridControl();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.startButton = new System.Windows.Forms.Button();
+			this.iterationButton = new System.Windows.Forms.Button();
 			this.randomNumericUpDown = new System.Windows.Forms.NumericUpDown();
 			this.clearButton = new System.Windows.Forms.Button();
 			this.randomButton = new System.Windows.Forms.Button();
@@ -39,7 +41,6 @@
 			this.label1 = new System.Windows.Forms.Label();
 			this.SizeYNumericUpDown = new System.Windows.Forms.NumericUpDown();
 			this.SizeXNumericUpDown = new System.Windows.Forms.NumericUpDown();
-			this.iterationButton = new System.Windows.Forms.Button();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.randomNumericUpDown)).BeginInit();
@@ -55,7 +56,7 @@
 			this.gridControl.IsGridShowed = false;
 			this.gridControl.Location = new System.Drawing.Point(203, 3);
 			this.gridControl.Name = "gridControl";
-			this.gridControl.Size = new System.Drawing.Size(421, 416);
+			this.gridControl.Size = new System.Drawing.Size(292, 356);
 			this.gridControl.TabIndex = 0;
 			// 
 			// tableLayoutPanel1
@@ -71,11 +72,12 @@
 			this.tableLayoutPanel1.RowCount = 2;
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 87.03704F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 12.96296F));
-			this.tableLayoutPanel1.Size = new System.Drawing.Size(627, 485);
+			this.tableLayoutPanel1.Size = new System.Drawing.Size(498, 417);
 			this.tableLayoutPanel1.TabIndex = 1;
 			// 
 			// groupBox1
 			// 
+			this.groupBox1.Controls.Add(this.startButton);
 			this.groupBox1.Controls.Add(this.iterationButton);
 			this.groupBox1.Controls.Add(this.randomNumericUpDown);
 			this.groupBox1.Controls.Add(this.clearButton);
@@ -88,10 +90,30 @@
 			this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.groupBox1.Location = new System.Drawing.Point(3, 3);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(194, 416);
+			this.groupBox1.Size = new System.Drawing.Size(194, 356);
 			this.groupBox1.TabIndex = 1;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "groupBox1";
+			// 
+			// startButton
+			// 
+			this.startButton.Location = new System.Drawing.Point(9, 227);
+			this.startButton.Name = "startButton";
+			this.startButton.Size = new System.Drawing.Size(94, 29);
+			this.startButton.TabIndex = 9;
+			this.startButton.Text = "Start";
+			this.startButton.UseVisualStyleBackColor = true;
+			this.startButton.Click += new System.EventHandler(this.StartButton_Click);
+			// 
+			// iterationButton
+			// 
+			this.iterationButton.Location = new System.Drawing.Point(9, 192);
+			this.iterationButton.Name = "iterationButton";
+			this.iterationButton.Size = new System.Drawing.Size(94, 29);
+			this.iterationButton.TabIndex = 8;
+			this.iterationButton.Text = "Iteration";
+			this.iterationButton.UseVisualStyleBackColor = true;
+			this.iterationButton.Click += new System.EventHandler(this.IterationButton_Click);
 			// 
 			// randomNumericUpDown
 			// 
@@ -210,23 +232,13 @@
             0});
 			this.SizeXNumericUpDown.ValueChanged += new System.EventHandler(this.SizeXNumericUpDown_ValueChanged);
 			// 
-			// iterationButton
-			// 
-			this.iterationButton.Location = new System.Drawing.Point(9, 192);
-			this.iterationButton.Name = "iterationButton";
-			this.iterationButton.Size = new System.Drawing.Size(94, 29);
-			this.iterationButton.TabIndex = 8;
-			this.iterationButton.Text = "Iteration";
-			this.iterationButton.UseVisualStyleBackColor = true;
-			this.iterationButton.Click += new System.EventHandler(this.IterationButton_Click);
-			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(627, 485);
+			this.ClientSize = new System.Drawing.Size(498, 417);
 			this.Controls.Add(this.tableLayoutPanel1);
-			this.MinimumSize = new System.Drawing.Size(50, 50);
+			this.MinimumSize = new System.Drawing.Size(500, 400);
 			this.Name = "Form1";
 			this.Text = "Form1";
 			this.tableLayoutPanel1.ResumeLayout(false);
@@ -253,6 +265,7 @@
 		private System.Windows.Forms.Button clearButton;
 		private System.Windows.Forms.Button randomButton;
 		private System.Windows.Forms.Button iterationButton;
+		private System.Windows.Forms.Button startButton;
 	}
 }
 
