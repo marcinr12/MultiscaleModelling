@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace MultiscaleModelling
@@ -13,7 +15,6 @@ namespace MultiscaleModelling
 		public int RowsCount => rows.Count;
 		public int ColumnsCount => rows.ElementAtOrDefault(0)?.Count ?? 0;
 		public double CellSize { get; private set; }
-		public readonly Random Random = new Random();
 		private Bc _boundaryContition;
 
 		public Bc BoundaryCondition
@@ -49,7 +50,7 @@ namespace MultiscaleModelling
 			List<(int Id, Color Color)> c = new List<(int Id, Color Color)>();
 			for (int i = 0; i < ColumnsCount; i++)
 			{
-				row.Add(new Cell(indexY: RowsCount, indexX: i, this));
+				row.Add(new Cell(indexY: RowsCount, indexX: i, matrix: this));
 				c.Add((Id: 0, Color: Color.White));
 			}
 			rows.Add(row);
@@ -61,7 +62,7 @@ namespace MultiscaleModelling
 			int indexX = ColumnsCount;
 			for (int i = 0; i < RowsCount; i++)
 			{
-				rows[i].Add(new Cell(indexY: i, indexX, this));
+				rows[i].Add(new Cell(indexY: i, indexX: indexX, matrix: this));
 				copy[i].Add((Id: 0, Color: Color.White));
 			}
 		}
@@ -98,7 +99,8 @@ namespace MultiscaleModelling
 				RemoveLastColumn();
 			while (ColumnsCount < targetSizeX)
 				AddColumn();
-			
+
+			SetBoundaryCondition();
 		}
 		private void SetBoundaryCondition()
 		{
@@ -134,20 +136,19 @@ namespace MultiscaleModelling
 			int i = 1;
 			while (i <= number)
 			{
-				int yIndex = Random.Next(RowsCount);
-				int xIndex = Random.Next(ColumnsCount);
+				int yIndex = RandomMachine.Random.Next(RowsCount);
+				int xIndex = RandomMachine.Random.Next(ColumnsCount);
 
 				Cell cell = GetCell(yIndex, xIndex);
 				if (cell.Id == 0)
 				{
 					cell.Id = i;
-					cell.Color = Color.FromArgb(Random.Next(255), Random.Next(255), Random.Next(255));
+					cell.Color = Color.FromArgb(RandomMachine.Random.Next(255), RandomMachine.Random.Next(255), RandomMachine.Random.Next(255));
 					copy[yIndex][xIndex] = (cell.Id, cell.Color);
 					i++;
 				}
 			}
 		}
-
 		private void SetNeighborsAbsorbing(string selectedNeighborhoodPattern)
 		{
 			int sizeY = rows.Count;
@@ -326,20 +327,25 @@ namespace MultiscaleModelling
 				}
 			}
 		}
+
+		readonly Stopwatch sw = new Stopwatch();
+		public List<long> times = new List<long>();
 		public void CalculateNextGeneration()
 		{
+			times.Clear();
+			sw.Restart();
 			Parallel.For(0, RowsCount, i =>
 			{
 				Parallel.For(0, ColumnsCount, j =>
 				{
-					if (GetCell(i, j).Id != 0)
-					{
-						copy[i][j] = (GetCell(i, j).Id, GetCell(i, j).Color);
-					}
-					else
+					if (GetCell(i, j).Id == 0)
 					{
 						Cell cell = GetMostCommonCell(GetCell(i, j).NeighboringCells);
 						copy[i][j] = (cell.Id, cell.Color);
+					}
+					else
+					{
+						copy[i][j] = (GetCell(i, j).Id, GetCell(i, j).Color);
 					}
 				});
 			});
@@ -352,6 +358,8 @@ namespace MultiscaleModelling
 					GetCell(i, j).Color = copy[i][j].Color;
 				});
 			});
+			times.Add(sw.ElapsedMilliseconds);
+			//Trace.WriteLine($"Iteration took: {times.Last()}ms");
 		}
 		private Cell GetMostCommonCell(IEnumerable<Cell> cells)
 		{
@@ -360,7 +368,7 @@ namespace MultiscaleModelling
 			int count = 0;
 			foreach(Cell c in notNullCells)
 			{
-				var foundCells = notNullCells.Where(x => x.Id != 0 && x.Id == c.Id);
+				IEnumerable<Cell> foundCells = notNullCells.Where(x => x.Id != 0 && x.Id == c.Id);
 				if(foundCells.Count() > count)
 				{
 					count = foundCells.Count();
@@ -368,6 +376,25 @@ namespace MultiscaleModelling
 				}
 			}
 			return cell;
+		}
+
+		public override string ToString()
+		{
+			StringBuilder stringBuilder = new StringBuilder();
+			foreach(List<Cell> row in rows)
+				foreach(Cell cell in row)
+					stringBuilder.Append($"{cell.IndexX} {cell.IndexY} {cell.Phase} {cell.Id}\n");
+			return stringBuilder.ToString();
+		}
+		public Bitmap ToBitmap()
+		{
+			Bitmap bitmap = new Bitmap(ColumnsCount * 10, RowsCount * 10);
+			Graphics graphics = Graphics.FromImage(bitmap);
+
+			for (int i = 0; i < rows.Count; i++)
+				for (int j = 0; j < rows[i].Count; j++)
+					graphics.FillRectangle(new SolidBrush(rows[i][j].Color), j * 10, i * 10, 10, 10);
+			return bitmap;
 		}
 	}
 }

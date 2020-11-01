@@ -31,6 +31,12 @@
 			this.gridControl = new MultiscaleModelling.GridControl();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.inclusionsGroupBox = new System.Windows.Forms.GroupBox();
+			this.addInclusionsButton = new System.Windows.Forms.Button();
+			this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
+			this.inclusionsNumericUpDown = new System.Windows.Forms.NumericUpDown();
+			this.label4 = new System.Windows.Forms.Label();
+			this.label3 = new System.Windows.Forms.Label();
 			this.bcComboBox = new System.Windows.Forms.ComboBox();
 			this.animationCheckBox = new System.Windows.Forms.CheckBox();
 			this.startButton = new System.Windows.Forms.Button();
@@ -43,11 +49,23 @@
 			this.label1 = new System.Windows.Forms.Label();
 			this.SizeYNumericUpDown = new System.Windows.Forms.NumericUpDown();
 			this.SizeXNumericUpDown = new System.Windows.Forms.NumericUpDown();
+			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.microstructureToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.importTextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.importBmpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+			this.exportTextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.exportBmpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.groupBox1.SuspendLayout();
+			this.inclusionsGroupBox.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.inclusionsNumericUpDown)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.randomNumericUpDown)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.SizeYNumericUpDown)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.SizeXNumericUpDown)).BeginInit();
+			this.menuStrip1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// gridControl
@@ -59,7 +77,7 @@
 			this.gridControl.IsGridShowed = false;
 			this.gridControl.Location = new System.Drawing.Point(203, 3);
 			this.gridControl.Name = "gridControl";
-			this.gridControl.Size = new System.Drawing.Size(352, 565);
+			this.gridControl.Size = new System.Drawing.Size(386, 659);
 			this.gridControl.TabIndex = 0;
 			// 
 			// tableLayoutPanel1
@@ -70,16 +88,17 @@
 			this.tableLayoutPanel1.Controls.Add(this.gridControl, 1, 0);
 			this.tableLayoutPanel1.Controls.Add(this.groupBox1, 0, 0);
 			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 28);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
 			this.tableLayoutPanel1.RowCount = 2;
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 87.03704F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 12.96296F));
-			this.tableLayoutPanel1.Size = new System.Drawing.Size(558, 657);
+			this.tableLayoutPanel1.Size = new System.Drawing.Size(592, 765);
 			this.tableLayoutPanel1.TabIndex = 1;
 			// 
 			// groupBox1
 			// 
+			this.groupBox1.Controls.Add(this.inclusionsGroupBox);
 			this.groupBox1.Controls.Add(this.bcComboBox);
 			this.groupBox1.Controls.Add(this.animationCheckBox);
 			this.groupBox1.Controls.Add(this.startButton);
@@ -95,9 +114,75 @@
 			this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.groupBox1.Location = new System.Drawing.Point(3, 3);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(194, 565);
+			this.groupBox1.Size = new System.Drawing.Size(194, 659);
 			this.groupBox1.TabIndex = 1;
 			this.groupBox1.TabStop = false;
+			// 
+			// inclusionsGroupBox
+			// 
+			this.inclusionsGroupBox.Controls.Add(this.addInclusionsButton);
+			this.inclusionsGroupBox.Controls.Add(this.numericUpDown2);
+			this.inclusionsGroupBox.Controls.Add(this.inclusionsNumericUpDown);
+			this.inclusionsGroupBox.Controls.Add(this.label4);
+			this.inclusionsGroupBox.Controls.Add(this.label3);
+			this.inclusionsGroupBox.Location = new System.Drawing.Point(9, 524);
+			this.inclusionsGroupBox.Name = "inclusionsGroupBox";
+			this.inclusionsGroupBox.Size = new System.Drawing.Size(179, 129);
+			this.inclusionsGroupBox.TabIndex = 12;
+			this.inclusionsGroupBox.TabStop = false;
+			this.inclusionsGroupBox.Text = "Inclusions";
+			// 
+			// addInclusionsButton
+			// 
+			this.addInclusionsButton.Location = new System.Drawing.Point(6, 92);
+			this.addInclusionsButton.Name = "addInclusionsButton";
+			this.addInclusionsButton.Size = new System.Drawing.Size(167, 29);
+			this.addInclusionsButton.TabIndex = 4;
+			this.addInclusionsButton.Text = "Add inclusions";
+			this.addInclusionsButton.UseVisualStyleBackColor = true;
+			this.addInclusionsButton.Click += new System.EventHandler(this.AddInclusionsButton_Click);
+			// 
+			// numericUpDown2
+			// 
+			this.numericUpDown2.Location = new System.Drawing.Point(78, 59);
+			this.numericUpDown2.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.numericUpDown2.Name = "numericUpDown2";
+			this.numericUpDown2.Size = new System.Drawing.Size(95, 27);
+			this.numericUpDown2.TabIndex = 3;
+			this.numericUpDown2.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			// 
+			// inclusionsNumericUpDown
+			// 
+			this.inclusionsNumericUpDown.Location = new System.Drawing.Point(78, 26);
+			this.inclusionsNumericUpDown.Name = "inclusionsNumericUpDown";
+			this.inclusionsNumericUpDown.Size = new System.Drawing.Size(95, 27);
+			this.inclusionsNumericUpDown.TabIndex = 2;
+			// 
+			// label4
+			// 
+			this.label4.AutoSize = true;
+			this.label4.Location = new System.Drawing.Point(6, 61);
+			this.label4.Name = "label4";
+			this.label4.Size = new System.Drawing.Size(56, 20);
+			this.label4.TabIndex = 1;
+			this.label4.Text = "Radius:";
+			// 
+			// label3
+			// 
+			this.label3.AutoSize = true;
+			this.label3.Location = new System.Drawing.Point(6, 28);
+			this.label3.Name = "label3";
+			this.label3.Size = new System.Drawing.Size(66, 20);
+			this.label3.TabIndex = 0;
+			this.label3.Text = "Number:";
 			// 
 			// bcComboBox
 			// 
@@ -197,9 +282,9 @@
 			this.label2.AutoSize = true;
 			this.label2.Location = new System.Drawing.Point(9, 91);
 			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(44, 20);
+			this.label2.Size = new System.Drawing.Size(47, 20);
 			this.label2.TabIndex = 3;
-			this.label2.Text = "SizeY";
+			this.label2.Text = "SizeY:";
 			// 
 			// label1
 			// 
@@ -256,22 +341,91 @@
             0});
 			this.SizeXNumericUpDown.ValueChanged += new System.EventHandler(this.SizeXNumericUpDown_ValueChanged);
 			// 
+			// menuStrip1
+			// 
+			this.menuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem});
+			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+			this.menuStrip1.Name = "menuStrip1";
+			this.menuStrip1.Size = new System.Drawing.Size(592, 28);
+			this.menuStrip1.TabIndex = 2;
+			this.menuStrip1.Text = "menuStrip1";
+			// 
+			// fileToolStripMenuItem
+			// 
+			this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.microstructureToolStripMenuItem});
+			this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+			this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 24);
+			this.fileToolStripMenuItem.Text = "File";
+			// 
+			// microstructureToolStripMenuItem
+			// 
+			this.microstructureToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.importTextToolStripMenuItem,
+            this.importBmpToolStripMenuItem,
+            this.toolStripSeparator1,
+            this.exportTextToolStripMenuItem,
+            this.exportBmpToolStripMenuItem});
+			this.microstructureToolStripMenuItem.Name = "microstructureToolStripMenuItem";
+			this.microstructureToolStripMenuItem.Size = new System.Drawing.Size(187, 26);
+			this.microstructureToolStripMenuItem.Text = "Microstructure";
+			// 
+			// importTextToolStripMenuItem
+			// 
+			this.importTextToolStripMenuItem.Name = "importTextToolStripMenuItem";
+			this.importTextToolStripMenuItem.Size = new System.Drawing.Size(207, 26);
+			this.importTextToolStripMenuItem.Text = "Import (text file)";
+			// 
+			// importBmpToolStripMenuItem
+			// 
+			this.importBmpToolStripMenuItem.Name = "importBmpToolStripMenuItem";
+			this.importBmpToolStripMenuItem.Size = new System.Drawing.Size(207, 26);
+			this.importBmpToolStripMenuItem.Text = "Import (bmp file)";
+			// 
+			// toolStripSeparator1
+			// 
+			this.toolStripSeparator1.Name = "toolStripSeparator1";
+			this.toolStripSeparator1.Size = new System.Drawing.Size(204, 6);
+			// 
+			// exportTextToolStripMenuItem
+			// 
+			this.exportTextToolStripMenuItem.Name = "exportTextToolStripMenuItem";
+			this.exportTextToolStripMenuItem.Size = new System.Drawing.Size(207, 26);
+			this.exportTextToolStripMenuItem.Text = "Export (text file)";
+			// 
+			// exportBmpToolStripMenuItem
+			// 
+			this.exportBmpToolStripMenuItem.Name = "exportBmpToolStripMenuItem";
+			this.exportBmpToolStripMenuItem.Size = new System.Drawing.Size(207, 26);
+			this.exportBmpToolStripMenuItem.Text = "Export (bmp file)";
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(558, 657);
+			this.ClientSize = new System.Drawing.Size(592, 793);
 			this.Controls.Add(this.tableLayoutPanel1);
+			this.Controls.Add(this.menuStrip1);
+			this.MainMenuStrip = this.menuStrip1;
 			this.MinimumSize = new System.Drawing.Size(500, 400);
 			this.Name = "Form1";
 			this.Text = "Form1";
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
+			this.inclusionsGroupBox.ResumeLayout(false);
+			this.inclusionsGroupBox.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.inclusionsNumericUpDown)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.randomNumericUpDown)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.SizeYNumericUpDown)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.SizeXNumericUpDown)).EndInit();
+			this.menuStrip1.ResumeLayout(false);
+			this.menuStrip1.PerformLayout();
 			this.ResumeLayout(false);
+			this.PerformLayout();
 
 		}
 
@@ -292,6 +446,20 @@
 		private System.Windows.Forms.Button startButton;
 		private System.Windows.Forms.CheckBox animationCheckBox;
 		private System.Windows.Forms.ComboBox bcComboBox;
+		private System.Windows.Forms.MenuStrip menuStrip1;
+		private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem microstructureToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem importTextToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem exportTextToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem importBmpToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem exportBmpToolStripMenuItem;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+		private System.Windows.Forms.GroupBox inclusionsGroupBox;
+		private System.Windows.Forms.Button addInclusionsButton;
+		private System.Windows.Forms.NumericUpDown numericUpDown2;
+		private System.Windows.Forms.NumericUpDown inclusionsNumericUpDown;
+		private System.Windows.Forms.Label label4;
+		private System.Windows.Forms.Label label3;
 	}
 }
 

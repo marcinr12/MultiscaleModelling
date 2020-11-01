@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Convert;
@@ -19,9 +20,12 @@ namespace MultiscaleModelling
 			get => _gridCellWidth;
 			set
 			{
-				_gridCellWidth = value;
-				Matrix.Rearange(_gridCellWidth, _gridCellHeight);
-				Draw();
+				if (_gridCellWidth != value)
+				{
+					_gridCellWidth = value;
+					Matrix.Rearange(_gridCellWidth, _gridCellHeight);
+					Draw(); 
+				}
 			}
 		}
 
@@ -31,9 +35,12 @@ namespace MultiscaleModelling
 			get => _gridCellHeight;
 			set
 			{
-				_gridCellHeight = value;
-				Matrix.Rearange(_gridCellWidth, _gridCellHeight);
-				Draw();
+				if (_gridCellHeight != value)
+				{
+					_gridCellHeight = value;
+					Matrix.Rearange(_gridCellWidth, _gridCellHeight);
+					Draw(); 
+				}
 			}
 		}
 
@@ -116,11 +123,96 @@ namespace MultiscaleModelling
 					outputPictureBox.Image = bitmap;
 					g.Dispose();
 				}));
+
+			GC.Collect();
+			GC.WaitForPendingFinalizers();
 		}
 		protected override void OnHandleCreated(EventArgs e)
 		{
 			base.OnHandleCreated(e);
 			Draw();
+		}
+		public void LoadMatrix(List<(int Id, int Phase, int IndexX, int IndexY)> cells)
+		{
+			int maxIndexX = cells.Select(c => c.IndexX).Max();
+			int maxIndexY = cells.Select(c => c.IndexY).Max();
+
+			GridCellHeight = maxIndexY + 1;
+			GridCellWidth = maxIndexX + 1;
+
+			HashSet<int> colors = new HashSet<int>()
+			{
+				Color.White.ToArgb()
+			};
+
+			int coloredCells = cells.Where(c => c.Id != 0).Count();
+			while(colors.Count < coloredCells + 1)
+				colors.Add(Color.FromArgb(RandomMachine.Random.Next(255), RandomMachine.Random.Next(255), RandomMachine.Random.Next(255)).ToArgb());				
+
+			foreach ((int Id, int Phase, int IndexX, int IndexY) in cells)
+			{
+				Matrix.GetCell(IndexY, IndexX).Id = Id;
+				Matrix.GetCell(IndexY, IndexX).Phase = Phase;
+				Matrix.GetCell(IndexY, IndexX).Color = Color.FromArgb(colors.ToList().ElementAt(Id));
+			}
+		}
+		public void LoadMatrix(Bitmap bitmap)
+		{
+			Matrix.Erase();
+			int rowsCount = bitmap.Height / 10;
+			int columnsCount = bitmap.Width / 10;
+
+			GridCellHeight = rowsCount;
+			GridCellWidth = columnsCount;
+
+
+			Stopwatch sw = new Stopwatch();
+			sw.Restart();
+			HashSet<int> colors = new HashSet<int>()
+			{
+				Color.White.ToArgb()
+			};
+
+			for (int i = 0; i < rowsCount; i++)
+			{
+				//Trace.WriteLine($"{i} / {rowsCount}");
+
+				for (int j = 0; j < columnsCount; j++)
+				{
+					Color color = bitmap.GetPixel(j * 10, i * 10);
+					int colorArgb = color.ToArgb();
+					colors.Add(colorArgb);
+
+					var list = colors.ToList();
+					var a = Matrix.GetCell(i, j).Id = list.IndexOf(list.Find(x => x == colorArgb));
+					Matrix.GetCell(i, j).Color = color;
+				}
+
+				//int currnetId = 1;
+				//for (int i = 0; i < rowsCount; i++)
+				//{
+				//	Trace.WriteLine($"{i} / {rowsCount}");
+
+				//	for (int j = 0; j < columnsCount; j++)
+				//	{
+				//		Color colorBmp = bitmap.GetPixel(j * 10, i * 10);
+				//		if (colorBmp.ToArgb().Equals(Color.White.ToArgb()))
+				//			Matrix.GetCell(i, j).Id = 0;
+				//		else
+				//		{
+				//			IEnumerable<Cell> cellsWithColor = Matrix.GetCells().Where(c => c.Color.ToArgb().Equals(colorBmp.ToArgb()));
+				//			if (cellsWithColor.Count() > 0)
+				//				Matrix.GetCell(i, j).Id = cellsWithColor.First().Id;
+				//			else
+				//			{
+				//				Matrix.GetCell(i, j).Id = currnetId;
+				//				currnetId++;
+				//			}
+				//		}
+				//		Matrix.GetCell(i, j).Color = colorBmp;
+				//	}
+				//}
+			}
 		}
 	}
 }
