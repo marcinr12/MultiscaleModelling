@@ -158,29 +158,50 @@ namespace MultiscaleModelling
 		}
 		private void IterationButton_Click(object sender, EventArgs e)
 		{
+			clearButton.Enabled = false;
+			iterationButton.Enabled = false;
+			startButton.Enabled = false;
 			Task.Run(() =>
 			{
 				gridControl.Matrix.CalculateNextGeneration();
 				gridControl.Draw();
+				iterationButton.Invoke(new Action(() =>
+				{
+					clearButton.Enabled = true;
+					iterationButton.Enabled = true;
+					startButton.Enabled = true;
+				}));
 			});
 		}
 		private void StartButton_Click(object sender, EventArgs e)
 		{
+			clearButton.Enabled = false;
+			iterationButton.Enabled = false;
+			startButton.Enabled = false;
+
 			Task.Run(() =>
 			{
 				Stopwatch sw = new Stopwatch();
 				sw.Restart();
-				if (gridControl.Matrix.GetCells().Where(c => c.Id != 0).FirstOrDefault() is null)
-					return;
-				while (gridControl.Matrix.GetCells().Where(c => c.Id == 0).FirstOrDefault() is Cell)
+				if (gridControl.Matrix.GetCells().Where(c => c.Id != 0).FirstOrDefault() is Cell)
 				{
-					gridControl.Matrix.CalculateNextGeneration();
-					if (animationCheckBox.Checked)
-						gridControl.Draw();
+					while (gridControl.Matrix.GetCells().Where(c => c.Id == 0).FirstOrDefault() is Cell)
+					{
+						gridControl.Matrix.CalculateNextGeneration();
+						if (animationCheckBox.Checked)
+							gridControl.Draw();
+					}
+					Trace.WriteLine($"Simulation took: {sw.ElapsedMilliseconds}ms");
+					//Trace.WriteLine($"Iteration mean: {gridControl.Matrix.times.Sum()/gridControl.Matrix.times.Count()}ms");
+					gridControl.Draw();
 				}
-				Trace.WriteLine($"Simulation took: {sw.ElapsedMilliseconds}ms");
-				Trace.WriteLine($"Iteration mean: {gridControl.Matrix.times.Sum()/gridControl.Matrix.times.Count()}ms");
-				gridControl.Draw();
+
+				iterationButton.Invoke(new Action(() =>
+				{
+					clearButton.Enabled = true;
+					iterationButton.Enabled = true;
+					startButton.Enabled = true;
+				}));
 			});
 		}
 		private void BcComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -200,16 +221,19 @@ namespace MultiscaleModelling
 			if (!isAnyCellEmpty)
 			{
 				// Every cell is filled
+				gridControl.Matrix.AddInclusions(ToInt32(inclusionsNumericUpDown.Value), ToInt32(radiusNumericUpDown.Value), InclusionsType.OnBorder);
+				gridControl.Draw();
 			}
 			else if(!isAnyCellFilled)
 			{
 				// Every cell is empty
-				gridControl.Matrix.PreAddInclusions(ToInt32(inclusionsNumericUpDown.Value), ToInt32(radiusNumericUpDown.Value));
+				gridControl.Matrix.AddInclusions(ToInt32(inclusionsNumericUpDown.Value), ToInt32(radiusNumericUpDown.Value), InclusionsType.Random);
 				gridControl.Draw();
 			}
 			else
 			{
 				// Grid is partially filled
+				Trace.WriteLine("Grid is not filled!");
 			}
 		}
 	}

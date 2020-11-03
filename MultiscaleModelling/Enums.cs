@@ -10,6 +10,12 @@ namespace MultiscaleModelling
 		Periodic
 	}
 
+	public enum InclusionsType
+	{
+		Random,
+		OnBorder
+	}
+
 	public static class EnumsNames
 	{
 		public static Dictionary<Bc, string> BcNames = new Dictionary<Bc, string>()

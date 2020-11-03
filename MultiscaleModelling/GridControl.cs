@@ -147,7 +147,7 @@ namespace MultiscaleModelling
 
 			int coloredCells = cells.Where(c => c.Id != 0).Count();
 			while(colors.Count < coloredCells + 1)
-				colors.Add(Color.FromArgb(RandomMachine.Random.Next(255), RandomMachine.Random.Next(255), RandomMachine.Random.Next(255)).ToArgb());				
+				colors.Add(Color.FromArgb(RandomMachine.Next(255), RandomMachine.Next(255), RandomMachine.Next(255)).ToArgb());				
 
 			foreach ((int Id, int Phase, int IndexX, int IndexY) in cells)
 			{

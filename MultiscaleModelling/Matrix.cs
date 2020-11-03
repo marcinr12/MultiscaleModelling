@@ -124,24 +124,28 @@ namespace MultiscaleModelling
 		}
 		public void SetRandomCells(int number)
 		{
-			int cellNumber = RowsCount * ColumnsCount;
-			number = number < cellNumber
-							? number
-							: cellNumber;
+			//int cellNumber = RowsCount * ColumnsCount;
+			//number = number < cellNumber
+			//				? number
+			//				: cellNumber;
+
+			int attempts = 0;
 			int i = 1;
-			while (i <= number)
+			while (i <= number && attempts < 100_000)
 			{
-				int yIndex = RandomMachine.Random.Next(RowsCount);
-				int xIndex = RandomMachine.Random.Next(ColumnsCount);
+				int yIndex = RandomMachine.Next(RowsCount);
+				int xIndex = RandomMachine.Next(ColumnsCount);
 
 				Cell cell = GetCell(yIndex, xIndex);
 				if (cell.Id == 0)
 				{
 					cell.Id = i;
-					cell.Color = Color.FromArgb(RandomMachine.Random.Next(255), RandomMachine.Random.Next(255), RandomMachine.Random.Next(255));
+					cell.Color = Color.FromArgb(RandomMachine.Next(255), RandomMachine.Next(255), RandomMachine.Next(255));
 					copy[yIndex][xIndex] = (cell.Id, cell.Color);
 					i++;
+					attempts = 0;
 				}
+				attempts++;
 			}
 		}
 		private void SetNeighborsAbsorbing(string selectedNeighborhoodPattern)
@@ -327,8 +331,8 @@ namespace MultiscaleModelling
 		public List<long> times = new List<long>();
 		public void CalculateNextGeneration()
 		{
-			times.Clear();
-			sw.Restart();
+			//times.Clear();
+			//sw.Restart();
 			Parallel.For(0, RowsCount, i =>
 			{
 				Parallel.For(0, ColumnsCount, j =>
@@ -353,24 +357,33 @@ namespace MultiscaleModelling
 					GetCell(i, j).Color = copy[i][j].Color;
 				});
 			});
-			times.Add(sw.ElapsedMilliseconds);
-			Trace.WriteLine($"Iteration took: {times.Last()}ms");
+			//times.Add(sw.ElapsedMilliseconds);
+			//Trace.WriteLine($"Iteration took: {times.Last()}ms");
 		}
 		private Cell GetMostCommonCell(IEnumerable<Cell> cells)
 		{
 			IEnumerable<Cell> notNullCells = cells.Where(c => c?.Id >= 0);
 			Cell cell = notNullCells.First();
 
-			int count = 0;
-			foreach(Cell c in notNullCells)
+			// WITHOUT RANDOM
+			//int count = 0;
+			//foreach(Cell c in notNullCells)
+			//{
+			//	IEnumerable<Cell> foundCells = notNullCells.Where(x => x.Id > 0 && x.Id == c.Id);
+			//	if(foundCells.Count() > count)
+			//	{
+			//		count = foundCells.Count();
+			//		cell = foundCells.First();
+			//	}
+			//}
+
+			IEnumerable<IGrouping<int, Cell>> groups = notNullCells.Where(x => x.Id > 0).GroupBy(c => c.Id).OrderByDescending(x => x.Count());
+			if(groups.Count() > 0)
 			{
-				IEnumerable<Cell> foundCells = notNullCells.Where(x => x.Id > 0 && x.Id == c.Id);
-				if(foundCells.Count() > count)
-				{
-					count = foundCells.Count();
-					cell = foundCells.First();
-				}
+				IEnumerable<IGrouping<int, Cell>> max = groups.Where(x => x.Count() == groups.First().Count());
+				cell = max.ElementAt(RandomMachine.Next(max.Count())).First();
 			}
+
 			return cell;
 		}
 		public override string ToString()
@@ -391,28 +404,17 @@ namespace MultiscaleModelling
 					graphics.FillRectangle(new SolidBrush(rows[i][j].Color), j * 10, i * 10, 10, 10);
 			return bitmap;
 		}
-		public void PreAddInclusions(int number, int radius)
+		public void AddInclusions(int number, int radius, InclusionsType inclusionsType)
 		{
-			List<Point> points = GetRandomInslusionsCentres(number, radius);
+			List<Point> points = GetRandomInslusionsCentres(number, radius, inclusionsType);
 
 			if (points.Count < number)
 				Trace.WriteLine("Unable to set all inclusions");
 
 			Parallel.For(0, points.Count, i =>
-				{
-					SetInclusion(rows[points[i].Y][points[i].X], radius);
-				});
-		}
-		public void PostAddInclusions(int number, int radius)
-		{
-			if (BoundaryCondition == Bc.Absorbing)
 			{
-
-			}
-			else if (BoundaryCondition == Bc.Periodic)
-			{
-
-			}
+				SetInclusion(rows[points[i].Y][points[i].X], radius);
+			});
 		}
 		public void SetInclusion(Cell start, double radius)
 		{
@@ -455,7 +457,7 @@ namespace MultiscaleModelling
 			{
 				Parallel.ForEach(xIndexes, j =>
 				{
-					if (IsInRadius(start, rows[i][j], radius))
+					if (IsInRadius(start.IndexX, start.IndexY, rows[i][j].IndexX, rows[i][j].IndexY, radius))
 					{
 						rows[i][j].Color = Color.Black;
 						rows[i][j].Id = -1;
@@ -463,53 +465,47 @@ namespace MultiscaleModelling
 				});
 			});
 		}
-		public List<Point> GetRandomInslusionsCentres(int number, double radius)
+		public List<Point> GetRandomInslusionsCentres(int number, double radius, InclusionsType inclusionsType)
 		{
 			List<Point> points = new List<Point>();
-			int failed = 0;
+			int attempts = 0;
 			while (points.Count < number)
 			{
-				if (failed > 10_000)
+				if (attempts > 10_000)
 					break;
 
-				bool isInRadius = false;
-				int rowIndex = RandomMachine.Random.Next(RowsCount);
-				int columnIndex = RandomMachine.Random.Next(ColumnsCount);
-				for (int i = 0; i < points.Count; i++)
+				bool isFailed = false;
+				int rowIndex = RandomMachine.Next(RowsCount);
+				int columnIndex = RandomMachine.Next(ColumnsCount);
+
+
+				if(rows[rowIndex][columnIndex].Id == -1)
+				{
+					isFailed = true;
+					attempts++;
+				}
+				else if (inclusionsType == InclusionsType.OnBorder
+					&& rows[rowIndex][columnIndex].NeighboringCells.Where(c => c is Cell && c?.Id != -1 && c?.Id != 0).Select(c => c.Id).Distinct().Count() < 2)
+				{
+					isFailed = true;
+					attempts++;
+				}
+				for (int i = 0; i < points.Count && !isFailed; i++)
+				{
 					if (IsInRadius(points[i].X, points[i].Y, columnIndex, rowIndex, 2 * radius))
 					{
-						isInRadius = true;
-						failed++;
-						break;
+						isFailed = true;
+						attempts++;
 					}
+				}
 
-				if (!isInRadius)
+				if (!isFailed)
 				{
 					points.Add(new Point(columnIndex, rowIndex));
-					failed = 0;
+					attempts = 0;
 				}
 			}
 			return points;
-		}
-		public bool IsInRadius(Cell c1, Cell c2, double radius)
-		{
-			if (BoundaryCondition == Bc.Absorbing)
-				return Math.Pow(c2.IndexX - c1.IndexX, 2) + Math.Pow(c2.IndexY - c1.IndexY, 2) <= radius * radius;
-			else if (BoundaryCondition == Bc.Periodic)
-			{
-				if (Math.Pow(c2.IndexX - c1.IndexX, 2) + Math.Pow(c2.IndexY - c1.IndexY, 2) <= radius * radius)                                     // Absorbing
-					return true;
-				else if (Math.Pow(Math.Abs(c2.IndexX - c1.IndexX) - ColumnsCount, 2) + Math.Pow(c2.IndexY - c1.IndexY, 2) <= radius * radius)       // <--- / --->
-					return true;
-				else if (Math.Pow(c2.IndexX - c1.IndexX, 2) + Math.Pow(Math.Abs(c2.IndexY - c1.IndexY) - RowsCount, 2) <= radius * radius)          // ^ / v
-					return true;
-				else if (Math.Pow(Math.Abs(c2.IndexX - c1.IndexX) - ColumnsCount, 2) + Math.Pow(Math.Abs(c2.IndexY - c1.IndexY) - RowsCount, 2) <= radius * radius) // <--- / ---> & ^ / v
-					return true;
-				else
-					return false;
-			}
-			else
-				throw new Exception();
 		}
 		public bool IsInRadius(int x1, int y1, int x2, int y2, double radius)
 		{
