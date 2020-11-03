@@ -28,7 +28,6 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.gridControl = new MultiscaleModelling.GridControl();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.inclusionsGroupBox = new System.Windows.Forms.GroupBox();
@@ -49,6 +48,7 @@
 			this.label1 = new System.Windows.Forms.Label();
 			this.SizeYNumericUpDown = new System.Windows.Forms.NumericUpDown();
 			this.SizeXNumericUpDown = new System.Windows.Forms.NumericUpDown();
+			this.gridControl = new MultiscaleModelling.GridControl();
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.microstructureToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -68,25 +68,13 @@
 			this.menuStrip1.SuspendLayout();
 			this.SuspendLayout();
 			// 
-			// gridControl
-			// 
-			this.gridControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.gridControl.EmptySpaceColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
-			this.gridControl.GridCellHeight = 0;
-			this.gridControl.GridCellWidth = 0;
-			this.gridControl.IsGridShowed = false;
-			this.gridControl.Location = new System.Drawing.Point(203, 3);
-			this.gridControl.Name = "gridControl";
-			this.gridControl.Size = new System.Drawing.Size(644, 625);
-			this.gridControl.TabIndex = 0;
-			// 
 			// tableLayoutPanel1
 			// 
 			this.tableLayoutPanel1.ColumnCount = 2;
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 200F));
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tableLayoutPanel1.Controls.Add(this.gridControl, 1, 0);
 			this.tableLayoutPanel1.Controls.Add(this.groupBox1, 0, 0);
+			this.tableLayoutPanel1.Controls.Add(this.gridControl, 1, 0);
 			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 28);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -347,6 +335,18 @@
             0});
 			this.SizeXNumericUpDown.ValueChanged += new System.EventHandler(this.SizeXNumericUpDown_ValueChanged);
 			// 
+			// gridControl
+			// 
+			this.gridControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.gridControl.EmptySpaceColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
+			this.gridControl.GridCellHeight = 0;
+			this.gridControl.GridCellWidth = 0;
+			this.gridControl.IsGridShowed = false;
+			this.gridControl.Location = new System.Drawing.Point(203, 3);
+			this.gridControl.Name = "gridControl";
+			this.gridControl.Size = new System.Drawing.Size(644, 625);
+			this.gridControl.TabIndex = 2;
+			// 
 			// menuStrip1
 			// 
 			this.menuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
@@ -437,7 +437,6 @@
 
 		#endregion
 
-		private GridControl gridControl;
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
 		private System.Windows.Forms.GroupBox groupBox1;
 		private System.Windows.Forms.NumericUpDown SizeYNumericUpDown;
@@ -466,6 +465,7 @@
 		private System.Windows.Forms.NumericUpDown inclusionsNumericUpDown;
 		private System.Windows.Forms.Label label4;
 		private System.Windows.Forms.Label label3;
+		private GridControl gridControl;
 	}
 }
 
