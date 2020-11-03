@@ -32,7 +32,6 @@ namespace MultiscaleModelling
 			bcComboBox.Items.AddRange(EnumsNames.BcNames.Values.ToArray());
 			bcComboBox.SelectedItem = EnumsNames.BcNames[Bc.Absorbing];
 		}
-
 		private void ImportBmpToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			OpenFileDialog openFileDialog = new OpenFileDialog
@@ -56,7 +55,6 @@ namespace MultiscaleModelling
 				}
 			}
 		}
-
 		private void ExportBmpToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			SaveFileDialog saveFileDialog = new SaveFileDialog();
@@ -64,7 +62,6 @@ namespace MultiscaleModelling
 			if (saveFileDialog.ShowDialog() == DialogResult.OK)
 				gridControl.Matrix.ToBitmap().Save(saveFileDialog.FileName, ImageFormat.Bmp);
 		}
-
 		private void ImportTextToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			OpenFileDialog openFileDialog = new OpenFileDialog
@@ -107,7 +104,6 @@ namespace MultiscaleModelling
 				}
 			}
 		}
-
 		private void ExportTextToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			SaveFileDialog saveFileDialog = new SaveFileDialog()
@@ -119,7 +115,6 @@ namespace MultiscaleModelling
 				using (StreamWriter sw = new StreamWriter(saveFileDialog.FileName))
 					sw.Write(gridControl.Matrix.ToString());
 		}
-
 		private void NumericUpDown_MouseWheel(object sender, MouseEventArgs e)
 		{
 			int increment = 1;
@@ -133,32 +128,26 @@ namespace MultiscaleModelling
 			else if (e.Delta < 0 && numericUpDown.Value - increment >= numericUpDown.Minimum)
 				numericUpDown.Value -= 1;
 		}
-
 		private void SizeXNumericUpDown_ValueChanged(object sender, EventArgs e)
 		{
 			gridControl.GridCellWidth = ToInt32(SizeXNumericUpDown.Value);
 		}
-
 		private void SizeYNumericUpDown_ValueChanged(object sender, EventArgs e)
 		{
 			gridControl.GridCellHeight = ToInt32(SizeYNumericUpDown.Value);
 		}
-
 		private void GridCheckBox_CheckedChanged(object sender, EventArgs e)
 		{
 			gridControl.IsGridShowed = GridCheckBox.Checked;
 		}
-
 		private void RandomButton_Click(object sender, EventArgs e)
 		{
 			Task.Run(() =>
 			{
-				gridControl.Matrix.Erase();
 				gridControl.Matrix.SetRandomCells(ToInt32(randomNumericUpDown.Value));
 				gridControl.Draw();
 			});
 		}
-
 		private void ClearButton_Click(object sender, EventArgs e)
 		{
 			Task.Run(() =>
@@ -167,7 +156,6 @@ namespace MultiscaleModelling
 				gridControl.Draw();
 			});
 		}
-
 		private void IterationButton_Click(object sender, EventArgs e)
 		{
 			Task.Run(() =>
@@ -176,7 +164,6 @@ namespace MultiscaleModelling
 				gridControl.Draw();
 			});
 		}
-
 		private void StartButton_Click(object sender, EventArgs e)
 		{
 			Task.Run(() =>
@@ -196,7 +183,6 @@ namespace MultiscaleModelling
 				gridControl.Draw();
 			});
 		}
-
 		private void BcComboBox_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			ComboBox comboBox = sender as ComboBox;
@@ -206,10 +192,25 @@ namespace MultiscaleModelling
 			else if (comboBox.SelectedItem.ToString() == EnumsNames.BcNames[Bc.Periodic])
 				gridControl.Matrix.BoundaryCondition = Bc.Periodic;
 		}
-
 		private void AddInclusionsButton_Click(object sender, EventArgs e)
 		{
+			bool isAnyCellEmpty = gridControl.Matrix.GetCells().Where(c => c.Id == 0).FirstOrDefault() is Cell;
+			bool isAnyCellFilled = gridControl.Matrix.GetCells().Where(c => c.Id != 0).FirstOrDefault() is Cell;
 
+			if (!isAnyCellEmpty)
+			{
+				// Every cell is filled
+			}
+			else if(!isAnyCellFilled)
+			{
+				// Every cell is empty
+				gridControl.Matrix.PreAddInclusions(ToInt32(inclusionsNumericUpDown.Value), ToInt32(radiusNumericUpDown.Value));
+				gridControl.Draw();
+			}
+			else
+			{
+				// Grid is partially filled
+			}
 		}
 	}
 }
