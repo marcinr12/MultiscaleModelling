@@ -163,6 +163,7 @@ namespace MultiscaleModelling
 			//startButton.Enabled = false;
 			Task.Run(() =>
 			{
+				gridControl.Matrix.MakeCopy();
 				gridControl.Matrix.CalculateNextGeneration();
 				gridControl.Draw();
 				iterationButton.Invoke(new Action(() =>
@@ -185,6 +186,7 @@ namespace MultiscaleModelling
 				sw.Restart();
 				if (gridControl.Matrix.GetCells().Where(c => c.Id != 0).FirstOrDefault() is Cell)
 				{
+					gridControl.Matrix.MakeCopy();
 					while (gridControl.Matrix.GetCells().Where(c => c.Id == 0).FirstOrDefault() is Cell)
 					{
 						gridControl.Matrix.CalculateNextGeneration();

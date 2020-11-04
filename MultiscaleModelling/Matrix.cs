@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -327,36 +328,89 @@ namespace MultiscaleModelling
 			}
 		}
 
+		private readonly LinkedList<Cell> CellsLl = new LinkedList<Cell>();
+		public void MakeCopy()
+		{
+			CellsLl.Clear();
+			//Parallel.For(0, rows.Count, i =>
+			//{
+			//	Parallel.For(0, rows[i].Count, j =>
+			//	{
+			//		if (rows[i][j].Id == 0)
+			//			CellsLl.AddLast(rows[i][j]);
+			//	});
+			//});
+
+			for(int i = 0; i < rows.Count; i++)
+			{
+				for(int j = 0; j < rows[i].Count; j++)
+				{
+					if (rows[i][j].Id == 0)
+						CellsLl.AddLast(rows[i][j]);
+				}
+			}
+		}
+
 		readonly Stopwatch sw = new Stopwatch();
 		public List<long> times = new List<long>();
 		public void CalculateNextGeneration()
 		{
 			//times.Clear();
 			//sw.Restart();
-			Parallel.For(0, RowsCount, i =>
-			{
-				Parallel.For(0, ColumnsCount, j =>
-				{
-					if (GetCell(i, j).Id == 0)
-					{
-						Cell cell = GetMostCommonCell(GetCell(i, j).NeighboringCells);
-						copy[i][j] = (cell.Id, cell.Color);
-					}
-					else
-					{
-						copy[i][j] = (GetCell(i, j).Id, GetCell(i, j).Color);
-					}
-				});
-			});
 
-			Parallel.For(0, RowsCount, i =>
+			ConcurrentQueue<Cell> cellsQ = new ConcurrentQueue<Cell>();
+			Parallel.ForEach(CellsLl, cell =>
 			{
-				Parallel.For(0, ColumnsCount, j =>
-				{
-					GetCell(i, j).SetId(copy[i][j].Id);
-					GetCell(i, j).SetColor(copy[i][j].Color);
-				});
+				Cell mostCommonCell = GetMostCommonCell(cell.NeighboringCells);
+				cell.NewId = mostCommonCell.Id;
+				cell.NewColor = mostCommonCell.Color;
+				if (cell.NewId > 0)
+					cellsQ.Enqueue(cell);
 			});
+			//for(int i = 0; i < CellsLl.Count; i++)
+			//{
+			//	Cell cell = CellsLl.ElementAt(i);
+			//	Cell mostCommonCell = GetMostCommonCell(cell.NeighboringCells);
+			//	cell.NewId = mostCommonCell.Id;
+			//	cell.NewColor = mostCommonCell.Color;
+			//	if (cell.NewId > 0)
+			//		cellsQ.Enqueue(cell);
+			//}
+
+			while(cellsQ.Count > 0)
+			{
+				if(cellsQ.TryDequeue(out Cell c))
+				{
+					CellsLl.Remove(c);
+					c.UpdateId();
+				}
+			}
+
+
+			//Parallel.For(0, RowsCount, i =>
+			//{
+			//	Parallel.For(0, ColumnsCount, j =>
+			//	{
+			//		if (GetCell(i, j).Id == 0)
+			//		{
+			//			Cell cell = GetMostCommonCell(GetCell(i, j).NeighboringCells);
+			//			copy[i][j] = (cell.Id, cell.Color);
+			//		}
+			//		else
+			//		{
+			//			copy[i][j] = (GetCell(i, j).Id, GetCell(i, j).Color);
+			//		}
+			//	});
+			//});
+
+			//Parallel.For(0, RowsCount, i =>
+			//{
+			//	Parallel.For(0, ColumnsCount, j =>
+			//	{
+			//		GetCell(i, j).SetId(copy[i][j].Id);
+			//		GetCell(i, j).SetColor(copy[i][j].Color);
+			//	});
+			//});
 			//times.Add(sw.ElapsedMilliseconds);
 			//Trace.WriteLine($"Iteration took: {times.Last()}ms");
 		}
