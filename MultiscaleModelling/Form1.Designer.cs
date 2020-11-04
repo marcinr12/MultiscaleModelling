@@ -31,6 +31,8 @@
 			this.gridControl = new MultiscaleModelling.GridControl();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.label5 = new System.Windows.Forms.Label();
+			this.terminateButton = new System.Windows.Forms.Button();
 			this.inclusionsGroupBox = new System.Windows.Forms.GroupBox();
 			this.addInclusionsButton = new System.Windows.Forms.Button();
 			this.radiusNumericUpDown = new System.Windows.Forms.NumericUpDown();
@@ -98,6 +100,8 @@
 			// 
 			// groupBox1
 			// 
+			this.groupBox1.Controls.Add(this.label5);
+			this.groupBox1.Controls.Add(this.terminateButton);
 			this.groupBox1.Controls.Add(this.inclusionsGroupBox);
 			this.groupBox1.Controls.Add(this.bcComboBox);
 			this.groupBox1.Controls.Add(this.animationCheckBox);
@@ -117,6 +121,26 @@
 			this.groupBox1.Size = new System.Drawing.Size(194, 625);
 			this.groupBox1.TabIndex = 1;
 			this.groupBox1.TabStop = false;
+			// 
+			// label5
+			// 
+			this.label5.AutoSize = true;
+			this.label5.Location = new System.Drawing.Point(9, 125);
+			this.label5.Name = "label5";
+			this.label5.Size = new System.Drawing.Size(30, 20);
+			this.label5.TabIndex = 14;
+			this.label5.Text = "BC:";
+			// 
+			// terminateButton
+			// 
+			this.terminateButton.BackColor = System.Drawing.Color.Red;
+			this.terminateButton.Location = new System.Drawing.Point(9, 296);
+			this.terminateButton.Name = "terminateButton";
+			this.terminateButton.Size = new System.Drawing.Size(86, 29);
+			this.terminateButton.TabIndex = 13;
+			this.terminateButton.Text = "Terminate";
+			this.terminateButton.UseVisualStyleBackColor = false;
+			this.terminateButton.Click += new System.EventHandler(this.TerminateButton_Click);
 			// 
 			// inclusionsGroupBox
 			// 
@@ -194,9 +218,9 @@
 			// 
 			this.bcComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.bcComboBox.FormattingEnabled = true;
-			this.bcComboBox.Location = new System.Drawing.Point(9, 122);
+			this.bcComboBox.Location = new System.Drawing.Point(45, 122);
 			this.bcComboBox.Name = "bcComboBox";
-			this.bcComboBox.Size = new System.Drawing.Size(179, 28);
+			this.bcComboBox.Size = new System.Drawing.Size(143, 28);
 			this.bcComboBox.TabIndex = 11;
 			this.bcComboBox.SelectedIndexChanged += new System.EventHandler(this.BcComboBox_SelectedIndexChanged);
 			// 
@@ -318,11 +342,11 @@
 			this.SizeYNumericUpDown.Size = new System.Drawing.Size(109, 27);
 			this.SizeYNumericUpDown.TabIndex = 1;
 			this.SizeYNumericUpDown.Value = new decimal(new int[] {
-            1,
+            500,
             0,
             0,
             0});
-			this.SizeYNumericUpDown.ValueChanged += new System.EventHandler(this.SizeYNumericUpDown_ValueChanged);
+			this.SizeYNumericUpDown.Leave += new System.EventHandler(this.SizeYNumericUpDown_Leave);
 			// 
 			// SizeXNumericUpDown
 			// 
@@ -341,11 +365,11 @@
 			this.SizeXNumericUpDown.Size = new System.Drawing.Size(109, 27);
 			this.SizeXNumericUpDown.TabIndex = 0;
 			this.SizeXNumericUpDown.Value = new decimal(new int[] {
-            1,
+            500,
             0,
             0,
             0});
-			this.SizeXNumericUpDown.ValueChanged += new System.EventHandler(this.SizeXNumericUpDown_ValueChanged);
+			this.SizeXNumericUpDown.Leave += new System.EventHandler(this.SizeXNumericUpDown_Leave);
 			// 
 			// menuStrip1
 			// 
@@ -417,7 +441,7 @@
 			this.MainMenuStrip = this.menuStrip1;
 			this.MinimumSize = new System.Drawing.Size(500, 400);
 			this.Name = "Form1";
-			this.Text = "Form1";
+			this.Text = "Multiscale Modelling";
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
@@ -439,19 +463,6 @@
 
 		private GridControl gridControl;
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-		private System.Windows.Forms.GroupBox groupBox1;
-		private System.Windows.Forms.NumericUpDown SizeYNumericUpDown;
-		private System.Windows.Forms.NumericUpDown SizeXNumericUpDown;
-		private System.Windows.Forms.Label label2;
-		private System.Windows.Forms.Label label1;
-		private System.Windows.Forms.CheckBox GridCheckBox;
-		private System.Windows.Forms.NumericUpDown randomNumericUpDown;
-		private System.Windows.Forms.Button clearButton;
-		private System.Windows.Forms.Button randomButton;
-		private System.Windows.Forms.Button iterationButton;
-		private System.Windows.Forms.Button startButton;
-		private System.Windows.Forms.CheckBox animationCheckBox;
-		private System.Windows.Forms.ComboBox bcComboBox;
 		private System.Windows.Forms.MenuStrip menuStrip1;
 		private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem microstructureToolStripMenuItem;
@@ -460,12 +471,27 @@
 		private System.Windows.Forms.ToolStripMenuItem importBmpToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem exportBmpToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+		private System.Windows.Forms.GroupBox groupBox1;
+		private System.Windows.Forms.Button terminateButton;
 		private System.Windows.Forms.GroupBox inclusionsGroupBox;
 		private System.Windows.Forms.Button addInclusionsButton;
 		private System.Windows.Forms.NumericUpDown radiusNumericUpDown;
 		private System.Windows.Forms.NumericUpDown inclusionsNumericUpDown;
 		private System.Windows.Forms.Label label4;
 		private System.Windows.Forms.Label label3;
+		private System.Windows.Forms.ComboBox bcComboBox;
+		private System.Windows.Forms.CheckBox animationCheckBox;
+		private System.Windows.Forms.Button startButton;
+		private System.Windows.Forms.Button iterationButton;
+		private System.Windows.Forms.NumericUpDown randomNumericUpDown;
+		private System.Windows.Forms.Button clearButton;
+		private System.Windows.Forms.Button randomButton;
+		private System.Windows.Forms.CheckBox GridCheckBox;
+		private System.Windows.Forms.Label label2;
+		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.NumericUpDown SizeYNumericUpDown;
+		private System.Windows.Forms.NumericUpDown SizeXNumericUpDown;
+		private System.Windows.Forms.Label label5;
 	}
 }
 

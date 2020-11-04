@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -12,7 +13,8 @@ namespace MultiscaleModelling
 	public class Matrix
 	{
 		private readonly List<List<Cell>> rows;
-		private readonly List<List<(int Id, Color Color)>> copy;
+		private readonly Dictionary<long, Cell> PotentialGrains = new Dictionary<long, Cell>();
+
 		public int RowsCount => rows.Count;
 		public int ColumnsCount => rows.ElementAtOrDefault(0)?.Count ?? 0;
 		public float CellSize { get; private set; }
@@ -20,7 +22,7 @@ namespace MultiscaleModelling
 		public Bc BoundaryCondition
 		{
 			get => _boundaryContition;
-			set 
+			set
 			{
 				_boundaryContition = value;
 				SetBoundaryCondition();
@@ -30,8 +32,6 @@ namespace MultiscaleModelling
 		public Matrix()
 		{
 			rows = new List<List<Cell>>() { new List<Cell>() { new Cell(0, 0, this) } };
-			copy = new List<List<(int Id, Color Color)>>() { new List<(int Id, Color Color)>() { (Id: 1, Color: Color.White) } };
-
 			BoundaryCondition = Bc.Absorbing;
 		}
 		public Cell GetCell(int row, int column)
@@ -52,7 +52,6 @@ namespace MultiscaleModelling
 				c.Add((Id: 0, Color: Color.White));
 			}
 			rows.Add(row);
-			copy.Add(c);
 		}
 		public void AddColumn()
 		{
@@ -60,7 +59,6 @@ namespace MultiscaleModelling
 			for (int i = 0; i < RowsCount; i++)
 			{
 				rows[i].Add(new Cell(indexY: i, indexX: indexX, matrix: this));
-				copy[i].Add((Id: 0, Color: Color.White));
 			}
 		}
 		public void RemoveLastRow()
@@ -68,7 +66,6 @@ namespace MultiscaleModelling
 			if (RowsCount == 1)
 				throw new Exception("Last row");
 			rows.RemoveAt(RowsCount - 1);
-			copy.RemoveAt(RowsCount - 1);
 		}
 		public void RemoveLastColumn()
 		{
@@ -78,7 +75,6 @@ namespace MultiscaleModelling
 			for (int i = 0; i < RowsCount; i++)
 			{
 				rows[i].RemoveAt(indexX - 1);
-				copy[i].RemoveAt(indexX - 1);
 			}
 		}
 		public void Rearange(int targetSizeX, int targetSizeY)
@@ -108,13 +104,12 @@ namespace MultiscaleModelling
 		}
 		public void Erase()
 		{
-			for(int i = 0; i < rows.Count; i++)
+			for (int i = 0; i < rows.Count; i++)
 			{
-				for(int j = 0; j < rows[i].Count; j++)
+				for (int j = 0; j < rows[i].Count; j++)
 				{
 					rows[i][j].SetId(0);
 					rows[i][j].SetColor(Color.White);
-					copy[i][j] = (Id: 0, Color: Color.White);
 				}
 			}
 		}
@@ -124,11 +119,6 @@ namespace MultiscaleModelling
 		}
 		public void SetRandomCells(int number)
 		{
-			//int cellNumber = RowsCount * ColumnsCount;
-			//number = number < cellNumber
-			//				? number
-			//				: cellNumber;
-
 			int attempts = 0;
 			int i = 1;
 			while (i <= number && attempts < 100_000)
@@ -141,7 +131,6 @@ namespace MultiscaleModelling
 				{
 					cell.SetId(i);
 					cell.SetColor(Color.FromArgb(RandomMachine.Next(255), RandomMachine.Next(255), RandomMachine.Next(255)));
-					copy[yIndex][xIndex] = (cell.Id, cell.Color);
 					i++;
 					attempts = 0;
 				}
@@ -326,39 +315,54 @@ namespace MultiscaleModelling
 				}
 			}
 		}
+		public void TryAddPotentialGrains(IEnumerable<Cell> cells)
+		{
+			foreach (Cell n in cells.Where(c => c is Cell && c.NewId == 0))
+				PotentialGrains.TryAdd(n.Identifier, n);
+		}
+		public void InitialCalculations()
+		{
+			PotentialGrains.Clear();
+			for (int i = 0; i < rows.Count; i++)
+			{
+				for (int j = 0; j < rows[i].Count; j++)
+				{
+					if (rows[i][j].Id > 0)
+						TryAddPotentialGrains(rows[i][j].NeighboringCells);
+				}
+			}
+		}
 
 		readonly Stopwatch sw = new Stopwatch();
-		public List<long> times = new List<long>();
-		public void CalculateNextGeneration()
+		public LinkedList<Cell> CalculateNextGeneration()
 		{
-			//times.Clear();
-			//sw.Restart();
-			Parallel.For(0, RowsCount, i =>
+			sw.Restart();
+
+			ConcurrentQueue<Cell> newColored = new ConcurrentQueue<Cell>();
+			Parallel.ForEach(PotentialGrains.Keys, i =>
 			{
-				Parallel.For(0, ColumnsCount, j =>
-				{
-					if (GetCell(i, j).Id == 0)
-					{
-						Cell cell = GetMostCommonCell(GetCell(i, j).NeighboringCells);
-						copy[i][j] = (cell.Id, cell.Color);
-					}
-					else
-					{
-						copy[i][j] = (GetCell(i, j).Id, GetCell(i, j).Color);
-					}
-				});
+				Cell cell = PotentialGrains[i];
+				Cell mostCommonCell = GetMostCommonCell(cell.NeighboringCells);
+				cell.NewId = mostCommonCell.Id;
+				cell.NewColor = mostCommonCell.Color;
+				if (cell.NewId > 0)
+					newColored.Enqueue(cell);
 			});
 
-			Parallel.For(0, RowsCount, i =>
+			LinkedList<Cell> toReturn = new LinkedList<Cell>();
+			while (newColored.Count > 0)
 			{
-				Parallel.For(0, ColumnsCount, j =>
+				if (newColored.TryDequeue(out Cell c))
 				{
-					GetCell(i, j).SetId(copy[i][j].Id);
-					GetCell(i, j).SetColor(copy[i][j].Color);
-				});
-			});
-			//times.Add(sw.ElapsedMilliseconds);
-			//Trace.WriteLine($"Iteration took: {times.Last()}ms");
+					c.UpdateId();
+					TryAddPotentialGrains(c.NeighboringCells);
+
+					PotentialGrains.Remove(c.Identifier);
+					toReturn.AddLast(c);
+				}
+			}
+			return toReturn;
+			//Trace.WriteLine($"Iteration took: {sw.ElapsedMilliseconds}ms");
 		}
 		private Cell GetMostCommonCell(IEnumerable<Cell> cells)
 		{
@@ -378,7 +382,7 @@ namespace MultiscaleModelling
 			//}
 
 			IEnumerable<IGrouping<int, Cell>> groups = notNullCells.Where(x => x.Id > 0).GroupBy(c => c.Id).OrderByDescending(x => x.Count());
-			if(groups.Count() > 0)
+			if (groups.Count() > 0)
 			{
 				IEnumerable<IGrouping<int, Cell>> max = groups.Where(x => x.Count() == groups.First().Count());
 				cell = max.ElementAt(RandomMachine.Next(max.Count())).First();
@@ -389,8 +393,8 @@ namespace MultiscaleModelling
 		public override string ToString()
 		{
 			StringBuilder stringBuilder = new StringBuilder();
-			foreach(List<Cell> row in rows)
-				foreach(Cell cell in row)
+			foreach (List<Cell> row in rows)
+				foreach (Cell cell in row)
 					stringBuilder.Append($"{cell.IndexX} {cell.IndexY} {cell.Phase} {cell.Id}\n");
 			return stringBuilder.ToString();
 		}
@@ -479,7 +483,7 @@ namespace MultiscaleModelling
 				int columnIndex = RandomMachine.Next(ColumnsCount);
 
 
-				if(rows[rowIndex][columnIndex].Id == -1)
+				if (rows[rowIndex][columnIndex].Id == -1)
 				{
 					isFailed = true;
 					attempts++;
@@ -517,7 +521,7 @@ namespace MultiscaleModelling
 					return true;
 				else if (Math.Pow(Math.Abs(x2 - x1) - ColumnsCount, 2) + Math.Pow(y2 - y1, 2) <= radius * radius)       // <--- / --->
 					return true;
-				else if (Math.Pow(x2 - x1, 2) + Math.Pow(Math.Abs(y2- y1) - RowsCount, 2) <= radius * radius)          // ^ / v
+				else if (Math.Pow(x2 - x1, 2) + Math.Pow(Math.Abs(y2 - y1) - RowsCount, 2) <= radius * radius)          // ^ / v
 					return true;
 				else if (Math.Pow(Math.Abs(x2 - x1) - ColumnsCount, 2) + Math.Pow(Math.Abs(y2 - y1) - RowsCount, 2) <= radius * radius) // <--- / ---> & ^ / v
 					return true;

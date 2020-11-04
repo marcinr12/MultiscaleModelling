@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Convert;
@@ -13,13 +14,18 @@ namespace MultiscaleModelling
 {
 	public partial class Form1 : Form
 	{
+		public CancellationTokenSource SimulationCancellationTokenSource { get; private set; } = new CancellationTokenSource();
 		public Form1()
 		{
 			InitializeComponent();
-			SizeXNumericUpDown.Value = 300;
-			SizeYNumericUpDown.Value = 300;
+			SizeXNumericUpDown_Leave(null, null);
+			SizeYNumericUpDown_Leave(null, null);
+
 			SizeXNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
 			SizeYNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
+			randomNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
+			inclusionsNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
+			radiusNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
 
 			exportTextToolStripMenuItem.Click += ExportTextToolStripMenuItem_Click;
 			importTextToolStripMenuItem.Click += ImportTextToolStripMenuItem_Click;
@@ -128,11 +134,11 @@ namespace MultiscaleModelling
 			else if (e.Delta < 0 && numericUpDown.Value - increment >= numericUpDown.Minimum)
 				numericUpDown.Value -= 1;
 		}
-		private void SizeXNumericUpDown_ValueChanged(object sender, EventArgs e)
+		private void SizeXNumericUpDown_Leave(object sender, EventArgs e)
 		{
 			gridControl.GridCellWidth = ToInt32(SizeXNumericUpDown.Value);
 		}
-		private void SizeYNumericUpDown_ValueChanged(object sender, EventArgs e)
+		private void SizeYNumericUpDown_Leave(object sender, EventArgs e)
 		{
 			gridControl.GridCellHeight = ToInt32(SizeYNumericUpDown.Value);
 		}
@@ -142,67 +148,135 @@ namespace MultiscaleModelling
 		}
 		private void RandomButton_Click(object sender, EventArgs e)
 		{
+			randomButton.Enabled = false;
+			clearButton.Enabled = false;
+			iterationButton.Enabled = false;
+			startButton.Enabled = false;
+
 			Task.Run(() =>
 			{
-				gridControl.Matrix.SetRandomCells(ToInt32(randomNumericUpDown.Value));
-				gridControl.Draw();
+				try
+				{
+					gridControl.Matrix.SetRandomCells(ToInt32(randomNumericUpDown.Value));
+					gridControl.Draw();
+				}
+				finally
+				{
+					randomButton.Invoke(new Action(() =>
+					{
+						randomButton.Enabled = true;
+						clearButton.Enabled = true;
+						iterationButton.Enabled = true;
+						startButton.Enabled = true;
+					}));
+				}
 			});
+			
 		}
 		private void ClearButton_Click(object sender, EventArgs e)
 		{
+			randomButton.Enabled = false;
+			clearButton.Enabled = false;
+			iterationButton.Enabled = false;
+			startButton.Enabled = false;
+
 			Task.Run(() =>
 			{
-				gridControl.Matrix.Erase();
-				gridControl.Draw();
-			});
+				try
+				{
+					gridControl.Matrix.Erase();
+					gridControl.Draw();
+				}
+				finally
+				{
+					clearButton.Invoke(new Action(() =>
+					{
+						randomButton.Enabled = true;
+						clearButton.Enabled = true;
+						iterationButton.Enabled = true;
+						startButton.Enabled = true;
+					}));		
+				}
+			});	
 		}
 		private void IterationButton_Click(object sender, EventArgs e)
 		{
-			//clearButton.Enabled = false;
-			//iterationButton.Enabled = false;
-			//startButton.Enabled = false;
+			randomButton.Enabled = false;
+			clearButton.Enabled = false;
+			iterationButton.Enabled = false;
+			startButton.Enabled = false;
+
 			Task.Run(() =>
 			{
-				gridControl.Matrix.CalculateNextGeneration();
-				gridControl.Draw();
-				iterationButton.Invoke(new Action(() =>
+				try
 				{
-					clearButton.Enabled = true;
-					iterationButton.Enabled = true;
-					startButton.Enabled = true;
-				}));
-			});
+					gridControl.Matrix.InitialCalculations();
+					gridControl.Matrix.CalculateNextGeneration();
+					gridControl.Draw();
+				}
+				finally
+				{
+					iterationButton.Invoke(new Action(() =>
+					{
+						randomButton.Enabled = true;
+						clearButton.Enabled = true;
+						iterationButton.Enabled = true;
+						startButton.Enabled = true;
+					}));
+				}
+			});		
 		}
 		private void StartButton_Click(object sender, EventArgs e)
 		{
-			//clearButton.Enabled = false;
-			//iterationButton.Enabled = false;
-			//startButton.Enabled = false;
+			randomButton.Enabled = false;
+			clearButton.Enabled = false;
+			iterationButton.Enabled = false;
+			startButton.Enabled = false;
+			SimulationCancellationTokenSource = new CancellationTokenSource();
 
 			Task.Run(() =>
 			{
-				Stopwatch sw = new Stopwatch();
-				sw.Restart();
-				if (gridControl.Matrix.GetCells().Where(c => c.Id != 0).FirstOrDefault() is Cell)
+				try
 				{
-					while (gridControl.Matrix.GetCells().Where(c => c.Id == 0).FirstOrDefault() is Cell)
+					bool prevIsAnimation = animationCheckBox.Checked;
+					Stopwatch sw = new Stopwatch();
+					sw.Restart();
+					if (gridControl.Matrix.GetCells().Where(c => c.Id != 0).FirstOrDefault() is Cell)
 					{
-						gridControl.Matrix.CalculateNextGeneration();
-						if (animationCheckBox.Checked)
-							gridControl.Draw();
-					}
-					Trace.WriteLine($"Simulation took: {sw.ElapsedMilliseconds}ms");
-					//Trace.WriteLine($"Iteration mean: {gridControl.Matrix.times.Sum()/gridControl.Matrix.times.Count()}ms");
-					gridControl.Draw();
-				}
+						gridControl.Matrix.InitialCalculations();
+						while (gridControl.Matrix.GetCells().Where(c => c.Id == 0).FirstOrDefault() is Cell)
+						{
+							if (SimulationCancellationTokenSource.IsCancellationRequested)
+								break;
 
-				iterationButton.Invoke(new Action(() =>
+							LinkedList<Cell> a = gridControl.Matrix.CalculateNextGeneration();
+							if (animationCheckBox.Checked && animationCheckBox.Checked == prevIsAnimation)
+							{
+								gridControl.Draw(a);
+							}
+							else if (animationCheckBox.Checked)
+							{
+								gridControl.Draw();
+								prevIsAnimation = animationCheckBox.Checked;
+							}
+							else
+								prevIsAnimation = animationCheckBox.Checked;
+						}
+						Trace.WriteLine($"Simulation took: {sw.ElapsedMilliseconds}ms");
+						gridControl.Draw();
+					}
+				}
+				finally
 				{
-					clearButton.Enabled = true;
-					iterationButton.Enabled = true;
-					startButton.Enabled = true;
-				}));
-			});
+					startButton.Invoke(new Action(() =>
+					{
+						randomButton.Enabled = true;
+						clearButton.Enabled = true;
+						iterationButton.Enabled = true;
+						startButton.Enabled = true;
+					}));
+				}
+			}, SimulationCancellationTokenSource.Token);
 		}
 		private void BcComboBox_SelectedIndexChanged(object sender, EventArgs e)
 		{
@@ -235,6 +309,11 @@ namespace MultiscaleModelling
 				// Grid is partially filled
 				Trace.WriteLine("Grid is not filled!");
 			}
+		}
+
+		private void TerminateButton_Click(object sender, EventArgs e)
+		{
+			SimulationCancellationTokenSource.Cancel();
 		}
 	}
 }
