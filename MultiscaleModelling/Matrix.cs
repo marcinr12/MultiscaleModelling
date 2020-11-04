@@ -15,7 +15,7 @@ namespace MultiscaleModelling
 		private readonly List<List<(int Id, Color Color)>> copy;
 		public int RowsCount => rows.Count;
 		public int ColumnsCount => rows.ElementAtOrDefault(0)?.Count ?? 0;
-		public double CellSize { get; private set; }
+		public float CellSize { get; private set; }
 		private Bc _boundaryContition;
 		public Bc BoundaryCondition
 		{
@@ -112,13 +112,13 @@ namespace MultiscaleModelling
 			{
 				for(int j = 0; j < rows[i].Count; j++)
 				{
-					rows[i][j].Id = 0;
-					rows[i][j].Color = Color.White;
+					rows[i][j].SetId(0);
+					rows[i][j].SetColor(Color.White);
 					copy[i][j] = (Id: 0, Color: Color.White);
 				}
 			}
 		}
-		public void SetCellSize(double cellSize)
+		public void SetCellSize(float cellSize)
 		{
 			CellSize = cellSize;
 		}
@@ -139,8 +139,8 @@ namespace MultiscaleModelling
 				Cell cell = GetCell(yIndex, xIndex);
 				if (cell.Id == 0)
 				{
-					cell.Id = i;
-					cell.Color = Color.FromArgb(RandomMachine.Next(255), RandomMachine.Next(255), RandomMachine.Next(255));
+					cell.SetId(i);
+					cell.SetColor(Color.FromArgb(RandomMachine.Next(255), RandomMachine.Next(255), RandomMachine.Next(255)));
 					copy[yIndex][xIndex] = (cell.Id, cell.Color);
 					i++;
 					attempts = 0;
@@ -353,8 +353,8 @@ namespace MultiscaleModelling
 			{
 				Parallel.For(0, ColumnsCount, j =>
 				{
-					GetCell(i, j).Id = copy[i][j].Id;
-					GetCell(i, j).Color = copy[i][j].Color;
+					GetCell(i, j).SetId(copy[i][j].Id);
+					GetCell(i, j).SetColor(copy[i][j].Color);
 				});
 			});
 			//times.Add(sw.ElapsedMilliseconds);
@@ -459,8 +459,8 @@ namespace MultiscaleModelling
 				{
 					if (IsInRadius(start.IndexX, start.IndexY, rows[i][j].IndexX, rows[i][j].IndexY, radius))
 					{
-						rows[i][j].Color = Color.Black;
-						rows[i][j].Id = -1;
+						rows[i][j].SetColor(Color.Black);
+						rows[i][j].SetId(-1);
 					}
 				});
 			});

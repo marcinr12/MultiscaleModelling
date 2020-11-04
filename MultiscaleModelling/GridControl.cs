@@ -11,6 +11,9 @@ namespace MultiscaleModelling
 {
 	public partial class GridControl : UserControl
 	{
+		private Bitmap bitmap;
+		private Graphics graphics;
+
 		public readonly Matrix Matrix = new Matrix();
 		public Color EmptySpaceColor { get; set; } = Color.FromArgb(255, 240, 240, 240);
 
@@ -75,57 +78,79 @@ namespace MultiscaleModelling
 				g.DrawLine(blackPen, 0, ToSingle(i * cellSize) - 1, ToSingle(GridCellWidth * cellSize), ToSingle(i * cellSize) - 1);
 
 		}
+		Stopwatch sw = new Stopwatch();
 		public void PrintCells(Graphics g)
 		{
+			int f = 0;
+			sw.Restart();
 			for (int i = 0; i < Matrix.RowsCount; i++)
 			{
 				for (int j = 0; j < Matrix.ColumnsCount; j++)
 				{
 					Cell cell = Matrix.GetCell(i, j);
-					SolidBrush brush = new SolidBrush(cell.Color);
-					double cellSize = Matrix.CellSize;
-					g.FillRectangle(brush, ToSingle(cellSize * cell.IndexX) - 1, ToSingle(cellSize * cell.IndexY) - 1, ToSingle(cellSize + 1), ToSingle(cellSize + 1));
+					SolidBrush brush = Cell.Brushes[cell.Color.ToArgb()];
+					g.FillRectangle(brush, Matrix.CellSize * cell.IndexX - 1, Matrix.CellSize * cell.IndexY - 1, Matrix.CellSize + 1, Matrix.CellSize + 1);
+
+					if (cell.Id != 0)
+						f++;
 				}
 			}
+
+			//Trace.WriteLine($"{f} {sw.ElapsedMilliseconds}");
+			//object obj = new object();
+			//Parallel.For(0, Matrix.RowsCount, i =>
+			//{
+			//	Parallel.For(0, Matrix.ColumnsCount, j =>
+			//	{
+			//		Cell cell = Matrix.GetCell(i, j);
+			//		SolidBrush brush = Cell.Brushes[cell.Color.ToArgb()];
+			//		lock (obj)
+			//		{
+			//			g.FillRectangle(brush, Matrix.CellSize * cell.IndexX - 1, Matrix.CellSize * cell.IndexY - 1, Matrix.CellSize + 1, Matrix.CellSize + 1); 
+			//		}
+			//	});
+			//});
 		}
 		private void CalculateCellSize()
 		{
-			double cellWidth = 1.0 * outputPictureBox.Width / GridCellWidth;
-			double cellHeight = 1.0 * outputPictureBox.Height / GridCellHeight;
+			float cellWidth = 1.0f * outputPictureBox.Width / GridCellWidth;
+			float cellHeight = 1.0f * outputPictureBox.Height / GridCellHeight;
 			Matrix.SetCellSize(cellHeight < cellWidth ? cellHeight : cellWidth);
 		}
 		protected override void OnResize(EventArgs e)
 		{
 			base.OnResize(e);
+			bitmap = new Bitmap(outputPictureBox.Width, outputPictureBox.Height);
+			graphics = Graphics.FromImage(bitmap);
 			Draw(true);
 		}
+
+
 		public void Draw(bool newBitmap = false)
 		{
+			if (!IsHandleCreated)
+				return;
+
 			CalculateCellSize();
 			if (outputPictureBox.Image == null || newBitmap)
 			{
 				outputPictureBox.Image?.Dispose();
 				outputPictureBox.Image = new Bitmap(outputPictureBox.Width, outputPictureBox.Height);
+				bitmap = new Bitmap(outputPictureBox.Width, outputPictureBox.Height);
+				graphics = Graphics.FromImage(bitmap);
 			}
 
-			Bitmap bitmap = outputPictureBox.Image as Bitmap;
+			graphics.Clear(EmptySpaceColor);
 
-			if (IsHandleCreated)
-				outputPictureBox.Invoke(new Action(() =>
-				{
-					Graphics g = Graphics.FromImage(bitmap);
-					g.Clear(EmptySpaceColor);
+			PrintCells(graphics);
+			if (IsGridShowed)
+				PrintGrid(graphics);
 
-					PrintCells(g);
-					if (IsGridShowed)
-						PrintGrid(g);
-
-					outputPictureBox.Image = bitmap;
-					g.Dispose();
-				}));
-
-			GC.Collect();
-			GC.WaitForPendingFinalizers();
+			
+			outputPictureBox.Invoke(new Action(() =>
+			{
+				outputPictureBox.Image = bitmap;
+			}));
 		}
 		protected override void OnHandleCreated(EventArgs e)
 		{
@@ -151,9 +176,9 @@ namespace MultiscaleModelling
 
 			foreach ((int Id, int Phase, int IndexX, int IndexY) in cells)
 			{
-				Matrix.GetCell(IndexY, IndexX).Id = Id;
+				Matrix.GetCell(IndexY, IndexX).SetId(Id);
 				Matrix.GetCell(IndexY, IndexX).Phase = Phase;
-				Matrix.GetCell(IndexY, IndexX).Color = Color.FromArgb(colors.ToList().ElementAt(Id));
+				Matrix.GetCell(IndexY, IndexX).SetColor(Color.FromArgb(colors.ToList().ElementAt(Id)));
 			}
 		}
 		public void LoadMatrix(Bitmap bitmap)
@@ -184,8 +209,8 @@ namespace MultiscaleModelling
 					colors.Add(colorArgb);
 
 					var list = colors.ToList();
-					var a = Matrix.GetCell(i, j).Id = list.IndexOf(list.Find(x => x == colorArgb));
-					Matrix.GetCell(i, j).Color = color;
+					Matrix.GetCell(i, j).SetId(list.IndexOf(list.Find(x => x == colorArgb)));
+					Matrix.GetCell(i, j).SetColor(color);
 				}
 
 				//int currnetId = 1;

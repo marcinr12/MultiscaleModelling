@@ -1,27 +1,42 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
 
 namespace MultiscaleModelling
 {
 	public class Cell
 	{
-		public int Id { get; set; }
-		public Color Color {get;set;}
+		public static readonly Dictionary<int, SolidBrush> Brushes = new Dictionary<int, SolidBrush>()
+		{
+			{ Color.White.ToArgb(), new SolidBrush(Color.White) },
+			{ Color.Black.ToArgb(), new SolidBrush(Color.Black) }
+		};
+
+		public int Id { get; private set; }
+		public Color Color {get; private set;}
 		public int Phase { get; set; }
 		public readonly int IndexX;
 		public readonly int IndexY;
 		public Cell[] NeighboringCells { get; set; } = new Cell[] { null, null, null, null, null, null, null, null };
 		public readonly Matrix Matrix;
-		public Cell(int indexY, int indexX, Matrix matrix, int id = 0, int phase = 0, Color color = new Color())
+		public Cell(int indexY, int indexX, Matrix matrix, int phase = 0)
 		{
-			Id = id;
 			Phase = phase;
 			IndexX = indexX;
 			IndexY = indexY;
 			Matrix = matrix;
-			if (id == 0)
-				Color = Color.White;
-			else
-				Color = color;
+			Color = Color.White;
+
+		}
+
+		public void SetId(int id)
+		{
+			Id = id;
+		}
+		public void SetColor(Color color)
+		{
+			Color = color;
+			if (!Brushes.TryGetValue(color.ToArgb(), out SolidBrush _))
+				Brushes.Add(color.ToArgb(), new SolidBrush(color));
 		}
 	}
 }

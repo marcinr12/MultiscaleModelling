@@ -16,8 +16,8 @@ namespace MultiscaleModelling
 		public Form1()
 		{
 			InitializeComponent();
-			SizeXNumericUpDown.Value = 20;
-			SizeYNumericUpDown.Value = 20;
+			SizeXNumericUpDown.Value = 300;
+			SizeYNumericUpDown.Value = 300;
 			SizeXNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
 			SizeYNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
 
@@ -158,9 +158,9 @@ namespace MultiscaleModelling
 		}
 		private void IterationButton_Click(object sender, EventArgs e)
 		{
-			clearButton.Enabled = false;
-			iterationButton.Enabled = false;
-			startButton.Enabled = false;
+			//clearButton.Enabled = false;
+			//iterationButton.Enabled = false;
+			//startButton.Enabled = false;
 			Task.Run(() =>
 			{
 				gridControl.Matrix.CalculateNextGeneration();
@@ -175,9 +175,9 @@ namespace MultiscaleModelling
 		}
 		private void StartButton_Click(object sender, EventArgs e)
 		{
-			clearButton.Enabled = false;
-			iterationButton.Enabled = false;
-			startButton.Enabled = false;
+			//clearButton.Enabled = false;
+			//iterationButton.Enabled = false;
+			//startButton.Enabled = false;
 
 			Task.Run(() =>
 			{
