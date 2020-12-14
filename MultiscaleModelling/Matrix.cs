@@ -410,15 +410,8 @@ namespace MultiscaleModelling
 		}
 		public void AddInclusions(int number, int radius, InclusionsType inclusionsType)
 		{
-			List<Point> points = SetRandomInclusions(number, radius, inclusionsType);
-
-			if (points.Count < number)
+			if (!SetRandomInclusions(number, radius, inclusionsType))
 				Trace.WriteLine("Unable to set all inclusions");
-
-			//Parallel.For(0, points.Count, i =>
-			//{
-			//	SetInclusion(rows[points[i].Y][points[i].X], radius);
-			//});
 		}
 		private void GetIndexesInsideCircumscribedSquare(Cell center, double radius, out IEnumerable<int> xIndexes, out IEnumerable<int> yIndexes)
 		{
@@ -475,14 +468,14 @@ namespace MultiscaleModelling
 				});
 			});
 		}
-		public List<Point> SetRandomInclusions(int number, double radius, InclusionsType inclusionsType)
+		public bool SetRandomInclusions(int number, double radius, InclusionsType inclusionsType)
 		{
-			List<Point> points = new List<Point>();
+			int successfulTries = 0;
 			int attempts = 0;
-			while (points.Count < number)
+			while (successfulTries < number)
 			{
-				if (attempts > 10_000)
-					break;
+				if (attempts > 1_000_000)
+					return false;
 
 				bool isFailed = false;
 				int rowIndex = RandomMachine.Next(RowsCount);
@@ -502,23 +495,27 @@ namespace MultiscaleModelling
 					attempts++;
 				}
 
-				for (int i = 0; i < points.Count && !isFailed; i++)
+				GetIndexesInsideCircumscribedSquare(rows[rowIndex][columnIndex], radius, out IEnumerable<int> xIndexes, out IEnumerable<int> yIndexes);
+				foreach(int i in yIndexes)
 				{
-					if (IsInRadius(points[i].X, points[i].Y, columnIndex, rowIndex, 2 * radius))
+					foreach(int j in xIndexes)
 					{
-						isFailed = true;
-						attempts++;
+						if(rows[i][j].Id == -1)
+						{
+							isFailed = true;
+							attempts++;
+						}
 					}
 				}
 
 				if (!isFailed)
 				{
 					SetInclusion(rows[rowIndex][columnIndex], radius);
-					points.Add(new Point(columnIndex, rowIndex));
 					attempts = 0;
+					successfulTries++;
 				}
 			}
-			return points;
+			return true;
 		}
 		public bool IsInRadius(int x1, int y1, int x2, int y2, double radius)
 		{
