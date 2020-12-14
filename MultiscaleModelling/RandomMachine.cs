@@ -25,9 +25,9 @@ namespace MultiscaleModelling
 			}
 		}
 
-		public static int Next(int maxValue, int minValue)
+		public static int Next(int minValue, int maxValue)
 		{
-			lock (syncNextMinMax)
+			lock(syncNextMinMax)
 			{
 				return Random.Next(minValue, maxValue);
 			}

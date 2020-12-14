@@ -130,7 +130,7 @@ namespace MultiscaleModelling
 				if (cell.Id == 0)
 				{
 					cell.SetId(i);
-					cell.SetColor(Color.FromArgb(RandomMachine.Next(255), RandomMachine.Next(255), RandomMachine.Next(255)));
+					cell.SetColor(Color.FromArgb(RandomMachine.Next(1, 255), RandomMachine.Next(1, 255), RandomMachine.Next(1, 255)));
 					i++;
 					attempts = 0;
 				}
@@ -410,28 +410,29 @@ namespace MultiscaleModelling
 		}
 		public void AddInclusions(int number, int radius, InclusionsType inclusionsType)
 		{
-			List<Point> points = GetRandomInslusionsCentres(number, radius, inclusionsType);
+			List<Point> points = SetRandomInclusions(number, radius, inclusionsType);
 
 			if (points.Count < number)
 				Trace.WriteLine("Unable to set all inclusions");
 
-			Parallel.For(0, points.Count, i =>
-			{
-				SetInclusion(rows[points[i].Y][points[i].X], radius);
-			});
+			//Parallel.For(0, points.Count, i =>
+			//{
+			//	SetInclusion(rows[points[i].Y][points[i].X], radius);
+			//});
 		}
-		public void SetInclusion(Cell start, double radius)
+		private void GetIndexesInsideCircumscribedSquare(Cell center, double radius, out IEnumerable<int> xIndexes, out IEnumerable<int> yIndexes)
 		{
 			int r = ToInt32(Math.Ceiling(radius));
-			IEnumerable<int> xIndexes = new List<int>();
-			IEnumerable<int> yIndexes = new List<int>();
+			xIndexes = new List<int>();
+			yIndexes = new List<int>();
+
 			if (BoundaryCondition == Bc.Absorbing)
 			{
-				int xMin = Math.Max(start.IndexX - r, 0);
-				int xMax = Math.Min(start.IndexX + r, ColumnsCount - 1);
+				int xMin = Math.Max(center.IndexX - r, 0);
+				int xMax = Math.Min(center.IndexX + r, ColumnsCount - 1);
 
-				int yMin = Math.Max(start.IndexY - r, 0);
-				int yMax = Math.Min(start.IndexY + r, RowsCount - 1);
+				int yMin = Math.Max(center.IndexY - r, 0);
+				int yMax = Math.Min(center.IndexY + r, RowsCount - 1);
 
 				xIndexes = Enumerable.Range(xMin, xMax - xMin + 1);
 				yIndexes = Enumerable.Range(yMin, yMax - yMin + 1);
@@ -439,29 +440,34 @@ namespace MultiscaleModelling
 			}
 			else if (BoundaryCondition == Bc.Periodic)
 			{
-				int xMin = Math.Max(start.IndexX - r, 0);
-				int xMax = Math.Min(start.IndexX + r, ColumnsCount - 1);
+				int xMin = Math.Max(center.IndexX - r, 0);
+				int xMax = Math.Min(center.IndexX + r, ColumnsCount - 1);
 
-				int xOverflow = Math.Min(ColumnsCount - start.IndexX - r - 1, 0);       // sign "-" if found
-				int xLack = Math.Min(start.IndexX - r, 0);                              // sign "-" if found
+				int xOverflow = Math.Min(ColumnsCount - center.IndexX - r - 1, 0);       // sign "-" if found
+				int xLack = Math.Min(center.IndexX - r, 0);                              // sign "-" if found
 
 
-				int yMin = Math.Max(start.IndexY - r, 0);
-				int yMax = Math.Min(start.IndexY + r, RowsCount - 1);
+				int yMin = Math.Max(center.IndexY - r, 0);
+				int yMax = Math.Min(center.IndexY + r, RowsCount - 1);
 
-				int yOverflow = Math.Min(RowsCount - start.IndexY - r - 1, 0);          // sign "-" if found
-				int yLack = Math.Min(start.IndexY - r, 0);                              // sign "-" if found
+				int yOverflow = Math.Min(RowsCount - center.IndexY - r - 1, 0);          // sign "-" if found
+				int yLack = Math.Min(center.IndexY - r, 0);                              // sign "-" if found
 
 
 				xIndexes = Enumerable.Range(xMin, xMax - xMin + 1).Concat(Enumerable.Range(0, Math.Abs(xOverflow))).Concat(Enumerable.Range(ColumnsCount - Math.Abs(xLack), Math.Abs(xLack)));
 				yIndexes = Enumerable.Range(yMin, yMax - yMin + 1).Concat(Enumerable.Range(0, Math.Abs(yOverflow))).Concat(Enumerable.Range(RowsCount - Math.Abs(yLack), Math.Abs(yLack)));
 			}
+		}
+
+		public void SetInclusion(Cell center, double radius)
+		{
+			GetIndexesInsideCircumscribedSquare(center, radius, out IEnumerable<int> xIndexes, out IEnumerable<int> yIndexes);
 
 			Parallel.ForEach(yIndexes, i =>
 			{
 				Parallel.ForEach(xIndexes, j =>
 				{
-					if (IsInRadius(start.IndexX, start.IndexY, rows[i][j].IndexX, rows[i][j].IndexY, radius))
+					if (IsInRadius(center.IndexX, center.IndexY, rows[i][j].IndexX, rows[i][j].IndexY, radius))
 					{
 						rows[i][j].SetColor(Color.Black);
 						rows[i][j].SetId(-1);
@@ -469,7 +475,7 @@ namespace MultiscaleModelling
 				});
 			});
 		}
-		public List<Point> GetRandomInslusionsCentres(int number, double radius, InclusionsType inclusionsType)
+		public List<Point> SetRandomInclusions(int number, double radius, InclusionsType inclusionsType)
 		{
 			List<Point> points = new List<Point>();
 			int attempts = 0;
@@ -488,12 +494,14 @@ namespace MultiscaleModelling
 					isFailed = true;
 					attempts++;
 				}
+				// checking if cell is on border if needed
 				else if (inclusionsType == InclusionsType.OnBorder
 					&& rows[rowIndex][columnIndex].NeighboringCells.Where(c => c is Cell && c?.Id != -1 && c?.Id != 0).Select(c => c.Id).Distinct().Count() < 2)
 				{
 					isFailed = true;
 					attempts++;
 				}
+
 				for (int i = 0; i < points.Count && !isFailed; i++)
 				{
 					if (IsInRadius(points[i].X, points[i].Y, columnIndex, rowIndex, 2 * radius))
@@ -505,6 +513,7 @@ namespace MultiscaleModelling
 
 				if (!isFailed)
 				{
+					SetInclusion(rows[rowIndex][columnIndex], radius);
 					points.Add(new Point(columnIndex, rowIndex));
 					attempts = 0;
 				}
