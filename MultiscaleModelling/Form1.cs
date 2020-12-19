@@ -33,6 +33,13 @@ namespace MultiscaleModelling
 			exportBmpToolStripMenuItem.Click += ExportBmpToolStripMenuItem_Click;
 			importBmpToolStripMenuItem.Click += ImportBmpToolStripMenuItem_Click;
 
+			List<Control> notNumericUpDownControls = GetAllControls(this).Where(x => x.GetType() != typeof(NumericUpDown)).ToList();
+			notNumericUpDownControls.ForEach(c =>
+			{
+				c.Click += SizeXNumericUpDown_Leave;
+				c.Click += SizeYNumericUpDown_Leave;
+			});
+
 			gridControl.Matrix.SetRandomCells(10);
 
 			bcComboBox.Items.AddRange(EnumsNames.BcNames.Values.ToArray());
@@ -63,10 +70,12 @@ namespace MultiscaleModelling
 		}
 		private void ExportBmpToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			SaveFileDialog saveFileDialog = new SaveFileDialog();
-			saveFileDialog.Filter = "BMP files (*.bmp)|*.bmp|All files (*.*)|*.*";
-			saveFileDialog.FilterIndex = 1;
-			saveFileDialog.RestoreDirectory = true;
+			SaveFileDialog saveFileDialog = new SaveFileDialog
+			{
+				Filter = "BMP files (*.bmp)|*.bmp|All files (*.*)|*.*",
+				FilterIndex = 1,
+				RestoreDirectory = true
+			};
 
 			if (saveFileDialog.ShowDialog() == DialogResult.OK)
 				gridControl.Matrix.ToBitmap().Save(saveFileDialog.FileName, ImageFormat.Bmp);
@@ -119,12 +128,14 @@ namespace MultiscaleModelling
 		{
 			SaveFileDialog saveFileDialog = new SaveFileDialog()
 			{
-				Filter = "TXT files|*.txt"
+				Filter = "TXT files (*.txt)|*.txt|All files (*.*)|*.*",
+				FilterIndex = 1,
+				RestoreDirectory = true
 			};
 
 			if (saveFileDialog.ShowDialog() == DialogResult.OK)
 				using (StreamWriter sw = new StreamWriter(saveFileDialog.FileName))
-					sw.Write(gridControl.Matrix.ToString());
+					sw.Write(gridControl.Matrix.ToString());		
 		}
 		private void NumericUpDown_MouseWheel(object sender, MouseEventArgs e)
 		{
@@ -132,12 +143,16 @@ namespace MultiscaleModelling
 
 			NumericUpDown numericUpDown = sender as NumericUpDown;
 			if (e is HandledMouseEventArgs hme)
+			{
 				hme.Handled = true;
+				//if (!numericUpDown.ContainsFocus)
+				//	return;
+			}
 
 			if (e.Delta > 0 && numericUpDown.Value + increment <= numericUpDown.Maximum)
-				numericUpDown.Value += 1;
+				numericUpDown.Value += increment;
 			else if (e.Delta < 0 && numericUpDown.Value - increment >= numericUpDown.Minimum)
-				numericUpDown.Value -= 1;
+				numericUpDown.Value -= increment;
 		}
 		private void SizeXNumericUpDown_Leave(object sender, EventArgs e)
 		{
@@ -318,6 +333,12 @@ namespace MultiscaleModelling
 		private void TerminateButton_Click(object sender, EventArgs e)
 		{
 			SimulationCancellationTokenSource.Cancel();
+		}
+		public IEnumerable<Control> GetAllControls(Control parentControl)
+		{
+			IEnumerable<Control> controls = parentControl.Controls.Cast<Control>();
+			return controls.SelectMany(ctrl => GetAllControls(ctrl))
+									  .Concat(controls);
 		}
 	}
 }

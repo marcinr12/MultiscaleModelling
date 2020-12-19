@@ -227,6 +227,8 @@
 			// animationCheckBox
 			// 
 			this.animationCheckBox.AutoSize = true;
+			this.animationCheckBox.Checked = true;
+			this.animationCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.animationCheckBox.Location = new System.Drawing.Point(101, 264);
 			this.animationCheckBox.Name = "animationCheckBox";
 			this.animationCheckBox.Size = new System.Drawing.Size(87, 24);
@@ -342,7 +344,7 @@
 			this.SizeYNumericUpDown.Size = new System.Drawing.Size(109, 27);
 			this.SizeYNumericUpDown.TabIndex = 1;
 			this.SizeYNumericUpDown.Value = new decimal(new int[] {
-            100,
+            500,
             0,
             0,
             0});
@@ -365,7 +367,7 @@
 			this.SizeXNumericUpDown.Size = new System.Drawing.Size(109, 27);
 			this.SizeXNumericUpDown.TabIndex = 0;
 			this.SizeXNumericUpDown.Value = new decimal(new int[] {
-            100,
+            500,
             0,
             0,
             0});

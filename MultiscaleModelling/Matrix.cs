@@ -364,7 +364,7 @@ namespace MultiscaleModelling
 			return toReturn;
 			//Trace.WriteLine($"Iteration took: {sw.ElapsedMilliseconds}ms");
 		}
-		private Cell GetMostCommonCell(IEnumerable<Cell> cells)
+		private static Cell GetMostCommonCell(IEnumerable<Cell> cells)
 		{
 			IEnumerable<Cell> notNullCells = cells.Where(c => c?.Id >= 0);
 			Cell cell = notNullCells.First();
@@ -382,7 +382,7 @@ namespace MultiscaleModelling
 			//}
 
 			IEnumerable<IGrouping<int, Cell>> groups = notNullCells.Where(x => x.Id > 0).GroupBy(c => c.Id).OrderByDescending(x => x.Count());
-			if (groups.Count() > 0)
+			if (groups.Any())
 			{
 				IEnumerable<IGrouping<int, Cell>> max = groups.Where(x => x.Count() == groups.First().Count());
 				cell = max.ElementAt(RandomMachine.Next(max.Count())).First();
