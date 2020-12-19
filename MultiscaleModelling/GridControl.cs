@@ -159,9 +159,9 @@ namespace MultiscaleModelling
 				Color.White.ToArgb()
 			};
 
-			int coloredCells = cells.Where(c => c.Id != 0).Count();
+			int coloredCells = cells.Select(c => c.Id).Where(id => id != 0).Distinct().Count();
 			while(colors.Count < coloredCells + 1)
-				colors.Add(Color.FromArgb(RandomMachine.Next(255), RandomMachine.Next(255), RandomMachine.Next(255)).ToArgb());				
+				colors.Add(Color.FromArgb(RandomMachine.Next(255), RandomMachine.Next(255), RandomMachine.Next(255)).ToArgb());
 
 			foreach ((int Id, int Phase, int IndexX, int IndexY) in cells)
 			{
@@ -179,11 +179,9 @@ namespace MultiscaleModelling
 			GridCellHeight = rowsCount;
 			GridCellWidth = columnsCount;
 
-
-			Stopwatch sw = new Stopwatch();
-			sw.Restart();
 			HashSet<int> colors = new HashSet<int>()
 			{
+				Color.Black.ToArgb(),
 				Color.White.ToArgb()
 			};
 
@@ -196,7 +194,7 @@ namespace MultiscaleModelling
 					colors.Add(colorArgb);
 
 					var list = colors.ToList();
-					Matrix.GetCell(i, j).SetId(list.IndexOf(list.Find(x => x == colorArgb)));
+					Matrix.GetCell(i, j).SetId(list.IndexOf(list.Find(x => x == colorArgb) - 1));
 					Matrix.GetCell(i, j).SetColor(color);
 				}
 			}

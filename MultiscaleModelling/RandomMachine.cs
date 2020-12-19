@@ -17,7 +17,7 @@ namespace MultiscaleModelling
 			}
 		}
 
-		public static int  Next(int maxValue)
+		public static int Next(int maxValue)
 		{
 			lock(syncNextMax)
 			{

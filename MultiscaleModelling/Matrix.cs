@@ -350,7 +350,7 @@ namespace MultiscaleModelling
 			});
 
 			LinkedList<Cell> toReturn = new LinkedList<Cell>();
-			while (newColored.Count > 0)
+			while (!newColored.IsEmpty)
 			{
 				if (newColored.TryDequeue(out Cell c))
 				{
@@ -392,7 +392,9 @@ namespace MultiscaleModelling
 		}
 		public override string ToString()
 		{
+			int uniquePhases = rows.SelectMany(x => x).Select(x => x.Phase).Distinct().Count();
 			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.Append($"{ColumnsCount} {RowsCount} {uniquePhases}\n");
 			foreach (List<Cell> row in rows)
 				foreach (Cell cell in row)
 					stringBuilder.Append($"{cell.IndexX} {cell.IndexY} {cell.Phase} {cell.Id}\n");
@@ -451,7 +453,6 @@ namespace MultiscaleModelling
 				yIndexes = Enumerable.Range(yMin, yMax - yMin + 1).Concat(Enumerable.Range(0, Math.Abs(yOverflow))).Concat(Enumerable.Range(RowsCount - Math.Abs(yLack), Math.Abs(yLack)));
 			}
 		}
-
 		public void SetInclusion(Cell center, double radius)
 		{
 			GetIndexesInsideCircumscribedSquare(center, radius, out IEnumerable<int> xIndexes, out IEnumerable<int> yIndexes);

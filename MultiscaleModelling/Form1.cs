@@ -64,6 +64,9 @@ namespace MultiscaleModelling
 		private void ExportBmpToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			SaveFileDialog saveFileDialog = new SaveFileDialog();
+			saveFileDialog.Filter = "BMP files (*.bmp)|*.bmp|All files (*.*)|*.*";
+			saveFileDialog.FilterIndex = 1;
+			saveFileDialog.RestoreDirectory = true;
 
 			if (saveFileDialog.ShowDialog() == DialogResult.OK)
 				gridControl.Matrix.ToBitmap().Save(saveFileDialog.FileName, ImageFormat.Bmp);
@@ -82,6 +85,8 @@ namespace MultiscaleModelling
 				{
 					using StreamReader sr = new StreamReader(openFileDialog.FileName);
 					string line;
+
+					sr.ReadLine(); // skip first txt line
 					while ((line = sr.ReadLine()) != null)
 					{			
 						string[] data = line.Split(" ");
@@ -310,7 +315,6 @@ namespace MultiscaleModelling
 				Trace.WriteLine("Grid is not filled!");
 			}
 		}
-
 		private void TerminateButton_Click(object sender, EventArgs e)
 		{
 			SimulationCancellationTokenSource.Cancel();
