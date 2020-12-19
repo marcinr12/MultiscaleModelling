@@ -400,14 +400,14 @@ namespace MultiscaleModelling
 					stringBuilder.Append($"{cell.IndexX} {cell.IndexY} {cell.Phase} {cell.Id}\n");
 			return stringBuilder.ToString();
 		}
-		public Bitmap ToBitmap()
+		public Bitmap ToBitmap(int celSizeBmp)
 		{
-			Bitmap bitmap = new Bitmap(ColumnsCount * 10, RowsCount * 10);
+			Bitmap bitmap = new Bitmap(ColumnsCount * celSizeBmp, RowsCount * celSizeBmp);
 			Graphics graphics = Graphics.FromImage(bitmap);
 
 			for (int i = 0; i < rows.Count; i++)
 				for (int j = 0; j < rows[i].Count; j++)
-					graphics.FillRectangle(new SolidBrush(rows[i][j].Color), j * 10, i * 10, 10, 10);
+					graphics.FillRectangle(new SolidBrush(rows[i][j].Color), j * celSizeBmp, i * celSizeBmp, celSizeBmp, celSizeBmp);
 			return bitmap;
 		}
 		public void AddInclusions(int number, int radius, InclusionsType inclusionsType)

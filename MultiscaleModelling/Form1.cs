@@ -15,6 +15,7 @@ namespace MultiscaleModelling
 	public partial class Form1 : Form
 	{
 		public CancellationTokenSource SimulationCancellationTokenSource { get; private set; } = new CancellationTokenSource();
+		private readonly int cellSizeBmp = 1;
 		public Form1()
 		{
 			InitializeComponent();
@@ -57,7 +58,7 @@ namespace MultiscaleModelling
 				try
 				{
 					Bitmap bitmap = new Bitmap(openFileDialog.FileName);
-					gridControl.LoadMatrix(bitmap);
+					gridControl.LoadMatrix(bitmap, cellSizeBmp);
 					SizeYNumericUpDown.Value = gridControl.Matrix.RowsCount;
 					SizeXNumericUpDown.Value = gridControl.Matrix.ColumnsCount;
 					gridControl.Draw();
@@ -78,7 +79,7 @@ namespace MultiscaleModelling
 			};
 
 			if (saveFileDialog.ShowDialog() == DialogResult.OK)
-				gridControl.Matrix.ToBitmap().Save(saveFileDialog.FileName, ImageFormat.Bmp);
+				gridControl.Matrix.ToBitmap(cellSizeBmp).Save(saveFileDialog.FileName, ImageFormat.Bmp);
 		}
 		private void ImportTextToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -145,8 +146,6 @@ namespace MultiscaleModelling
 			if (e is HandledMouseEventArgs hme)
 			{
 				hme.Handled = true;
-				//if (!numericUpDown.ContainsFocus)
-				//	return;
 			}
 
 			if (e.Delta > 0 && numericUpDown.Value + increment <= numericUpDown.Maximum)

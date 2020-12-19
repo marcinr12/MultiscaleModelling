@@ -173,6 +173,11 @@
 			this.radiusNumericUpDown.Name = "radiusNumericUpDown";
 			this.radiusNumericUpDown.Size = new System.Drawing.Size(95, 27);
 			this.radiusNumericUpDown.TabIndex = 3;
+			this.radiusNumericUpDown.Value = new decimal(new int[] {
+            3,
+            0,
+            0,
+            0});
 			// 
 			// inclusionsNumericUpDown
 			// 
@@ -191,7 +196,7 @@
 			this.inclusionsNumericUpDown.Size = new System.Drawing.Size(95, 27);
 			this.inclusionsNumericUpDown.TabIndex = 2;
 			this.inclusionsNumericUpDown.Value = new decimal(new int[] {
-            1,
+            10,
             0,
             0,
             0});

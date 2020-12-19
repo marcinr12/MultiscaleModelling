@@ -156,25 +156,26 @@ namespace MultiscaleModelling
 
 			HashSet<int> colors = new HashSet<int>()
 			{
+				Color.Black.ToArgb(),
 				Color.White.ToArgb()
 			};
 
-			int coloredCells = cells.Select(c => c.Id).Where(id => id != 0).Distinct().Count();
-			while(colors.Count < coloredCells + 1)
+			int coloredCells = cells.Select(c => c.Id).Where(id => id > 0).Distinct().Count();
+			while(colors.Count < coloredCells + 2)
 				colors.Add(Color.FromArgb(RandomMachine.Next(255), RandomMachine.Next(255), RandomMachine.Next(255)).ToArgb());
 
 			foreach ((int Id, int Phase, int IndexX, int IndexY) in cells)
 			{
 				Matrix.GetCell(IndexY, IndexX).SetId(Id);
 				Matrix.GetCell(IndexY, IndexX).Phase = Phase;
-				Matrix.GetCell(IndexY, IndexX).SetColor(Color.FromArgb(colors.ToList().ElementAt(Id)));
+				Matrix.GetCell(IndexY, IndexX).SetColor(Color.FromArgb(colors.ToList().ElementAt(Id + 1)));
 			}
 		}
-		public void LoadMatrix(Bitmap bitmap)
+		public void LoadMatrix(Bitmap bitmap, int cellSizeBmp)
 		{
 			Matrix.Erase();
-			int rowsCount = bitmap.Height / 10;
-			int columnsCount = bitmap.Width / 10;
+			int rowsCount = bitmap.Height / cellSizeBmp;
+			int columnsCount = bitmap.Width / cellSizeBmp;
 
 			GridCellHeight = rowsCount;
 			GridCellWidth = columnsCount;
@@ -189,12 +190,14 @@ namespace MultiscaleModelling
 			{
 				for (int j = 0; j < columnsCount; j++)
 				{
-					Color color = bitmap.GetPixel(j * 10, i * 10);
+					Color color = bitmap.GetPixel(j * cellSizeBmp, i * cellSizeBmp);
 					int colorArgb = color.ToArgb();
 					colors.Add(colorArgb);
 
 					var list = colors.ToList();
-					Matrix.GetCell(i, j).SetId(list.IndexOf(list.Find(x => x == colorArgb) - 1));
+
+					var id = list.IndexOf(list.Find(x => x == colorArgb)) - 1;
+					Matrix.GetCell(i, j).SetId(id);
 					Matrix.GetCell(i, j).SetColor(color);
 				}
 			}
