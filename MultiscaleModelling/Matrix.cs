@@ -318,7 +318,9 @@ namespace MultiscaleModelling
 		public void TryAddPotentialGrains(IEnumerable<Cell> cells)
 		{
 			foreach (Cell n in cells.Where(c => c is Cell && c.NewId == 0))
+			{
 				PotentialGrains.TryAdd(n.Identifier, n);
+			}
 		}
 		public void InitialCalculations()
 		{
@@ -328,7 +330,9 @@ namespace MultiscaleModelling
 				for (int j = 0; j < rows[i].Count; j++)
 				{
 					if (rows[i][j].Id > 0)
+					{
 						TryAddPotentialGrains(rows[i][j].NeighboringCells);
+					}
 				}
 			}
 		}
@@ -342,12 +346,24 @@ namespace MultiscaleModelling
 			Parallel.ForEach(PotentialGrains.Keys, i =>
 			{
 				Cell cell = PotentialGrains[i];
-				Cell mostCommonCell = GetMostCommonCell(cell.NeighboringCells);
+				Cell mostCommonCell = GetMostCommonNeighboringCellById(cell);
 				cell.NewId = mostCommonCell.Id;
 				cell.NewColor = mostCommonCell.Color;
 				if (cell.NewId > 0)
 					newColored.Enqueue(cell);
 			});
+
+			//PotentialGrains.ToList().ForEach(x => Trace.WriteLine($"X:{x.Value.IndexX} Y:{x.Value.IndexY}"));
+
+			//foreach(var i in PotentialGrains.Keys)
+			//{
+			//	Cell cell = PotentialGrains[i];
+			//	Cell mostCommonCell = GetMostCommonNeighboringCellById(cell);
+			//	cell.NewId = mostCommonCell.Id;
+			//	cell.NewColor = mostCommonCell.Color;
+			//	if (cell.NewId > 0)
+			//		newColored.Enqueue(cell);
+			//}
 
 			LinkedList<Cell> toReturn = new LinkedList<Cell>();
 			while (!newColored.IsEmpty)
@@ -364,10 +380,10 @@ namespace MultiscaleModelling
 			return toReturn;
 			//Trace.WriteLine($"Iteration took: {sw.ElapsedMilliseconds}ms");
 		}
-		private static Cell GetMostCommonCell(IEnumerable<Cell> cells)
+		private static Cell GetMostCommonNeighboringCellById(Cell cell)
 		{
-			IEnumerable<Cell> notNullCells = cells.Where(c => c?.Id >= 0);
-			Cell cell = notNullCells.First();
+			IEnumerable<Cell> notNullCells = cell.NeighboringCells.Where(c => c?.Id >= 0);
+			Cell c = notNullCells.First();
 
 			// WITHOUT RANDOM
 			//int count = 0;
@@ -385,10 +401,13 @@ namespace MultiscaleModelling
 			if (groups.Any())
 			{
 				IEnumerable<IGrouping<int, Cell>> max = groups.Where(x => x.Count() == groups.First().Count());
-				cell = max.ElementAt(RandomMachine.Next(max.Count())).First();
+				c = max.ElementAt(RandomMachine.Next(max.Count())).First();
 			}
 
-			return cell;
+			//Trace.WriteLine($"--------------------------------------------------------");
+			//Trace.WriteLine($"Checking - X:{cell.IndexX} Y:{cell.IndexY} Id:{cell.Id}");
+			//Trace.WriteLine($"Neighbor - X:{c.IndexX} Y:{c.IndexY} Id:{c.Id}");
+			return c;
 		}
 		public override string ToString()
 		{
@@ -410,9 +429,9 @@ namespace MultiscaleModelling
 					graphics.FillRectangle(new SolidBrush(rows[i][j].Color), j * celSizeBmp, i * celSizeBmp, celSizeBmp, celSizeBmp);
 			return bitmap;
 		}
-		public void AddInclusions(int number, int radius, InclusionsType inclusionsType)
+		public void AddInclusions(int number, int radius, InclusionsMode inclusionsMode, InclusionsType inclusionsType)
 		{
-			if (!SetRandomInclusions(number, radius, inclusionsType))
+			if (!SetRandomInclusions(number, radius, inclusionsMode, inclusionsType))
 				Trace.WriteLine("Unable to set all inclusions");
 		}
 		private void GetIndexesInsideCircumscribedSquare(Cell center, double radius, out IEnumerable<int> xIndexes, out IEnumerable<int> yIndexes)
@@ -453,15 +472,20 @@ namespace MultiscaleModelling
 				yIndexes = Enumerable.Range(yMin, yMax - yMin + 1).Concat(Enumerable.Range(0, Math.Abs(yOverflow))).Concat(Enumerable.Range(RowsCount - Math.Abs(yLack), Math.Abs(yLack)));
 			}
 		}
-		public void SetInclusion(Cell center, double radius)
+		public void SetInclusion(Cell center, double size, InclusionsType inclusionsType)
 		{
-			GetIndexesInsideCircumscribedSquare(center, radius, out IEnumerable<int> xIndexes, out IEnumerable<int> yIndexes);
+			GetIndexesInsideCircumscribedSquare(center, size, out IEnumerable<int> xIndexes, out IEnumerable<int> yIndexes);
 
 			Parallel.ForEach(yIndexes, i =>
 			{
 				Parallel.ForEach(xIndexes, j =>
 				{
-					if (IsInRadius(center.IndexX, center.IndexY, rows[i][j].IndexX, rows[i][j].IndexY, radius))
+					if (inclusionsType == InclusionsType.Round && IsInRadius(center.IndexX, center.IndexY, rows[i][j].IndexX, rows[i][j].IndexY, size))
+					{
+						rows[i][j].SetColor(Color.Black);
+						rows[i][j].SetId(-1);
+					}
+					else if(inclusionsType == InclusionsType.Squre)
 					{
 						rows[i][j].SetColor(Color.Black);
 						rows[i][j].SetId(-1);
@@ -469,7 +493,7 @@ namespace MultiscaleModelling
 				});
 			});
 		}
-		public bool SetRandomInclusions(int number, double radius, InclusionsType inclusionsType)
+		public bool SetRandomInclusions(int number, double size, InclusionsMode inclusionsMode, InclusionsType inclusionsType)
 		{
 			int successfulTries = 0;
 			int attempts = 0;
@@ -489,29 +513,31 @@ namespace MultiscaleModelling
 					attempts++;
 				}
 				// checking if cell is on border if needed
-				else if (inclusionsType == InclusionsType.OnBorder
+				else if (inclusionsMode == InclusionsMode.Post
 					&& rows[rowIndex][columnIndex].NeighboringCells.Where(c => c is Cell && c?.Id != -1 && c?.Id != 0).Select(c => c.Id).Distinct().Count() < 2)
 				{
 					isFailed = true;
 					attempts++;
 				}
 
-				GetIndexesInsideCircumscribedSquare(rows[rowIndex][columnIndex], radius, out IEnumerable<int> xIndexes, out IEnumerable<int> yIndexes);
-				foreach(int i in yIndexes)
+				// square wth circle inside
+				GetIndexesInsideCircumscribedSquare(rows[rowIndex][columnIndex], size, out IEnumerable<int> xIndexes, out IEnumerable<int> yIndexes);
+				foreach (int i in yIndexes)
 				{
-					foreach(int j in xIndexes)
+					foreach (int j in xIndexes)
 					{
-						if(rows[i][j].Id == -1)
+						if ((IsInRadius(columnIndex, rowIndex, j, i, size) && rows[i][j].Id == -1)
+							|| (inclusionsType == InclusionsType.Squre && rows[i][j].Id == -1))
 						{
 							isFailed = true;
 							attempts++;
 						}
 					}
-				}
+				} 
 
 				if (!isFailed)
 				{
-					SetInclusion(rows[rowIndex][columnIndex], radius);
+					SetInclusion(rows[rowIndex][columnIndex], size, inclusionsType);
 					attempts = 0;
 					successfulTries++;
 				}

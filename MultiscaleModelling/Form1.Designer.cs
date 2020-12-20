@@ -34,6 +34,8 @@
 			this.label5 = new System.Windows.Forms.Label();
 			this.terminateButton = new System.Windows.Forms.Button();
 			this.inclusionsGroupBox = new System.Windows.Forms.GroupBox();
+			this.label6 = new System.Windows.Forms.Label();
+			this.inclusionTypeComboBox = new System.Windows.Forms.ComboBox();
 			this.addInclusionsButton = new System.Windows.Forms.Button();
 			this.radiusNumericUpDown = new System.Windows.Forms.NumericUpDown();
 			this.inclusionsNumericUpDown = new System.Windows.Forms.NumericUpDown();
@@ -144,22 +146,42 @@
 			// 
 			// inclusionsGroupBox
 			// 
+			this.inclusionsGroupBox.Controls.Add(this.label6);
+			this.inclusionsGroupBox.Controls.Add(this.inclusionTypeComboBox);
 			this.inclusionsGroupBox.Controls.Add(this.addInclusionsButton);
 			this.inclusionsGroupBox.Controls.Add(this.radiusNumericUpDown);
 			this.inclusionsGroupBox.Controls.Add(this.inclusionsNumericUpDown);
 			this.inclusionsGroupBox.Controls.Add(this.label4);
 			this.inclusionsGroupBox.Controls.Add(this.label3);
 			this.inclusionsGroupBox.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.inclusionsGroupBox.Location = new System.Drawing.Point(3, 493);
+			this.inclusionsGroupBox.Location = new System.Drawing.Point(3, 459);
 			this.inclusionsGroupBox.Name = "inclusionsGroupBox";
-			this.inclusionsGroupBox.Size = new System.Drawing.Size(188, 129);
+			this.inclusionsGroupBox.Size = new System.Drawing.Size(188, 163);
 			this.inclusionsGroupBox.TabIndex = 12;
 			this.inclusionsGroupBox.TabStop = false;
 			this.inclusionsGroupBox.Text = "Inclusions";
 			// 
+			// label6
+			// 
+			this.label6.AutoSize = true;
+			this.label6.Location = new System.Drawing.Point(6, 96);
+			this.label6.Name = "label6";
+			this.label6.Size = new System.Drawing.Size(43, 20);
+			this.label6.TabIndex = 6;
+			this.label6.Text = "Type:";
+			// 
+			// inclusionTypeComboBox
+			// 
+			this.inclusionTypeComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.inclusionTypeComboBox.FormattingEnabled = true;
+			this.inclusionTypeComboBox.Location = new System.Drawing.Point(78, 93);
+			this.inclusionTypeComboBox.Name = "inclusionTypeComboBox";
+			this.inclusionTypeComboBox.Size = new System.Drawing.Size(103, 28);
+			this.inclusionTypeComboBox.TabIndex = 5;
+			// 
 			// addInclusionsButton
 			// 
-			this.addInclusionsButton.Location = new System.Drawing.Point(6, 92);
+			this.addInclusionsButton.Location = new System.Drawing.Point(14, 127);
 			this.addInclusionsButton.Name = "addInclusionsButton";
 			this.addInclusionsButton.Size = new System.Drawing.Size(167, 29);
 			this.addInclusionsButton.TabIndex = 4;
@@ -171,7 +193,7 @@
 			// 
 			this.radiusNumericUpDown.Location = new System.Drawing.Point(78, 59);
 			this.radiusNumericUpDown.Name = "radiusNumericUpDown";
-			this.radiusNumericUpDown.Size = new System.Drawing.Size(95, 27);
+			this.radiusNumericUpDown.Size = new System.Drawing.Size(104, 27);
 			this.radiusNumericUpDown.TabIndex = 3;
 			this.radiusNumericUpDown.Value = new decimal(new int[] {
             3,
@@ -193,7 +215,7 @@
             0,
             0});
 			this.inclusionsNumericUpDown.Name = "inclusionsNumericUpDown";
-			this.inclusionsNumericUpDown.Size = new System.Drawing.Size(95, 27);
+			this.inclusionsNumericUpDown.Size = new System.Drawing.Size(104, 27);
 			this.inclusionsNumericUpDown.TabIndex = 2;
 			this.inclusionsNumericUpDown.Value = new decimal(new int[] {
             10,
@@ -206,9 +228,9 @@
 			this.label4.AutoSize = true;
 			this.label4.Location = new System.Drawing.Point(6, 61);
 			this.label4.Name = "label4";
-			this.label4.Size = new System.Drawing.Size(56, 20);
+			this.label4.Size = new System.Drawing.Size(39, 20);
 			this.label4.TabIndex = 1;
-			this.label4.Text = "Radius:";
+			this.label4.Text = "Size:";
 			// 
 			// label3
 			// 
@@ -278,7 +300,7 @@
 			this.randomNumericUpDown.Size = new System.Drawing.Size(87, 27);
 			this.randomNumericUpDown.TabIndex = 7;
 			this.randomNumericUpDown.Value = new decimal(new int[] {
-            10,
+            1,
             0,
             0,
             0});
@@ -349,7 +371,7 @@
 			this.SizeYNumericUpDown.Size = new System.Drawing.Size(109, 27);
 			this.SizeYNumericUpDown.TabIndex = 1;
 			this.SizeYNumericUpDown.Value = new decimal(new int[] {
-            500,
+            11,
             0,
             0,
             0});
@@ -372,7 +394,7 @@
 			this.SizeXNumericUpDown.Size = new System.Drawing.Size(109, 27);
 			this.SizeXNumericUpDown.TabIndex = 0;
 			this.SizeXNumericUpDown.Value = new decimal(new int[] {
-            500,
+            11,
             0,
             0,
             0});
@@ -499,6 +521,8 @@
 		private System.Windows.Forms.NumericUpDown SizeYNumericUpDown;
 		private System.Windows.Forms.NumericUpDown SizeXNumericUpDown;
 		private System.Windows.Forms.Label label5;
+		private System.Windows.Forms.ComboBox inclusionTypeComboBox;
+		private System.Windows.Forms.Label label6;
 	}
 }
 

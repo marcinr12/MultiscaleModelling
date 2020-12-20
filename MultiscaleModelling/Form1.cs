@@ -45,6 +45,9 @@ namespace MultiscaleModelling
 
 			bcComboBox.Items.AddRange(EnumsNames.BcNames.Values.ToArray());
 			bcComboBox.SelectedItem = EnumsNames.BcNames[Bc.Absorbing];
+
+			inclusionTypeComboBox.Items.AddRange(EnumsNames.InclusionsTypeNames.Values.ToArray());
+			inclusionTypeComboBox.SelectedItem = EnumsNames.InclusionsTypeNames[InclusionsType.Round];
 		}
 		private void ImportBmpToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -301,9 +304,9 @@ namespace MultiscaleModelling
 		{
 			ComboBox comboBox = sender as ComboBox;
 
-			if (comboBox.SelectedItem.ToString() == EnumsNames.BcNames[Bc.Absorbing])
+			if (comboBox.SelectedItem?.ToString() == EnumsNames.BcNames[Bc.Absorbing])
 				gridControl.Matrix.BoundaryCondition = Bc.Absorbing;
-			else if (comboBox.SelectedItem.ToString() == EnumsNames.BcNames[Bc.Periodic])
+			else if (comboBox.SelectedItem?.ToString() == EnumsNames.BcNames[Bc.Periodic])
 				gridControl.Matrix.BoundaryCondition = Bc.Periodic;
 		}
 		private void AddInclusionsButton_Click(object sender, EventArgs e)
@@ -311,16 +314,23 @@ namespace MultiscaleModelling
 			bool isAnyCellEmpty = gridControl.Matrix.GetCells().Where(c => c.Id == 0).FirstOrDefault() is Cell;
 			bool isAnyCellFilled = gridControl.Matrix.GetCells().Where(c => c.Id != 0).FirstOrDefault() is Cell;
 
+			InclusionsType inclusionsType = InclusionsType.Round;
+
+			if (inclusionTypeComboBox.SelectedItem?.ToString() == EnumsNames.InclusionsTypeNames[InclusionsType.Round])
+				inclusionsType = InclusionsType.Round;
+			else if (inclusionTypeComboBox.SelectedItem?.ToString() == EnumsNames.InclusionsTypeNames[InclusionsType.Squre])
+				inclusionsType = InclusionsType.Squre;
+
 			if (!isAnyCellEmpty)
 			{
 				// Every cell is filled
-				gridControl.Matrix.AddInclusions(ToInt32(inclusionsNumericUpDown.Value), ToInt32(radiusNumericUpDown.Value), InclusionsType.OnBorder);
+				gridControl.Matrix.AddInclusions(ToInt32(inclusionsNumericUpDown.Value), ToInt32(radiusNumericUpDown.Value), InclusionsMode.Post, inclusionsType);
 				gridControl.Draw();
 			}
 			else if(!isAnyCellFilled)
 			{
 				// Every cell is empty
-				gridControl.Matrix.AddInclusions(ToInt32(inclusionsNumericUpDown.Value), ToInt32(radiusNumericUpDown.Value), InclusionsType.Random);
+				gridControl.Matrix.AddInclusions(ToInt32(inclusionsNumericUpDown.Value), ToInt32(radiusNumericUpDown.Value), InclusionsMode.Pre, inclusionsType);
 				gridControl.Draw();
 			}
 			else

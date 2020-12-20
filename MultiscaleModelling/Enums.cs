@@ -10,18 +10,36 @@ namespace MultiscaleModelling
 		Periodic
 	}
 
+	public enum InclusionsMode
+	{
+		Pre,
+		Post
+	}
+
 	public enum InclusionsType
 	{
-		Random,
-		OnBorder
+		Squre,
+		Round
 	}
 
 	public static class EnumsNames
 	{
-		public static Dictionary<Bc, string> BcNames = new Dictionary<Bc, string>()
+		public static readonly Dictionary<Bc, string> BcNames = new Dictionary<Bc, string>()
 		{
 			{ Bc.Absorbing, "Absorbing" },
 			{ Bc.Periodic, "Periodic" }
+		};
+
+		public static readonly Dictionary<InclusionsMode, string> InclusionsModeNames = new Dictionary<InclusionsMode, string>()
+		{
+			{ InclusionsMode.Pre, "Pre" },
+			{ InclusionsMode.Post, "Post" }
+		};
+
+		public static readonly Dictionary<InclusionsType, string> InclusionsTypeNames = new Dictionary<InclusionsType, string>()
+		{
+			{ InclusionsType.Squre, "Squre" },
+			{ InclusionsType.Round, "Round" }
 		};
 	}
 }
