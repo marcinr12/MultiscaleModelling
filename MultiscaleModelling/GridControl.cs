@@ -87,7 +87,14 @@ namespace MultiscaleModelling
 				{
 					Cell cell = Matrix.GetCell(i, j);
 					SolidBrush brush = Cell.Brushes[cell.Color.ToArgb()];
-					graphics.FillRectangle(brush, Matrix.CellSize * cell.IndexX - 1, Matrix.CellSize * cell.IndexY - 1, Matrix.CellSize + 1, Matrix.CellSize + 1);
+					try
+					{
+						graphics.FillRectangle(brush, Matrix.CellSize * cell.IndexX - 1, Matrix.CellSize * cell.IndexY - 1, Matrix.CellSize + 1, Matrix.CellSize + 1);
+					}
+					catch (Exception e)
+					{
+
+					}
 				}
 			}
 		}
@@ -96,7 +103,14 @@ namespace MultiscaleModelling
 			foreach(Cell cell in cells)
 			{
 				SolidBrush brush = Cell.Brushes[cell.Color.ToArgb()];
-				graphics.FillRectangle(brush, Matrix.CellSize * cell.IndexX - 1, Matrix.CellSize * cell.IndexY - 1, Matrix.CellSize + 1, Matrix.CellSize + 1);
+				try
+				{
+					graphics.FillRectangle(brush, Matrix.CellSize * cell.IndexX - 1, Matrix.CellSize * cell.IndexY - 1, Matrix.CellSize + 1, Matrix.CellSize + 1);
+				}
+				catch (Exception e)
+				{
+
+				}
 			}
 		}
 		private void CalculateCellSize()

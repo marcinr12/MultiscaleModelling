@@ -31,6 +31,15 @@
 			this.gridControl = new MultiscaleModelling.GridControl();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.groupBox2 = new System.Windows.Forms.GroupBox();
+			this.rulesPanel = new System.Windows.Forms.Panel();
+			this.label7 = new System.Windows.Forms.Label();
+			this.probabilityNumericUpDown = new System.Windows.Forms.NumericUpDown();
+			this.rule4checkBox = new System.Windows.Forms.CheckBox();
+			this.rule1CheckBox = new System.Windows.Forms.CheckBox();
+			this.rule3CheckBox = new System.Windows.Forms.CheckBox();
+			this.rule2CheckBox = new System.Windows.Forms.CheckBox();
+			this.shapeControlCheckBox = new System.Windows.Forms.CheckBox();
 			this.label5 = new System.Windows.Forms.Label();
 			this.terminateButton = new System.Windows.Forms.Button();
 			this.inclusionsGroupBox = new System.Windows.Forms.GroupBox();
@@ -63,6 +72,9 @@
 			this.exportBmpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.groupBox1.SuspendLayout();
+			this.groupBox2.SuspendLayout();
+			this.rulesPanel.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.probabilityNumericUpDown)).BeginInit();
 			this.inclusionsGroupBox.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.radiusNumericUpDown)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.inclusionsNumericUpDown)).BeginInit();
@@ -81,7 +93,7 @@
 			this.gridControl.IsGridShowed = false;
 			this.gridControl.Location = new System.Drawing.Point(203, 3);
 			this.gridControl.Name = "gridControl";
-			this.gridControl.Size = new System.Drawing.Size(644, 625);
+			this.gridControl.Size = new System.Drawing.Size(737, 757);
 			this.gridControl.TabIndex = 0;
 			// 
 			// tableLayoutPanel1
@@ -95,13 +107,14 @@
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 28);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
 			this.tableLayoutPanel1.RowCount = 2;
-			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 95.03268F));
-			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 4.96732F));
-			this.tableLayoutPanel1.Size = new System.Drawing.Size(850, 664);
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
+			this.tableLayoutPanel1.Size = new System.Drawing.Size(943, 773);
 			this.tableLayoutPanel1.TabIndex = 1;
 			// 
 			// groupBox1
 			// 
+			this.groupBox1.Controls.Add(this.groupBox2);
 			this.groupBox1.Controls.Add(this.label5);
 			this.groupBox1.Controls.Add(this.terminateButton);
 			this.groupBox1.Controls.Add(this.inclusionsGroupBox);
@@ -120,9 +133,119 @@
 			this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.groupBox1.Location = new System.Drawing.Point(3, 3);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(194, 625);
+			this.groupBox1.Size = new System.Drawing.Size(194, 757);
 			this.groupBox1.TabIndex = 1;
 			this.groupBox1.TabStop = false;
+			// 
+			// groupBox2
+			// 
+			this.groupBox2.Controls.Add(this.rulesPanel);
+			this.groupBox2.Controls.Add(this.shapeControlCheckBox);
+			this.groupBox2.Location = new System.Drawing.Point(9, 341);
+			this.groupBox2.Name = "groupBox2";
+			this.groupBox2.Size = new System.Drawing.Size(175, 223);
+			this.groupBox2.TabIndex = 15;
+			this.groupBox2.TabStop = false;
+			this.groupBox2.Text = "Growth type";
+			// 
+			// rulesPanel
+			// 
+			this.rulesPanel.Controls.Add(this.label7);
+			this.rulesPanel.Controls.Add(this.probabilityNumericUpDown);
+			this.rulesPanel.Controls.Add(this.rule4checkBox);
+			this.rulesPanel.Controls.Add(this.rule1CheckBox);
+			this.rulesPanel.Controls.Add(this.rule3CheckBox);
+			this.rulesPanel.Controls.Add(this.rule2CheckBox);
+			this.rulesPanel.Enabled = false;
+			this.rulesPanel.Location = new System.Drawing.Point(21, 59);
+			this.rulesPanel.Name = "rulesPanel";
+			this.rulesPanel.Size = new System.Drawing.Size(148, 156);
+			this.rulesPanel.TabIndex = 16;
+			// 
+			// label7
+			// 
+			this.label7.AutoSize = true;
+			this.label7.Location = new System.Drawing.Point(0, 122);
+			this.label7.Name = "label7";
+			this.label7.Size = new System.Drawing.Size(84, 20);
+			this.label7.TabIndex = 5;
+			this.label7.Text = "Probability:";
+			// 
+			// probabilityNumericUpDown
+			// 
+			this.probabilityNumericUpDown.Location = new System.Drawing.Point(90, 120);
+			this.probabilityNumericUpDown.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.probabilityNumericUpDown.Name = "probabilityNumericUpDown";
+			this.probabilityNumericUpDown.Size = new System.Drawing.Size(50, 27);
+			this.probabilityNumericUpDown.TabIndex = 4;
+			this.probabilityNumericUpDown.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+			// 
+			// rule4checkBox
+			// 
+			this.rule4checkBox.AutoSize = true;
+			this.rule4checkBox.Checked = true;
+			this.rule4checkBox.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.rule4checkBox.Location = new System.Drawing.Point(0, 90);
+			this.rule4checkBox.Name = "rule4checkBox";
+			this.rule4checkBox.Size = new System.Drawing.Size(72, 24);
+			this.rule4checkBox.TabIndex = 3;
+			this.rule4checkBox.Text = "Rule 4";
+			this.rule4checkBox.UseVisualStyleBackColor = true;
+			// 
+			// rule1CheckBox
+			// 
+			this.rule1CheckBox.AutoSize = true;
+			this.rule1CheckBox.Checked = true;
+			this.rule1CheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.rule1CheckBox.Location = new System.Drawing.Point(0, 0);
+			this.rule1CheckBox.Name = "rule1CheckBox";
+			this.rule1CheckBox.Size = new System.Drawing.Size(72, 24);
+			this.rule1CheckBox.TabIndex = 0;
+			this.rule1CheckBox.Text = "Rule 1";
+			this.rule1CheckBox.UseVisualStyleBackColor = true;
+			// 
+			// rule3CheckBox
+			// 
+			this.rule3CheckBox.AutoSize = true;
+			this.rule3CheckBox.Checked = true;
+			this.rule3CheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.rule3CheckBox.Location = new System.Drawing.Point(0, 60);
+			this.rule3CheckBox.Name = "rule3CheckBox";
+			this.rule3CheckBox.Size = new System.Drawing.Size(72, 24);
+			this.rule3CheckBox.TabIndex = 2;
+			this.rule3CheckBox.Text = "Rule 3";
+			this.rule3CheckBox.UseVisualStyleBackColor = true;
+			// 
+			// rule2CheckBox
+			// 
+			this.rule2CheckBox.AutoSize = true;
+			this.rule2CheckBox.Checked = true;
+			this.rule2CheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.rule2CheckBox.Location = new System.Drawing.Point(0, 30);
+			this.rule2CheckBox.Name = "rule2CheckBox";
+			this.rule2CheckBox.Size = new System.Drawing.Size(72, 24);
+			this.rule2CheckBox.TabIndex = 1;
+			this.rule2CheckBox.Text = "Rule 2";
+			this.rule2CheckBox.UseVisualStyleBackColor = true;
+			// 
+			// shapeControlCheckBox
+			// 
+			this.shapeControlCheckBox.AutoSize = true;
+			this.shapeControlCheckBox.Location = new System.Drawing.Point(8, 29);
+			this.shapeControlCheckBox.Name = "shapeControlCheckBox";
+			this.shapeControlCheckBox.Size = new System.Drawing.Size(121, 24);
+			this.shapeControlCheckBox.TabIndex = 0;
+			this.shapeControlCheckBox.Text = "ShapeControl";
+			this.shapeControlCheckBox.UseVisualStyleBackColor = true;
+			this.shapeControlCheckBox.CheckedChanged += new System.EventHandler(this.ShapeControlCheckBox_CheckedChanged);
 			// 
 			// label5
 			// 
@@ -154,7 +277,7 @@
 			this.inclusionsGroupBox.Controls.Add(this.label4);
 			this.inclusionsGroupBox.Controls.Add(this.label3);
 			this.inclusionsGroupBox.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.inclusionsGroupBox.Location = new System.Drawing.Point(3, 459);
+			this.inclusionsGroupBox.Location = new System.Drawing.Point(3, 591);
 			this.inclusionsGroupBox.Name = "inclusionsGroupBox";
 			this.inclusionsGroupBox.Size = new System.Drawing.Size(188, 163);
 			this.inclusionsGroupBox.TabIndex = 12;
@@ -300,7 +423,7 @@
 			this.randomNumericUpDown.Size = new System.Drawing.Size(87, 27);
 			this.randomNumericUpDown.TabIndex = 7;
 			this.randomNumericUpDown.Value = new decimal(new int[] {
-            1,
+            10,
             0,
             0,
             0});
@@ -371,7 +494,7 @@
 			this.SizeYNumericUpDown.Size = new System.Drawing.Size(109, 27);
 			this.SizeYNumericUpDown.TabIndex = 1;
 			this.SizeYNumericUpDown.Value = new decimal(new int[] {
-            11,
+            500,
             0,
             0,
             0});
@@ -394,7 +517,7 @@
 			this.SizeXNumericUpDown.Size = new System.Drawing.Size(109, 27);
 			this.SizeXNumericUpDown.TabIndex = 0;
 			this.SizeXNumericUpDown.Value = new decimal(new int[] {
-            11,
+            500,
             0,
             0,
             0});
@@ -407,7 +530,7 @@
             this.fileToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
-			this.menuStrip1.Size = new System.Drawing.Size(850, 28);
+			this.menuStrip1.Size = new System.Drawing.Size(943, 28);
 			this.menuStrip1.TabIndex = 2;
 			this.menuStrip1.Text = "menuStrip1";
 			// 
@@ -464,7 +587,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(850, 692);
+			this.ClientSize = new System.Drawing.Size(943, 801);
 			this.Controls.Add(this.tableLayoutPanel1);
 			this.Controls.Add(this.menuStrip1);
 			this.MainMenuStrip = this.menuStrip1;
@@ -474,6 +597,11 @@
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
+			this.groupBox2.ResumeLayout(false);
+			this.groupBox2.PerformLayout();
+			this.rulesPanel.ResumeLayout(false);
+			this.rulesPanel.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.probabilityNumericUpDown)).EndInit();
 			this.inclusionsGroupBox.ResumeLayout(false);
 			this.inclusionsGroupBox.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.radiusNumericUpDown)).EndInit();
@@ -523,6 +651,15 @@
 		private System.Windows.Forms.Label label5;
 		private System.Windows.Forms.ComboBox inclusionTypeComboBox;
 		private System.Windows.Forms.Label label6;
+		private System.Windows.Forms.GroupBox groupBox2;
+		private System.Windows.Forms.CheckBox shapeControlCheckBox;
+		private System.Windows.Forms.CheckBox rule4checkBox;
+		private System.Windows.Forms.CheckBox rule3CheckBox;
+		private System.Windows.Forms.CheckBox rule2CheckBox;
+		private System.Windows.Forms.CheckBox rule1CheckBox;
+		private System.Windows.Forms.Panel rulesPanel;
+		private System.Windows.Forms.NumericUpDown probabilityNumericUpDown;
+		private System.Windows.Forms.Label label7;
 	}
 }
 

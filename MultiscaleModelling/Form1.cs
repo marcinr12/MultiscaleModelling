@@ -233,7 +233,7 @@ namespace MultiscaleModelling
 				try
 				{
 					gridControl.Matrix.InitialCalculations();
-					gridControl.Matrix.CalculateNextGeneration();
+					gridControl.Matrix.CalculateNextGeneration(shapeControlCheckBox.Checked, rule1CheckBox.Checked, rule2CheckBox.Checked, rule3CheckBox.Checked, rule4checkBox.Checked, ToInt32(probabilityNumericUpDown.Value));
 					gridControl.Draw();
 				}
 				finally
@@ -271,7 +271,7 @@ namespace MultiscaleModelling
 							if (SimulationCancellationTokenSource.IsCancellationRequested)
 								break;
 
-							LinkedList<Cell> a = gridControl.Matrix.CalculateNextGeneration();
+							LinkedList<Cell> a = gridControl.Matrix.CalculateNextGeneration(shapeControlCheckBox.Checked, rule1CheckBox.Checked, rule2CheckBox.Checked, rule3CheckBox.Checked, rule4checkBox.Checked, ToInt32(probabilityNumericUpDown.Value));
 							if (animationCheckBox.Checked && animationCheckBox.Checked == prevIsAnimation)
 							{
 								gridControl.Draw(a);
@@ -348,6 +348,10 @@ namespace MultiscaleModelling
 			IEnumerable<Control> controls = parentControl.Controls.Cast<Control>();
 			return controls.SelectMany(ctrl => GetAllControls(ctrl))
 									  .Concat(controls);
+		}
+		private void ShapeControlCheckBox_CheckedChanged(object sender, EventArgs e)
+		{
+			rulesPanel.Enabled = shapeControlCheckBox.Checked;
 		}
 	}
 }

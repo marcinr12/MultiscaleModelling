@@ -22,6 +22,14 @@ namespace MultiscaleModelling
 		Round
 	}
 
+	public enum RuleType
+	{
+		Moor,
+		VonNeumann,
+		FurtherMoor,
+		MoorWithProbability
+	}
+
 	public static class EnumsNames
 	{
 		public static readonly Dictionary<Bc, string> BcNames = new Dictionary<Bc, string>()
@@ -40,6 +48,14 @@ namespace MultiscaleModelling
 		{
 			{ InclusionsType.Squre, "Squre" },
 			{ InclusionsType.Round, "Round" }
+		};
+
+		public static readonly Dictionary<RuleType, string> RuleTypeNames = new Dictionary<RuleType, string>()
+		{
+			{ RuleType.Moor, "Moor" },
+			{ RuleType.VonNeumann, "VonNeumann" },
+			{ RuleType.FurtherMoor, "FurtherMoor" },
+			{ RuleType.MoorWithProbability, "MoorWithProbability" }
 		};
 	}
 }
