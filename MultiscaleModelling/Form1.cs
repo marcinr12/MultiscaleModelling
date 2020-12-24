@@ -27,6 +27,7 @@ namespace MultiscaleModelling
 			randomNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
 			inclusionsNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
 			radiusNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
+			probabilityNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
 
 			exportTextToolStripMenuItem.Click += ExportTextToolStripMenuItem_Click;
 			importTextToolStripMenuItem.Click += ImportTextToolStripMenuItem_Click;
@@ -352,6 +353,12 @@ namespace MultiscaleModelling
 		private void ShapeControlCheckBox_CheckedChanged(object sender, EventArgs e)
 		{
 			rulesPanel.Enabled = shapeControlCheckBox.Checked;
+		}
+		private void GridControl_MouseClick(object sender, MouseEventArgs e)
+		{
+			Trace.WriteLine($"cell.Id:{gridControl.Matrix.SelectedCell.Id}");
+			gridControl.Matrix.ShowBorderOfSelectedCell();
+			gridControl.Draw();
 		}
 	}
 }

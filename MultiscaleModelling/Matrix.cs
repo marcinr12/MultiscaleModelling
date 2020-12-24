@@ -18,6 +18,8 @@ namespace MultiscaleModelling
 		public int RowsCount => rows.Count;
 		public int ColumnsCount => rows.ElementAtOrDefault(0)?.Count ?? 0;
 		public float CellSize { get; private set; }
+		public Cell SelectedCell { get; set; }
+
 		private Bc _boundaryContition;
 		public Bc BoundaryCondition
 		{
@@ -96,11 +98,11 @@ namespace MultiscaleModelling
 		private void SetBoundaryCondition()
 		{
 			if (BoundaryCondition == Bc.Absorbing)
-				SetNeighborsAbsorbing("moor");
+				SetNeighborsAbsorbing();
 			else if (BoundaryCondition == Bc.Periodic)
-				SetNeighborsPeriodic("moor");
+				SetNeighborsPeriodic();
 			else
-				SetNeighborsAbsorbing("moor");
+				SetNeighborsAbsorbing();
 		}
 		public void Erase()
 		{
@@ -137,7 +139,7 @@ namespace MultiscaleModelling
 				attempts++;
 			}
 		}
-		private void SetNeighborsAbsorbing(string selectedNeighborhoodPattern)
+		private void SetNeighborsAbsorbing()
 		{
 			int sizeY = rows.Count;
 			int sizeX;
@@ -202,7 +204,7 @@ namespace MultiscaleModelling
 				}
 			}
 		}
-		private void SetNeighborsPeriodic(string selectedNeighborhoodPattern)
+		private void SetNeighborsPeriodic()
 		{
 			int sizeY = rows.Count;
 			int sizeX;
@@ -628,6 +630,35 @@ namespace MultiscaleModelling
 			}
 			else
 				throw new Exception();
+		}
+
+		public void ShowBorderOfSelectedCell()
+		{
+			if (SelectedCell is null)
+				return;
+
+			var cells = rows.SelectMany(x => x).Where(c => c.Color.ToArgb() == SelectedCell.Color.ToArgb());
+
+			List<Cell> cellsOnBorder = new List<Cell>();
+			foreach(Cell cell in cells)
+			{
+				if (cell.NeighboringCells[1]?.Color.ToArgb() is int upId && cell.Color.ToArgb() != upId)
+					cellsOnBorder.Add(cell);
+
+				if (cell.NeighboringCells[5]?.Color.ToArgb() is int downId && cell.Color.ToArgb() != downId)
+					cellsOnBorder.Add(cell);
+
+				if (cell.NeighboringCells[3]?.Color.ToArgb() is int rightId && cell.Color.ToArgb() != rightId)
+					cellsOnBorder.Add(cell);
+
+				if (cell.NeighboringCells[7]?.Color.ToArgb() is int leftId && cell.Color.ToArgb() != leftId)
+					cellsOnBorder.Add(cell);
+			}
+
+			foreach(Cell cell in cellsOnBorder)
+			{
+				cell.SetColor(Color.Blue);
+			}
 		}
 	}
 }

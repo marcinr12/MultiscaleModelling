@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
@@ -215,6 +216,23 @@ namespace MultiscaleModelling
 					Matrix.GetCell(i, j).SetColor(color);
 				}
 			}
+		}
+
+
+		[Browsable(true)]
+		[Category("Action")]
+		public new event MouseEventHandler MouseClick
+		{
+			add { outputPictureBox.MouseClick += value; }
+			remove { outputPictureBox.MouseClick -= value; }
+		}
+
+		private void OutputPictureBox_MouseClick(object sender, MouseEventArgs e)
+		{
+			int xIndex = ToInt32(Math.Floor(e.X / Matrix.CellSize));
+			int yIndex = ToInt32(Math.Floor(e.Y / Matrix.CellSize));
+
+			Matrix.SelectedCell = Matrix.GetCell(yIndex, xIndex);
 		}
 	}
 }

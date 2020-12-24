@@ -41,6 +41,7 @@
 			this.outputPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
 			this.outputPictureBox.TabIndex = 0;
 			this.outputPictureBox.TabStop = false;
+			this.outputPictureBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.OutputPictureBox_MouseClick);
 			// 
 			// GridControl
 			// 

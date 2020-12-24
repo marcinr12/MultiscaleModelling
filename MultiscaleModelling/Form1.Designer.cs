@@ -95,6 +95,7 @@
 			this.gridControl.Name = "gridControl";
 			this.gridControl.Size = new System.Drawing.Size(737, 757);
 			this.gridControl.TabIndex = 0;
+			this.gridControl.MouseClick += new System.Windows.Forms.MouseEventHandler(this.GridControl_MouseClick);
 			// 
 			// tableLayoutPanel1
 			// 
