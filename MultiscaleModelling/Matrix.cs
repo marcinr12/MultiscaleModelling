@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MultiscaleModelling.Extensions;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -51,7 +52,7 @@ namespace MultiscaleModelling
 			for (int i = 0; i < ColumnsCount; i++)
 			{
 				row.Add(new Cell(indexY: RowsCount, indexX: i, matrix: this));
-				c.Add((Id: 0, Color: Color.White));
+				c.Add((Id: 0, Color: Cell.EmptySpaceColor.ToColor()));
 			}
 			rows.Add(row);
 		}
@@ -111,7 +112,7 @@ namespace MultiscaleModelling
 				for (int j = 0; j < rows[i].Count; j++)
 				{
 					rows[i][j].SetId(0);
-					rows[i][j].SetColor(Color.White);
+					rows[i][j].SetColor(Cell.EmptySpaceColor.ToColor());
 					rows[i][j].IsOnBorder = false;
 				}
 			}
@@ -424,7 +425,7 @@ namespace MultiscaleModelling
 			Cell c = cells.Where(x => x.Id > 0).GroupBy(c => c.Id).OrderByDescending(x => x.Count()).Where(x => x.Count() >= 5).FirstOrDefault()?.FirstOrDefault();
 
 			id = c?.Id ?? 0;
-			color = c?.Color ?? Color.White;
+			color = c?.Color ?? Cell.EmptySpaceColor.ToColor();
 		}
 		private static void GetCellIdAndColorR2(Cell cell, out int id, out Color color)
 		{
@@ -433,7 +434,7 @@ namespace MultiscaleModelling
 			Cell c = cells.Where(x => x.Id > 0).GroupBy(c => c.Id).OrderByDescending(x => x.Count()).Where(x => x.Count() >= 3).FirstOrDefault()?.FirstOrDefault();
 
 			id = c?.Id ?? 0;
-			color = c?.Color ?? Color.White;
+			color = c?.Color ?? Cell.EmptySpaceColor.ToColor();
 		}
 		private static void GetCellIdAndColorR3(Cell cell, out int id, out Color color)
 		{
@@ -442,7 +443,7 @@ namespace MultiscaleModelling
 			Cell c = cells.Where(x => x.Id > 0).GroupBy(c => c.Id).OrderByDescending(x => x.Count()).Where(x => x.Count() >= 3).FirstOrDefault()?.FirstOrDefault();
 
 			id = c?.Id ?? 0;
-			color = c?.Color ?? Color.White;
+			color = c?.Color ?? Cell.EmptySpaceColor.ToColor();
 		}
 		private static void GetCellIdAndColorR4(Cell cell, int probability, out int id, out Color color)
 		{
@@ -530,12 +531,12 @@ namespace MultiscaleModelling
 				{
 					if (inclusionsType == InclusionsType.Round && IsInRadius(center.IndexX, center.IndexY, rows[i][j].IndexX, rows[i][j].IndexY, size))
 					{
-						rows[i][j].SetColor(Color.Black);
+						rows[i][j].SetColor(Cell.InclusionColor.ToColor());
 						rows[i][j].SetId(-1);
 					}
 					else if(inclusionsType == InclusionsType.Squre)
 					{
-						rows[i][j].SetColor(Color.Black);
+						rows[i][j].SetColor(Cell.InclusionColor.ToColor());
 						rows[i][j].SetId(-1);
 					}
 				});

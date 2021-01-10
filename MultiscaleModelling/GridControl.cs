@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MultiscaleModelling.Extensions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -60,7 +61,7 @@ namespace MultiscaleModelling
 			}
 		}
 
-		private readonly Pen blackPen = new Pen(Color.Black);
+		private readonly Pen blackPen = new Pen(Cell.GridColor.ToColor());
 		public GridControl()
 		{
 			InitializeComponent();
@@ -90,7 +91,7 @@ namespace MultiscaleModelling
 					Cell cell = Matrix.GetCell(i, j);
 					SolidBrush brush;
 					if (PrintBorders && cell.IsOnBorder)
-						brush = Cell.Brushes[Color.Blue.ToArgb()];
+						brush = Cell.Brushes[Cell.BorderColor];
 					else
 						brush = Cell.Brushes[cell.Color.ToArgb()];
 					try
@@ -152,7 +153,14 @@ namespace MultiscaleModelling
 			else
 			{
 				//graphics.Clear(EmptySpaceColor);
-				outputPictureBox.Invoke(new Action(() => graphics.Clear(EmptySpaceColor)));
+				try
+				{
+					outputPictureBox.Invoke(new Action(() => graphics.Clear(EmptySpaceColor)));
+				}
+				catch (Exception ex)
+				{
+					Trace.WriteLine("Draw(IEnumerable<Cell> cells = null)" + ex.Message);
+				}
 				PrintCells();
 			}
 
@@ -176,8 +184,8 @@ namespace MultiscaleModelling
 
 			HashSet<int> colors = new HashSet<int>()
 			{
-				Color.Black.ToArgb(),
-				Color.White.ToArgb()
+				Cell.InclusionColor,
+				Cell.EmptySpaceColor
 			};
 
 			int coloredCells = cells.Select(c => c.Id).Where(id => id > 0).Distinct().Count();
@@ -202,8 +210,8 @@ namespace MultiscaleModelling
 
 			HashSet<int> colors = new HashSet<int>()
 			{
-				Color.Black.ToArgb(),
-				Color.White.ToArgb()
+				Cell.EmptySpaceColor,
+				Cell.InclusionColor
 			};
 
 			for (int i = 0; i < rowsCount; i++)

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using MultiscaleModelling.Extensions;
 using System.Collections.Generic;
 using System.Drawing;
 
@@ -6,18 +6,23 @@ namespace MultiscaleModelling
 {
 	public class Cell
 	{
+		public static readonly int EmptySpaceColor = Color.White.ToArgb();
+		public static readonly int InclusionColor = Color.Black.ToArgb();
+		public static readonly int BorderColor = Color.Blue.ToArgb();
+		public static readonly int GridColor = Color.Black.ToArgb();
+
 		public static readonly Dictionary<int, SolidBrush> Brushes = new Dictionary<int, SolidBrush>()
 		{
-			{ Color.White.ToArgb(), new SolidBrush(Color.White) },
-			{ Color.Blue.ToArgb(), new SolidBrush(Color.Blue) },
-			{ Color.Black.ToArgb(), new SolidBrush(Color.Black) }
+			{ EmptySpaceColor, EmptySpaceColor.ToSolidBrush() },
+			{ InclusionColor, InclusionColor.ToSolidBrush() },
+			{ BorderColor, BorderColor.ToSolidBrush() }
 		};
 		private static long Counter = 0;
 		public long Identifier { get; private set; }
 
 		public int Id { get; private set; }
-		public int NewId { get;  set; }
-		public Color Color {get; private set;}
+		public int NewId { get; set; }
+		public Color Color { get; private set; }
 		public Color NewColor { get; set; }
 		public int Phase { get; set; }
 		public bool IsOnBorder { get; set; }
@@ -34,8 +39,7 @@ namespace MultiscaleModelling
 			IndexX = indexX;
 			IndexY = indexY;
 			Matrix = matrix;
-			Color = Color.White;
-
+			Color = EmptySpaceColor.ToColor();
 		}
 
 		public void SetId(int id)
