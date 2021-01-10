@@ -112,6 +112,7 @@ namespace MultiscaleModelling
 				{
 					rows[i][j].SetId(0);
 					rows[i][j].SetColor(Color.White);
+					rows[i][j].IsOnBorder = false;
 				}
 			}
 		}
@@ -450,7 +451,7 @@ namespace MultiscaleModelling
 
 			GetCellIdAndColorR4(cell, out id, out color);
 
-			if(RandomMachine.Next(1, 101) > probability && id != 0)
+			if(RandomMachine.Next(1, 101) > probability)
 			{
 				id = cell.Id;
 				color = cell.Color;
@@ -659,6 +660,55 @@ namespace MultiscaleModelling
 			{
 				cell.SetColor(Color.Blue);
 			}
+		}
+
+		public int SetCellsBorders(int thickness)
+		{
+			if (thickness < 1)
+				throw new ArgumentException("Thickness cannot be less then 1");
+
+			foreach (Cell cell in rows.SelectMany(x => x))
+				cell.IsOnBorder = false;
+
+			int cellsOnBorder = 0;
+
+			Parallel.ForEach(rows.SelectMany(x => x), cell =>
+			{
+				Action<int> action = new Action<int>(direction =>
+				{
+					if (cell.NeighboringCells[direction] is Cell c && cell.Id != c.Id)
+					{
+						if (!cell.IsOnBorder)
+						{
+							cell.IsOnBorder = true;
+							cellsOnBorder++;
+						}
+
+						int i = 0;
+						while (i < thickness && c.NeighboringCells[(direction + 4) % 8] is Cell ce)
+						{
+							c = ce;
+							i++;
+							if (!c.IsOnBorder)
+							{
+								c.IsOnBorder = true;
+								cellsOnBorder++;
+							}
+						}
+					}
+				});
+
+				action.Invoke(0);
+				action.Invoke(1);
+				action.Invoke(2);
+				action.Invoke(3);
+				action.Invoke(4);
+				action.Invoke(5);
+				action.Invoke(6);
+				action.Invoke(7);
+			});
+
+			return cellsOnBorder;
 		}
 	}
 }

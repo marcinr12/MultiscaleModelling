@@ -9,6 +9,7 @@ namespace MultiscaleModelling
 		public static readonly Dictionary<int, SolidBrush> Brushes = new Dictionary<int, SolidBrush>()
 		{
 			{ Color.White.ToArgb(), new SolidBrush(Color.White) },
+			{ Color.Blue.ToArgb(), new SolidBrush(Color.Blue) },
 			{ Color.Black.ToArgb(), new SolidBrush(Color.Black) }
 		};
 		private static long Counter = 0;
@@ -19,6 +20,7 @@ namespace MultiscaleModelling
 		public Color Color {get; private set;}
 		public Color NewColor { get; set; }
 		public int Phase { get; set; }
+		public bool IsOnBorder { get; set; }
 		public readonly int IndexX;
 		public readonly int IndexY;
 		public Cell[] NeighboringCells { get; set; } = new Cell[] { null, null, null, null, null, null, null, null };

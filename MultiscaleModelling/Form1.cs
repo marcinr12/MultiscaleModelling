@@ -15,6 +15,7 @@ namespace MultiscaleModelling
 	public partial class Form1 : Form
 	{
 		public CancellationTokenSource SimulationCancellationTokenSource { get; private set; } = new CancellationTokenSource();
+		private Task _startTask;
 		private readonly int cellSizeBmp = 1;
 		public Form1()
 		{
@@ -45,10 +46,17 @@ namespace MultiscaleModelling
 			gridControl.Matrix.SetRandomCells(10);
 
 			bcComboBox.Items.AddRange(EnumsNames.BcNames.Values.ToArray());
-			bcComboBox.SelectedItem = EnumsNames.BcNames[Bc.Absorbing];
+			bcComboBox.SelectedItem = EnumsNames.BcNames[Bc.Periodic];
 
 			inclusionTypeComboBox.Items.AddRange(EnumsNames.InclusionsTypeNames.Values.ToArray());
 			inclusionTypeComboBox.SelectedItem = EnumsNames.InclusionsTypeNames[InclusionsType.Round];
+
+#if DEBUG
+			animationCheckBox.Checked = false;
+			StartButton_Click(null, null);
+			_startTask.Wait();
+			animationCheckBox.Checked = true; 
+#endif
 		}
 		private void ImportBmpToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -218,6 +226,7 @@ namespace MultiscaleModelling
 						clearButton.Enabled = true;
 						iterationButton.Enabled = true;
 						startButton.Enabled = true;
+						gbLabel.Text = $"GB: ---";
 					}));		
 				}
 			});	
@@ -257,7 +266,7 @@ namespace MultiscaleModelling
 			startButton.Enabled = false;
 			SimulationCancellationTokenSource = new CancellationTokenSource();
 
-			Task.Run(() =>
+			_startTask = Task.Run(() =>
 			{
 				try
 				{
@@ -291,13 +300,14 @@ namespace MultiscaleModelling
 				}
 				finally
 				{
-					startButton.Invoke(new Action(() =>
-					{
-						randomButton.Enabled = true;
-						clearButton.Enabled = true;
-						iterationButton.Enabled = true;
-						startButton.Enabled = true;
-					}));
+					if(IsHandleCreated)
+						startButton.Invoke(new Action(() =>
+						{
+							randomButton.Enabled = true;
+							clearButton.Enabled = true;
+							iterationButton.Enabled = true;
+							startButton.Enabled = true;
+						}));
 				}
 			}, SimulationCancellationTokenSource.Token);
 		}
@@ -359,6 +369,35 @@ namespace MultiscaleModelling
 			Trace.WriteLine($"cell.Id:{gridControl.Matrix.SelectedCell.Id}");
 			gridControl.Matrix.ShowBorderOfSelectedCell();
 			gridControl.Draw();
+		}
+		private void BorderCheckBox_CheckedChanged(object sender, EventArgs e)
+		{
+			if (gridControl.Matrix.GetCells().Where(c => c.Id == 0).FirstOrDefault() is null)
+			{
+				if (borderCheckBox.Checked == true)
+				{
+					int gb = gridControl.Matrix.SetCellsBorders(ToInt32(thicknessNumericUpDown.Value));
+					gbLabel.Text = $"GB: {gb / (SizeXNumericUpDown.Value * SizeYNumericUpDown.Value) * 100}%"; 
+				}
+			}
+			else
+			{
+				Trace.WriteLine("Grid is not filled: BorderCheckBox_CheckedChanged");
+			}
+
+			borderPanel.Enabled = borderCheckBox.Checked;
+			gridControl.PrintBorders  = borderCheckBox.Checked;
+			gridControl.Draw();
+		}
+
+		protected override void OnHandleCreated(EventArgs e)
+		{
+			base.OnHandleCreated(e);
+
+			randomButton.Enabled = true;
+			clearButton.Enabled = true;
+			iterationButton.Enabled = true;
+			startButton.Enabled = true;
 		}
 	}
 }

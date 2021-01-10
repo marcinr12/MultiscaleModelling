@@ -17,6 +17,7 @@ namespace MultiscaleModelling
 
 		public readonly Matrix Matrix = new Matrix();
 		public Color EmptySpaceColor { get; set; } = Color.FromArgb(255, 240, 240, 240);
+		public bool PrintBorders { get; set; } = true;
 
 		private int _gridCellWidth;
 		public int GridCellWidth
@@ -87,21 +88,25 @@ namespace MultiscaleModelling
 				for (int j = 0; j < Matrix.ColumnsCount; j++)
 				{
 					Cell cell = Matrix.GetCell(i, j);
-					SolidBrush brush = Cell.Brushes[cell.Color.ToArgb()];
+					SolidBrush brush;
+					if (PrintBorders && cell.IsOnBorder)
+						brush = Cell.Brushes[Color.Blue.ToArgb()];
+					else
+						brush = Cell.Brushes[cell.Color.ToArgb()];
 					try
 					{
 						graphics.FillRectangle(brush, Matrix.CellSize * cell.IndexX - 1, Matrix.CellSize * cell.IndexY - 1, Matrix.CellSize + 1, Matrix.CellSize + 1);
 					}
 					catch (Exception e)
 					{
-
+						Trace.WriteLine("Exeption: PrintCells()");
 					}
 				}
 			}
 		}
 		public void PrintCells(IEnumerable<Cell> cells)
 		{
-			foreach(Cell cell in cells)
+			foreach (Cell cell in cells)
 			{
 				SolidBrush brush = Cell.Brushes[cell.Color.ToArgb()];
 				try
