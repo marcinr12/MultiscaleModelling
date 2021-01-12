@@ -31,10 +31,11 @@
 			this.gridControl = new MultiscaleModelling.GridControl();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
-			this.borderPanel = new System.Windows.Forms.Panel();
+			this.groupBox3 = new System.Windows.Forms.GroupBox();
 			this.thicknessNumericUpDown = new System.Windows.Forms.NumericUpDown();
+			this.ClearGbButton = new System.Windows.Forms.Button();
 			this.label8 = new System.Windows.Forms.Label();
-			this.borderCheckBox = new System.Windows.Forms.CheckBox();
+			this.showGbButton = new System.Windows.Forms.Button();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
 			this.rulesPanel = new System.Windows.Forms.Panel();
 			this.label7 = new System.Windows.Forms.Label();
@@ -78,7 +79,7 @@
 			this.exportBmpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.groupBox1.SuspendLayout();
-			this.borderPanel.SuspendLayout();
+			this.groupBox3.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.thicknessNumericUpDown)).BeginInit();
 			this.groupBox2.SuspendLayout();
 			this.rulesPanel.SuspendLayout();
@@ -102,8 +103,7 @@
 			this.gridControl.IsGridShowed = false;
 			this.gridControl.Location = new System.Drawing.Point(203, 3);
 			this.gridControl.Name = "gridControl";
-			this.gridControl.PrintBorders = true;
-			this.gridControl.Size = new System.Drawing.Size(737, 823);
+			this.gridControl.Size = new System.Drawing.Size(741, 807);
 			this.gridControl.TabIndex = 0;
 			this.gridControl.MouseClick += new System.Windows.Forms.MouseEventHandler(this.GridControl_MouseClick);
 			// 
@@ -116,18 +116,17 @@
 			this.tableLayoutPanel1.Controls.Add(this.groupBox1, 0, 0);
 			this.tableLayoutPanel1.Controls.Add(this.panel1, 1, 1);
 			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 24);
+			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 27);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
 			this.tableLayoutPanel1.RowCount = 2;
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-			this.tableLayoutPanel1.Size = new System.Drawing.Size(943, 869);
+			this.tableLayoutPanel1.Size = new System.Drawing.Size(947, 853);
 			this.tableLayoutPanel1.TabIndex = 1;
 			// 
 			// groupBox1
 			// 
-			this.groupBox1.Controls.Add(this.borderPanel);
-			this.groupBox1.Controls.Add(this.borderCheckBox);
+			this.groupBox1.Controls.Add(this.groupBox3);
 			this.groupBox1.Controls.Add(this.groupBox2);
 			this.groupBox1.Controls.Add(this.label5);
 			this.groupBox1.Controls.Add(this.terminateButton);
@@ -147,23 +146,27 @@
 			this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.groupBox1.Location = new System.Drawing.Point(3, 3);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(194, 823);
+			this.groupBox1.Size = new System.Drawing.Size(194, 807);
 			this.groupBox1.TabIndex = 1;
 			this.groupBox1.TabStop = false;
 			// 
-			// borderPanel
+			// groupBox3
 			// 
-			this.borderPanel.Controls.Add(this.thicknessNumericUpDown);
-			this.borderPanel.Controls.Add(this.label8);
-			this.borderPanel.Location = new System.Drawing.Point(30, 92);
-			this.borderPanel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-			this.borderPanel.Name = "borderPanel";
-			this.borderPanel.Size = new System.Drawing.Size(141, 33);
-			this.borderPanel.TabIndex = 18;
+			this.groupBox3.Controls.Add(this.thicknessNumericUpDown);
+			this.groupBox3.Controls.Add(this.ClearGbButton);
+			this.groupBox3.Controls.Add(this.label8);
+			this.groupBox3.Controls.Add(this.showGbButton);
+			this.groupBox3.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.groupBox3.Location = new System.Drawing.Point(3, 330);
+			this.groupBox3.Name = "groupBox3";
+			this.groupBox3.Size = new System.Drawing.Size(188, 88);
+			this.groupBox3.TabIndex = 19;
+			this.groupBox3.TabStop = false;
+			this.groupBox3.Text = "Grain boundary";
 			// 
 			// thicknessNumericUpDown
 			// 
-			this.thicknessNumericUpDown.Location = new System.Drawing.Point(80, 3);
+			this.thicknessNumericUpDown.Location = new System.Drawing.Point(94, 57);
 			this.thicknessNumericUpDown.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.thicknessNumericUpDown.Maximum = new decimal(new int[] {
             10,
@@ -176,7 +179,7 @@
             0,
             0});
 			this.thicknessNumericUpDown.Name = "thicknessNumericUpDown";
-			this.thicknessNumericUpDown.Size = new System.Drawing.Size(61, 27);
+			this.thicknessNumericUpDown.Size = new System.Drawing.Size(79, 27);
 			this.thicknessNumericUpDown.TabIndex = 17;
 			this.thicknessNumericUpDown.Value = new decimal(new int[] {
             1,
@@ -184,34 +187,43 @@
             0,
             0});
 			// 
+			// ClearGbButton
+			// 
+			this.ClearGbButton.Location = new System.Drawing.Point(92, 24);
+			this.ClearGbButton.Name = "ClearGbButton";
+			this.ClearGbButton.Size = new System.Drawing.Size(81, 29);
+			this.ClearGbButton.TabIndex = 1;
+			this.ClearGbButton.Text = "Clear";
+			this.ClearGbButton.UseVisualStyleBackColor = true;
+			this.ClearGbButton.Click += new System.EventHandler(this.ClearGbButton_Click);
+			// 
 			// label8
 			// 
 			this.label8.AutoSize = true;
-			this.label8.Location = new System.Drawing.Point(3, 5);
+			this.label8.Location = new System.Drawing.Point(6, 62);
 			this.label8.Name = "label8";
 			this.label8.Size = new System.Drawing.Size(74, 20);
 			this.label8.TabIndex = 18;
 			this.label8.Text = "Thickness:";
 			// 
-			// borderCheckBox
+			// showGbButton
 			// 
-			this.borderCheckBox.AutoSize = true;
-			this.borderCheckBox.Location = new System.Drawing.Point(9, 59);
-			this.borderCheckBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-			this.borderCheckBox.Name = "borderCheckBox";
-			this.borderCheckBox.Size = new System.Drawing.Size(122, 24);
-			this.borderCheckBox.TabIndex = 16;
-			this.borderCheckBox.Text = "Show borders";
-			this.borderCheckBox.UseVisualStyleBackColor = true;
-			this.borderCheckBox.CheckedChanged += new System.EventHandler(this.BorderCheckBox_CheckedChanged);
+			this.showGbButton.Location = new System.Drawing.Point(6, 23);
+			this.showGbButton.Name = "showGbButton";
+			this.showGbButton.Size = new System.Drawing.Size(82, 29);
+			this.showGbButton.TabIndex = 0;
+			this.showGbButton.Text = "Show";
+			this.showGbButton.UseVisualStyleBackColor = true;
+			this.showGbButton.Click += new System.EventHandler(this.ShowGbButton_Click);
 			// 
 			// groupBox2
 			// 
 			this.groupBox2.Controls.Add(this.rulesPanel);
 			this.groupBox2.Controls.Add(this.shapeControlCheckBox);
-			this.groupBox2.Location = new System.Drawing.Point(9, 417);
+			this.groupBox2.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.groupBox2.Location = new System.Drawing.Point(3, 418);
 			this.groupBox2.Name = "groupBox2";
-			this.groupBox2.Size = new System.Drawing.Size(175, 223);
+			this.groupBox2.Size = new System.Drawing.Size(188, 223);
 			this.groupBox2.TabIndex = 15;
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "Growth type";
@@ -318,7 +330,7 @@
 			// label5
 			// 
 			this.label5.AutoSize = true;
-			this.label5.Location = new System.Drawing.Point(9, 201);
+			this.label5.Location = new System.Drawing.Point(7, 126);
 			this.label5.Name = "label5";
 			this.label5.Size = new System.Drawing.Size(30, 20);
 			this.label5.TabIndex = 14;
@@ -327,7 +339,7 @@
 			// terminateButton
 			// 
 			this.terminateButton.BackColor = System.Drawing.Color.Red;
-			this.terminateButton.Location = new System.Drawing.Point(9, 372);
+			this.terminateButton.Location = new System.Drawing.Point(7, 297);
 			this.terminateButton.Name = "terminateButton";
 			this.terminateButton.Size = new System.Drawing.Size(86, 29);
 			this.terminateButton.TabIndex = 13;
@@ -345,7 +357,7 @@
 			this.inclusionsGroupBox.Controls.Add(this.label4);
 			this.inclusionsGroupBox.Controls.Add(this.label3);
 			this.inclusionsGroupBox.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.inclusionsGroupBox.Location = new System.Drawing.Point(3, 657);
+			this.inclusionsGroupBox.Location = new System.Drawing.Point(3, 641);
 			this.inclusionsGroupBox.Name = "inclusionsGroupBox";
 			this.inclusionsGroupBox.Size = new System.Drawing.Size(188, 163);
 			this.inclusionsGroupBox.TabIndex = 12;
@@ -436,7 +448,7 @@
 			// 
 			this.bcComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.bcComboBox.FormattingEnabled = true;
-			this.bcComboBox.Location = new System.Drawing.Point(45, 199);
+			this.bcComboBox.Location = new System.Drawing.Point(43, 124);
 			this.bcComboBox.Name = "bcComboBox";
 			this.bcComboBox.Size = new System.Drawing.Size(143, 28);
 			this.bcComboBox.TabIndex = 11;
@@ -447,7 +459,7 @@
 			this.animationCheckBox.AutoSize = true;
 			this.animationCheckBox.Checked = true;
 			this.animationCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.animationCheckBox.Location = new System.Drawing.Point(101, 340);
+			this.animationCheckBox.Location = new System.Drawing.Point(99, 265);
 			this.animationCheckBox.Name = "animationCheckBox";
 			this.animationCheckBox.Size = new System.Drawing.Size(87, 24);
 			this.animationCheckBox.TabIndex = 10;
@@ -456,7 +468,7 @@
 			// 
 			// startButton
 			// 
-			this.startButton.Location = new System.Drawing.Point(9, 337);
+			this.startButton.Location = new System.Drawing.Point(7, 262);
 			this.startButton.Name = "startButton";
 			this.startButton.Size = new System.Drawing.Size(86, 29);
 			this.startButton.TabIndex = 9;
@@ -466,7 +478,7 @@
 			// 
 			// iterationButton
 			// 
-			this.iterationButton.Location = new System.Drawing.Point(9, 303);
+			this.iterationButton.Location = new System.Drawing.Point(7, 228);
 			this.iterationButton.Name = "iterationButton";
 			this.iterationButton.Size = new System.Drawing.Size(86, 29);
 			this.iterationButton.TabIndex = 8;
@@ -476,7 +488,7 @@
 			// 
 			// randomNumericUpDown
 			// 
-			this.randomNumericUpDown.Location = new System.Drawing.Point(101, 233);
+			this.randomNumericUpDown.Location = new System.Drawing.Point(99, 158);
 			this.randomNumericUpDown.Maximum = new decimal(new int[] {
             100000,
             0,
@@ -498,7 +510,7 @@
 			// 
 			// clearButton
 			// 
-			this.clearButton.Location = new System.Drawing.Point(9, 267);
+			this.clearButton.Location = new System.Drawing.Point(7, 192);
 			this.clearButton.Name = "clearButton";
 			this.clearButton.Size = new System.Drawing.Size(86, 29);
 			this.clearButton.TabIndex = 6;
@@ -508,7 +520,7 @@
 			// 
 			// randomButton
 			// 
-			this.randomButton.Location = new System.Drawing.Point(9, 232);
+			this.randomButton.Location = new System.Drawing.Point(7, 157);
 			this.randomButton.Name = "randomButton";
 			this.randomButton.Size = new System.Drawing.Size(86, 29);
 			this.randomButton.TabIndex = 5;
@@ -530,7 +542,7 @@
 			// label2
 			// 
 			this.label2.AutoSize = true;
-			this.label2.Location = new System.Drawing.Point(9, 167);
+			this.label2.Location = new System.Drawing.Point(7, 92);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(47, 20);
 			this.label2.TabIndex = 3;
@@ -539,7 +551,7 @@
 			// label1
 			// 
 			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(9, 135);
+			this.label1.Location = new System.Drawing.Point(7, 60);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(48, 20);
 			this.label1.TabIndex = 2;
@@ -547,7 +559,7 @@
 			// 
 			// SizeYNumericUpDown
 			// 
-			this.SizeYNumericUpDown.Location = new System.Drawing.Point(79, 165);
+			this.SizeYNumericUpDown.Location = new System.Drawing.Point(77, 90);
 			this.SizeYNumericUpDown.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -570,7 +582,7 @@
 			// 
 			// SizeXNumericUpDown
 			// 
-			this.SizeXNumericUpDown.Location = new System.Drawing.Point(79, 132);
+			this.SizeXNumericUpDown.Location = new System.Drawing.Point(77, 57);
 			this.SizeXNumericUpDown.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -595,10 +607,10 @@
 			// 
 			this.panel1.Controls.Add(this.gbLabel);
 			this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panel1.Location = new System.Drawing.Point(203, 833);
+			this.panel1.Location = new System.Drawing.Point(203, 817);
 			this.panel1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(737, 32);
+			this.panel1.Size = new System.Drawing.Size(741, 32);
 			this.panel1.TabIndex = 2;
 			// 
 			// gbLabel
@@ -618,7 +630,7 @@
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Padding = new System.Windows.Forms.Padding(6, 3, 0, 3);
-			this.menuStrip1.Size = new System.Drawing.Size(943, 24);
+			this.menuStrip1.Size = new System.Drawing.Size(947, 27);
 			this.menuStrip1.TabIndex = 2;
 			this.menuStrip1.Text = "menuStrip1";
 			// 
@@ -627,7 +639,7 @@
 			this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.microstructureToolStripMenuItem});
 			this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-			this.fileToolStripMenuItem.Size = new System.Drawing.Size(33, 18);
+			this.fileToolStripMenuItem.Size = new System.Drawing.Size(41, 21);
 			this.fileToolStripMenuItem.Text = "File";
 			// 
 			// microstructureToolStripMenuItem
@@ -639,54 +651,54 @@
             this.exportTextToolStripMenuItem,
             this.exportBmpToolStripMenuItem});
 			this.microstructureToolStripMenuItem.Name = "microstructureToolStripMenuItem";
-			this.microstructureToolStripMenuItem.Size = new System.Drawing.Size(147, 26);
+			this.microstructureToolStripMenuItem.Size = new System.Drawing.Size(175, 26);
 			this.microstructureToolStripMenuItem.Text = "Microstructure";
 			// 
 			// importTextToolStripMenuItem
 			// 
 			this.importTextToolStripMenuItem.Name = "importTextToolStripMenuItem";
-			this.importTextToolStripMenuItem.Size = new System.Drawing.Size(159, 26);
+			this.importTextToolStripMenuItem.Size = new System.Drawing.Size(189, 26);
 			this.importTextToolStripMenuItem.Text = "Import (text file)";
 			// 
 			// importBmpToolStripMenuItem
 			// 
 			this.importBmpToolStripMenuItem.Name = "importBmpToolStripMenuItem";
-			this.importBmpToolStripMenuItem.Size = new System.Drawing.Size(159, 26);
+			this.importBmpToolStripMenuItem.Size = new System.Drawing.Size(189, 26);
 			this.importBmpToolStripMenuItem.Text = "Import (bmp file)";
 			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(156, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(186, 6);
 			// 
 			// exportTextToolStripMenuItem
 			// 
 			this.exportTextToolStripMenuItem.Name = "exportTextToolStripMenuItem";
-			this.exportTextToolStripMenuItem.Size = new System.Drawing.Size(159, 26);
+			this.exportTextToolStripMenuItem.Size = new System.Drawing.Size(189, 26);
 			this.exportTextToolStripMenuItem.Text = "Export (text file)";
 			// 
 			// exportBmpToolStripMenuItem
 			// 
 			this.exportBmpToolStripMenuItem.Name = "exportBmpToolStripMenuItem";
-			this.exportBmpToolStripMenuItem.Size = new System.Drawing.Size(159, 26);
+			this.exportBmpToolStripMenuItem.Size = new System.Drawing.Size(189, 26);
 			this.exportBmpToolStripMenuItem.Text = "Export (bmp file)";
 			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(943, 893);
+			this.ClientSize = new System.Drawing.Size(947, 880);
 			this.Controls.Add(this.tableLayoutPanel1);
 			this.Controls.Add(this.menuStrip1);
 			this.MainMenuStrip = this.menuStrip1;
-			this.MinimumSize = new System.Drawing.Size(959, 930);
+			this.MinimumSize = new System.Drawing.Size(959, 822);
 			this.Name = "Form1";
 			this.Text = "Multiscale Modelling";
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
-			this.borderPanel.ResumeLayout(false);
-			this.borderPanel.PerformLayout();
+			this.groupBox3.ResumeLayout(false);
+			this.groupBox3.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.thicknessNumericUpDown)).EndInit();
 			this.groupBox2.ResumeLayout(false);
 			this.groupBox2.PerformLayout();
@@ -753,12 +765,13 @@
 		private System.Windows.Forms.Panel rulesPanel;
 		private System.Windows.Forms.NumericUpDown probabilityNumericUpDown;
 		private System.Windows.Forms.Label label7;
-		private System.Windows.Forms.Panel borderPanel;
 		private System.Windows.Forms.Label label8;
 		private System.Windows.Forms.NumericUpDown thicknessNumericUpDown;
-		private System.Windows.Forms.CheckBox borderCheckBox;
 		private System.Windows.Forms.Panel panel1;
 		private System.Windows.Forms.Label gbLabel;
+		private System.Windows.Forms.GroupBox groupBox3;
+		private System.Windows.Forms.Button ClearGbButton;
+		private System.Windows.Forms.Button showGbButton;
 	}
 }
 

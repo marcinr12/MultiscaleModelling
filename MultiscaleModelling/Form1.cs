@@ -29,6 +29,7 @@ namespace MultiscaleModelling
 			inclusionsNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
 			radiusNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
 			probabilityNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
+			thicknessNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
 
 			exportTextToolStripMenuItem.Click += ExportTextToolStripMenuItem_Click;
 			importTextToolStripMenuItem.Click += ImportTextToolStripMenuItem_Click;
@@ -366,30 +367,13 @@ namespace MultiscaleModelling
 		}
 		private void GridControl_MouseClick(object sender, MouseEventArgs e)
 		{
+			if (gridControl.Matrix.SelectedCell?.Id is null)
+				return;
 			Trace.WriteLine($"cell.Id:{gridControl.Matrix.SelectedCell.Id}");
-			gridControl.Matrix.ShowBorderOfSelectedCell();
+
+			gridControl.Matrix.SetCellsBorders(ToInt32(thicknessNumericUpDown.Value), gridControl.Matrix.SelectedCell.Id);
 			gridControl.Draw();
 		}
-		private void BorderCheckBox_CheckedChanged(object sender, EventArgs e)
-		{
-			if (gridControl.Matrix.GetCells().Where(c => c.Id == 0).FirstOrDefault() is null)
-			{
-				if (borderCheckBox.Checked == true)
-				{
-					int gb = gridControl.Matrix.SetCellsBorders(ToInt32(thicknessNumericUpDown.Value));
-					gbLabel.Text = $"GB: {gb / (SizeXNumericUpDown.Value * SizeYNumericUpDown.Value) * 100}%"; 
-				}
-			}
-			else
-			{
-				Trace.WriteLine("Grid is not filled: BorderCheckBox_CheckedChanged");
-			}
-
-			borderPanel.Enabled = borderCheckBox.Checked;
-			gridControl.PrintBorders  = borderCheckBox.Checked;
-			gridControl.Draw();
-		}
-
 		protected override void OnHandleCreated(EventArgs e)
 		{
 			base.OnHandleCreated(e);
@@ -398,6 +382,24 @@ namespace MultiscaleModelling
 			clearButton.Enabled = true;
 			iterationButton.Enabled = true;
 			startButton.Enabled = true;
+		}
+		private void ShowGbButton_Click(object sender, EventArgs e)
+		{
+			if (gridControl.Matrix.GetCells().Where(c => c.Id == 0).FirstOrDefault() is Cell)
+			{
+				Trace.WriteLine("Grid is not filled: BorderCheckBox_CheckedChanged");
+				return;
+			}
+
+			int gb = gridControl.Matrix.SetCellsBorders(ToInt32(thicknessNumericUpDown.Value));
+			gbLabel.Text = $"GB: {gb / (SizeXNumericUpDown.Value * SizeYNumericUpDown.Value) * 100}%";
+
+			gridControl.Draw();
+		}
+		private void ClearGbButton_Click(object sender, EventArgs e)
+		{
+			gridControl.Matrix.ClearCellsBorders();
+			gridControl.Draw();
 		}
 	}
 }

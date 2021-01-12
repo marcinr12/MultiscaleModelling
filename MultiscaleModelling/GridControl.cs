@@ -18,7 +18,6 @@ namespace MultiscaleModelling
 
 		public readonly Matrix Matrix = new Matrix();
 		public Color EmptySpaceColor { get; set; } = Color.FromArgb(255, 240, 240, 240);
-		public bool PrintBorders { get; set; } = true;
 
 		private int _gridCellWidth;
 		public int GridCellWidth
@@ -90,7 +89,7 @@ namespace MultiscaleModelling
 				{
 					Cell cell = Matrix.GetCell(i, j);
 					SolidBrush brush;
-					if (PrintBorders && cell.IsOnBorder)
+					if (cell.IsOnBorder)
 						brush = Cell.Brushes[Cell.BorderColor];
 					else
 						brush = Cell.Brushes[cell.Color.ToArgb()];
@@ -100,7 +99,7 @@ namespace MultiscaleModelling
 					}
 					catch (Exception e)
 					{
-						Trace.WriteLine("Exeption: PrintCells()");
+						Trace.WriteLine("Exeption: PrintCells(): " + e.Message);
 					}
 				}
 			}
@@ -116,7 +115,7 @@ namespace MultiscaleModelling
 				}
 				catch (Exception e)
 				{
-
+					Trace.WriteLine("Exeption: PrintCells(IEnumerable<Cell> cells): " + e.Message);
 				}
 			}
 		}
@@ -239,13 +238,13 @@ namespace MultiscaleModelling
 			add { outputPictureBox.MouseClick += value; }
 			remove { outputPictureBox.MouseClick -= value; }
 		}
-
 		private void OutputPictureBox_MouseClick(object sender, MouseEventArgs e)
 		{
 			int xIndex = ToInt32(Math.Floor(e.X / Matrix.CellSize));
 			int yIndex = ToInt32(Math.Floor(e.Y / Matrix.CellSize));
 
-			Matrix.SelectedCell = Matrix.GetCell(yIndex, xIndex);
+			if (xIndex < Matrix.ColumnsCount && yIndex < Matrix.RowsCount)
+				Matrix.SelectedCell = Matrix.GetCell(yIndex, xIndex); 
 		}
 	}
 }

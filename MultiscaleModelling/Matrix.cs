@@ -113,7 +113,6 @@ namespace MultiscaleModelling
 				{
 					rows[i][j].SetId(0);
 					rows[i][j].SetColor(Cell.EmptySpaceColor.ToColor());
-					rows[i][j].IsOnBorder = false;
 				}
 			}
 		}
@@ -633,83 +632,66 @@ namespace MultiscaleModelling
 			else
 				throw new Exception();
 		}
-
-		public void ShowBorderOfSelectedCell()
-		{
-			if (SelectedCell is null)
-				return;
-
-			var cells = rows.SelectMany(x => x).Where(c => c.Color.ToArgb() == SelectedCell.Color.ToArgb());
-
-			List<Cell> cellsOnBorder = new List<Cell>();
-			foreach(Cell cell in cells)
-			{
-				if (cell.NeighboringCells[1]?.Color.ToArgb() is int upId && cell.Color.ToArgb() != upId)
-					cellsOnBorder.Add(cell);
-
-				if (cell.NeighboringCells[5]?.Color.ToArgb() is int downId && cell.Color.ToArgb() != downId)
-					cellsOnBorder.Add(cell);
-
-				if (cell.NeighboringCells[3]?.Color.ToArgb() is int rightId && cell.Color.ToArgb() != rightId)
-					cellsOnBorder.Add(cell);
-
-				if (cell.NeighboringCells[7]?.Color.ToArgb() is int leftId && cell.Color.ToArgb() != leftId)
-					cellsOnBorder.Add(cell);
-			}
-
-			foreach(Cell cell in cellsOnBorder)
-			{
-				cell.SetColor(Color.Blue);
-			}
-		}
-
-		public int SetCellsBorders(int thickness)
+		public int SetCellsBorders(int thickness, int? cellId = null)
 		{
 			if (thickness < 1)
 				throw new ArgumentException("Thickness cannot be less then 1");
 
-			foreach (Cell cell in rows.SelectMany(x => x))
-				cell.IsOnBorder = false;
+			if(cellId is null)
+				ClearCellsBorders();
 
 			int cellsOnBorder = 0;
 
-			Parallel.ForEach(rows.SelectMany(x => x), cell =>
+			Action<int, Cell> action = new Action<int, Cell>((direction, cell) =>
 			{
-				Action<int> action = new Action<int>(direction =>
+				Cell c = cell.NeighboringCells[direction];
+				if (c is Cell
+					&& (cellId == null && cell.Id != c.Id)
+					|| (cellId is int && cell.Id != c.Id && (c.Id == cellId.Value || cell.Id == cellId)))
 				{
-					if (cell.NeighboringCells[direction] is Cell c && cell.Id != c.Id)
+					if (!cell.IsOnBorder)
 					{
-						if (!cell.IsOnBorder)
+						cell.IsOnBorder = true;
+						cellsOnBorder++;
+					}
+
+					int i = 0;
+					while (i < thickness && c.NeighboringCells[(direction + 4) % 8] is Cell ce)
+					{
+						c = ce;
+						i++;
+						if (!c.IsOnBorder)
 						{
-							cell.IsOnBorder = true;
+							c.IsOnBorder = true;
 							cellsOnBorder++;
 						}
-
-						int i = 0;
-						while (i < thickness && c.NeighboringCells[(direction + 4) % 8] is Cell ce)
-						{
-							c = ce;
-							i++;
-							if (!c.IsOnBorder)
-							{
-								c.IsOnBorder = true;
-								cellsOnBorder++;
-							}
-						}
 					}
-				});
+				}
+			});
 
-				action.Invoke(0);
-				action.Invoke(1);
-				action.Invoke(2);
-				action.Invoke(3);
-				action.Invoke(4);
-				action.Invoke(5);
-				action.Invoke(6);
-				action.Invoke(7);
+			Parallel.ForEach(rows.SelectMany(x => x), cell =>
+			{
+				action.Invoke(0, cell);
+				action.Invoke(1, cell);
+				action.Invoke(2, cell);
+				action.Invoke(3, cell);
+				action.Invoke(4, cell);
+				action.Invoke(5, cell);
+				action.Invoke(6, cell);
+				action.Invoke(7, cell);
 			});
 
 			return cellsOnBorder;
+		}
+		public void ClearCellsBorders(int? cellId = null)
+		{
+			Parallel.ForEach(rows.SelectMany(x => x), cell =>
+			{
+				if(!cellId.HasValue)
+					cell.IsOnBorder = false;
+				else if (cellId.HasValue && cell.Id == cellId)
+					cell.IsOnBorder = false;
+			});
 		}
 	}
 }
