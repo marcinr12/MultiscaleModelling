@@ -23,6 +23,8 @@ namespace MultiscaleModelling
 			SizeXNumericUpDown_Leave(null, null);
 			SizeYNumericUpDown_Leave(null, null);
 
+			substructureRadioButton.Checked = true;
+
 			SizeXNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
 			SizeYNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
 			randomNumericUpDown.MouseWheel += NumericUpDown_MouseWheel;
@@ -372,15 +374,15 @@ namespace MultiscaleModelling
 			int selectedCellId = gridControl.Matrix.SelectedCell.Id;
 			Trace.WriteLine($"cell.Id:{selectedCellId}");
 
-			if (bordersRadioButton.Checked)
+			if (substrustureWithBordersRadioButton.Checked)
 			{
 				gridControl.Matrix.SetCellsBorders(ToInt32(thicknessNumericUpDown.Value), selectedCellId);
-				gridControl.Draw(); 
+				gridControl.ViewMode = ViewMode.SubstractureWithBorders;
 			}
-			else if(grainsRadioButton.Checked)
+			else if(dualPhaseRadioButton.Checked)
 			{
 				gridControl.Matrix.SetDualPhase(selectedCellId);
-				gridControl.Draw(null, dualPhase: true);
+				gridControl.ViewMode = ViewMode.DualPhase;
 			}
 		}
 		protected override void OnHandleCreated(EventArgs e)
@@ -403,28 +405,51 @@ namespace MultiscaleModelling
 			int gb = gridControl.Matrix.SetCellsBorders(ToInt32(thicknessNumericUpDown.Value));
 			gbLabel.Text = $"GB: {gb / (SizeXNumericUpDown.Value * SizeYNumericUpDown.Value) * 100}%";
 
-			gridControl.Draw();
+			gridControl.ViewMode = ViewMode.SubstractureWithBorders;
+			substrustureWithBordersRadioButton.Checked = true;
 		}
 		private void ClearGbButton_Click(object sender, EventArgs e)
 		{
 			gridControl.Matrix.ClearCellsBorders();
-			gridControl.Draw();
+			gridControl.ViewMode = ViewMode.SubstractureWithBorders;
+			substrustureWithBordersRadioButton.Checked = true;
 		}
 
-		private void ViewRadioButton_CheckedChanged(object sender, EventArgs e)
+		private void ViewModeRadioButton_CheckedChanged(object sender, EventArgs e)
 		{
 			RadioButton radioButton = sender as RadioButton;
 			if (!radioButton.Checked)
 				return;
 
-			if(ReferenceEquals(sender, substructureRadioButton))
+			if (ReferenceEquals(sender, substructureRadioButton))
 			{
-				gridControl.Draw();
+				gridControl.ViewMode = ViewMode.Substracture;
+				dualPhasePanel.Enabled = false;
+				grainBoundaryPanel.Enabled = false;
 			}
-			else if(ReferenceEquals(sender, dualPhaseRadioButton))
+			else if (ReferenceEquals(sender, substrustureWithBordersRadioButton))
 			{
-				gridControl.Draw(null, dualPhase: true);
+				gridControl.ViewMode = ViewMode.SubstractureWithBorders;
+				dualPhasePanel.Enabled = false;
+				grainBoundaryPanel.Enabled = true;
 			}
+			else if (ReferenceEquals(sender, dualPhaseRadioButton))
+			{
+				gridControl.ViewMode = ViewMode.DualPhase;
+				dualPhasePanel.Enabled = true;
+				grainBoundaryPanel.Enabled = false;
+			}
+		}
+
+		private void ClearPhaseButton_Click(object sender, EventArgs e)
+		{
+			gridControl.Matrix.ClearDualPhase();
+			gridControl.ViewMode = ViewMode.DualPhase;
+		}
+
+		private void SecondGrowthButton_Click(object sender, EventArgs e)
+		{
+
 		}
 	}
 }

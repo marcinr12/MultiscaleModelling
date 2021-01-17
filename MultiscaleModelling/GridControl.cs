@@ -60,6 +60,19 @@ namespace MultiscaleModelling
 			}
 		}
 
+		private ViewMode _viewMode;
+
+		public ViewMode ViewMode
+		{
+			get => _viewMode;
+			set 
+			{ 
+				_viewMode = value;
+				Draw();
+			}
+		}
+
+
 		private readonly Pen blackPen = new Pen(Cell.GridColor.ToColor());
 		public GridControl()
 		{
@@ -80,7 +93,7 @@ namespace MultiscaleModelling
 		}
 
 		readonly Stopwatch sw = new Stopwatch();
-		public void PrintCells(bool dualPhase = false)
+		public void PrintCells()
 		{
 			sw.Restart();
 			for (int i = 0; i < Matrix.RowsCount; i++)
@@ -88,16 +101,25 @@ namespace MultiscaleModelling
 				for (int j = 0; j < Matrix.ColumnsCount; j++)
 				{
 					Cell cell = Matrix.GetCell(i, j);
-					SolidBrush brush;
+					SolidBrush brush = null;
 
-					if (cell.IsOnBorder)
-						brush = Cell.Brushes[Cell.BorderColor];
-					else
+					if (ViewMode == ViewMode.SubstractureWithBorders)
+					{
+						if(cell.IsOnBorder)
+							brush = Cell.Brushes[Cell.BorderColor];
+						else
+							brush = Cell.Brushes[cell.Color.ToArgb()];
+					}			
+					else if (ViewMode == ViewMode.DualPhase)
+					{
+						if(cell.Phase > 0)
+							brush = Cell.Brushes[Cell.DualPhaseColor];
+						else
+							brush = Cell.Brushes[cell.Color.ToArgb()];
+					}
+					else if (ViewMode == ViewMode.Substracture)
 						brush = Cell.Brushes[cell.Color.ToArgb()];
-
-					// TODO: Refactorization
-					if (dualPhase && cell.Phase > 0)
-						brush = Cell.Brushes[Cell.DualPhaseColor];
+					
 					try
 					{
 						graphics.FillRectangle(brush, Matrix.CellSize * cell.IndexX - 1, Matrix.CellSize * cell.IndexY - 1, Matrix.CellSize + 1, Matrix.CellSize + 1);
@@ -138,7 +160,7 @@ namespace MultiscaleModelling
 			Draw();
 		}
 
-		public void Draw(IEnumerable<Cell> cells = null, bool dualPhase = false)
+		public void Draw(IEnumerable<Cell> cells = null)
 		{
 			if (!IsHandleCreated)
 				return;
@@ -165,7 +187,7 @@ namespace MultiscaleModelling
 				{
 					Trace.WriteLine("Draw(IEnumerable<Cell> cells = null)" + ex.Message);
 				}
-				PrintCells(dualPhase);
+				PrintCells();
 			}
 
 			if (IsGridShowed)
@@ -249,7 +271,9 @@ namespace MultiscaleModelling
 			int yIndex = ToInt32(Math.Floor(e.Y / Matrix.CellSize));
 
 			if (xIndex < Matrix.ColumnsCount && yIndex < Matrix.RowsCount)
-				Matrix.SelectedCell = Matrix.GetCell(yIndex, xIndex); 
+				Matrix.SelectedCell = Matrix.GetCell(yIndex, xIndex);
+			else
+				Matrix.SelectedCell = null;
 		}
 	}
 }

@@ -30,6 +30,13 @@ namespace MultiscaleModelling
 		MoorWithProbability
 	}
 
+	public enum ViewMode
+	{
+		Substracture,
+		SubstractureWithBorders,
+		DualPhase
+	}
+
 	public static class EnumsNames
 	{
 		public static readonly Dictionary<Bc, string> BcNames = new Dictionary<Bc, string>()
