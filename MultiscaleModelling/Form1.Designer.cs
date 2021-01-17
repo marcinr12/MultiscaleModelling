@@ -31,6 +31,12 @@
 			this.gridControl = new MultiscaleModelling.GridControl();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.viewGroupBox = new System.Windows.Forms.GroupBox();
+			this.dualPhaseRadioButton = new System.Windows.Forms.RadioButton();
+			this.substructureRadioButton = new System.Windows.Forms.RadioButton();
+			this.clickGroupBox = new System.Windows.Forms.GroupBox();
+			this.grainsRadioButton = new System.Windows.Forms.RadioButton();
+			this.bordersRadioButton = new System.Windows.Forms.RadioButton();
 			this.groupBox3 = new System.Windows.Forms.GroupBox();
 			this.thicknessNumericUpDown = new System.Windows.Forms.NumericUpDown();
 			this.ClearGbButton = new System.Windows.Forms.Button();
@@ -79,6 +85,8 @@
 			this.exportBmpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.groupBox1.SuspendLayout();
+			this.viewGroupBox.SuspendLayout();
+			this.clickGroupBox.SuspendLayout();
 			this.groupBox3.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.thicknessNumericUpDown)).BeginInit();
 			this.groupBox2.SuspendLayout();
@@ -103,7 +111,7 @@
 			this.gridControl.IsGridShowed = false;
 			this.gridControl.Location = new System.Drawing.Point(203, 3);
 			this.gridControl.Name = "gridControl";
-			this.gridControl.Size = new System.Drawing.Size(741, 807);
+			this.gridControl.Size = new System.Drawing.Size(743, 998);
 			this.gridControl.TabIndex = 0;
 			this.gridControl.MouseClick += new System.Windows.Forms.MouseEventHandler(this.GridControl_MouseClick);
 			// 
@@ -116,16 +124,18 @@
 			this.tableLayoutPanel1.Controls.Add(this.groupBox1, 0, 0);
 			this.tableLayoutPanel1.Controls.Add(this.panel1, 1, 1);
 			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 27);
+			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 30);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
 			this.tableLayoutPanel1.RowCount = 2;
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-			this.tableLayoutPanel1.Size = new System.Drawing.Size(947, 853);
+			this.tableLayoutPanel1.Size = new System.Drawing.Size(949, 1044);
 			this.tableLayoutPanel1.TabIndex = 1;
 			// 
 			// groupBox1
 			// 
+			this.groupBox1.Controls.Add(this.viewGroupBox);
+			this.groupBox1.Controls.Add(this.clickGroupBox);
 			this.groupBox1.Controls.Add(this.groupBox3);
 			this.groupBox1.Controls.Add(this.groupBox2);
 			this.groupBox1.Controls.Add(this.label5);
@@ -146,9 +156,79 @@
 			this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.groupBox1.Location = new System.Drawing.Point(3, 3);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(194, 807);
+			this.groupBox1.Size = new System.Drawing.Size(194, 998);
 			this.groupBox1.TabIndex = 1;
 			this.groupBox1.TabStop = false;
+			// 
+			// viewGroupBox
+			// 
+			this.viewGroupBox.Controls.Add(this.dualPhaseRadioButton);
+			this.viewGroupBox.Controls.Add(this.substructureRadioButton);
+			this.viewGroupBox.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.viewGroupBox.Location = new System.Drawing.Point(3, 358);
+			this.viewGroupBox.Name = "viewGroupBox";
+			this.viewGroupBox.Size = new System.Drawing.Size(188, 82);
+			this.viewGroupBox.TabIndex = 21;
+			this.viewGroupBox.TabStop = false;
+			this.viewGroupBox.Text = "View";
+			// 
+			// dualPhaseRadioButton
+			// 
+			this.dualPhaseRadioButton.AutoSize = true;
+			this.dualPhaseRadioButton.Location = new System.Drawing.Point(6, 53);
+			this.dualPhaseRadioButton.Name = "dualPhaseRadioButton";
+			this.dualPhaseRadioButton.Size = new System.Drawing.Size(104, 24);
+			this.dualPhaseRadioButton.TabIndex = 1;
+			this.dualPhaseRadioButton.Text = "Dual phase";
+			this.dualPhaseRadioButton.UseVisualStyleBackColor = true;
+			this.dualPhaseRadioButton.CheckedChanged += new System.EventHandler(this.ViewRadioButton_CheckedChanged);
+			// 
+			// substructureRadioButton
+			// 
+			this.substructureRadioButton.AutoSize = true;
+			this.substructureRadioButton.Checked = true;
+			this.substructureRadioButton.Location = new System.Drawing.Point(6, 23);
+			this.substructureRadioButton.Name = "substructureRadioButton";
+			this.substructureRadioButton.Size = new System.Drawing.Size(112, 24);
+			this.substructureRadioButton.TabIndex = 0;
+			this.substructureRadioButton.TabStop = true;
+			this.substructureRadioButton.Text = "Substructure";
+			this.substructureRadioButton.UseVisualStyleBackColor = true;
+			this.substructureRadioButton.CheckedChanged += new System.EventHandler(this.ViewRadioButton_CheckedChanged);
+			// 
+			// clickGroupBox
+			// 
+			this.clickGroupBox.Controls.Add(this.grainsRadioButton);
+			this.clickGroupBox.Controls.Add(this.bordersRadioButton);
+			this.clickGroupBox.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.clickGroupBox.Location = new System.Drawing.Point(3, 440);
+			this.clickGroupBox.Name = "clickGroupBox";
+			this.clickGroupBox.Size = new System.Drawing.Size(188, 81);
+			this.clickGroupBox.TabIndex = 20;
+			this.clickGroupBox.TabStop = false;
+			this.clickGroupBox.Text = "Click action";
+			// 
+			// grainsRadioButton
+			// 
+			this.grainsRadioButton.AutoSize = true;
+			this.grainsRadioButton.Location = new System.Drawing.Point(7, 55);
+			this.grainsRadioButton.Name = "grainsRadioButton";
+			this.grainsRadioButton.Size = new System.Drawing.Size(114, 24);
+			this.grainsRadioButton.TabIndex = 1;
+			this.grainsRadioButton.Text = "Select grains";
+			this.grainsRadioButton.UseVisualStyleBackColor = true;
+			// 
+			// bordersRadioButton
+			// 
+			this.bordersRadioButton.AutoSize = true;
+			this.bordersRadioButton.Checked = true;
+			this.bordersRadioButton.Location = new System.Drawing.Point(7, 27);
+			this.bordersRadioButton.Name = "bordersRadioButton";
+			this.bordersRadioButton.Size = new System.Drawing.Size(125, 24);
+			this.bordersRadioButton.TabIndex = 0;
+			this.bordersRadioButton.TabStop = true;
+			this.bordersRadioButton.Text = "Select borders";
+			this.bordersRadioButton.UseVisualStyleBackColor = true;
 			// 
 			// groupBox3
 			// 
@@ -157,7 +237,7 @@
 			this.groupBox3.Controls.Add(this.label8);
 			this.groupBox3.Controls.Add(this.showGbButton);
 			this.groupBox3.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.groupBox3.Location = new System.Drawing.Point(3, 330);
+			this.groupBox3.Location = new System.Drawing.Point(3, 521);
 			this.groupBox3.Name = "groupBox3";
 			this.groupBox3.Size = new System.Drawing.Size(188, 88);
 			this.groupBox3.TabIndex = 19;
@@ -221,7 +301,7 @@
 			this.groupBox2.Controls.Add(this.rulesPanel);
 			this.groupBox2.Controls.Add(this.shapeControlCheckBox);
 			this.groupBox2.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.groupBox2.Location = new System.Drawing.Point(3, 418);
+			this.groupBox2.Location = new System.Drawing.Point(3, 609);
 			this.groupBox2.Name = "groupBox2";
 			this.groupBox2.Size = new System.Drawing.Size(188, 223);
 			this.groupBox2.TabIndex = 15;
@@ -357,7 +437,7 @@
 			this.inclusionsGroupBox.Controls.Add(this.label4);
 			this.inclusionsGroupBox.Controls.Add(this.label3);
 			this.inclusionsGroupBox.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.inclusionsGroupBox.Location = new System.Drawing.Point(3, 641);
+			this.inclusionsGroupBox.Location = new System.Drawing.Point(3, 832);
 			this.inclusionsGroupBox.Name = "inclusionsGroupBox";
 			this.inclusionsGroupBox.Size = new System.Drawing.Size(188, 163);
 			this.inclusionsGroupBox.TabIndex = 12;
@@ -607,10 +687,10 @@
 			// 
 			this.panel1.Controls.Add(this.gbLabel);
 			this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panel1.Location = new System.Drawing.Point(203, 817);
+			this.panel1.Location = new System.Drawing.Point(203, 1008);
 			this.panel1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(741, 32);
+			this.panel1.Size = new System.Drawing.Size(743, 32);
 			this.panel1.TabIndex = 2;
 			// 
 			// gbLabel
@@ -630,7 +710,7 @@
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Padding = new System.Windows.Forms.Padding(6, 3, 0, 3);
-			this.menuStrip1.Size = new System.Drawing.Size(947, 27);
+			this.menuStrip1.Size = new System.Drawing.Size(949, 30);
 			this.menuStrip1.TabIndex = 2;
 			this.menuStrip1.Text = "menuStrip1";
 			// 
@@ -639,7 +719,7 @@
 			this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.microstructureToolStripMenuItem});
 			this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-			this.fileToolStripMenuItem.Size = new System.Drawing.Size(41, 21);
+			this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 24);
 			this.fileToolStripMenuItem.Text = "File";
 			// 
 			// microstructureToolStripMenuItem
@@ -651,43 +731,43 @@
             this.exportTextToolStripMenuItem,
             this.exportBmpToolStripMenuItem});
 			this.microstructureToolStripMenuItem.Name = "microstructureToolStripMenuItem";
-			this.microstructureToolStripMenuItem.Size = new System.Drawing.Size(175, 26);
+			this.microstructureToolStripMenuItem.Size = new System.Drawing.Size(187, 26);
 			this.microstructureToolStripMenuItem.Text = "Microstructure";
 			// 
 			// importTextToolStripMenuItem
 			// 
 			this.importTextToolStripMenuItem.Name = "importTextToolStripMenuItem";
-			this.importTextToolStripMenuItem.Size = new System.Drawing.Size(189, 26);
+			this.importTextToolStripMenuItem.Size = new System.Drawing.Size(207, 26);
 			this.importTextToolStripMenuItem.Text = "Import (text file)";
 			// 
 			// importBmpToolStripMenuItem
 			// 
 			this.importBmpToolStripMenuItem.Name = "importBmpToolStripMenuItem";
-			this.importBmpToolStripMenuItem.Size = new System.Drawing.Size(189, 26);
+			this.importBmpToolStripMenuItem.Size = new System.Drawing.Size(207, 26);
 			this.importBmpToolStripMenuItem.Text = "Import (bmp file)";
 			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(186, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(204, 6);
 			// 
 			// exportTextToolStripMenuItem
 			// 
 			this.exportTextToolStripMenuItem.Name = "exportTextToolStripMenuItem";
-			this.exportTextToolStripMenuItem.Size = new System.Drawing.Size(189, 26);
+			this.exportTextToolStripMenuItem.Size = new System.Drawing.Size(207, 26);
 			this.exportTextToolStripMenuItem.Text = "Export (text file)";
 			// 
 			// exportBmpToolStripMenuItem
 			// 
 			this.exportBmpToolStripMenuItem.Name = "exportBmpToolStripMenuItem";
-			this.exportBmpToolStripMenuItem.Size = new System.Drawing.Size(189, 26);
+			this.exportBmpToolStripMenuItem.Size = new System.Drawing.Size(207, 26);
 			this.exportBmpToolStripMenuItem.Text = "Export (bmp file)";
 			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(947, 880);
+			this.ClientSize = new System.Drawing.Size(949, 1074);
 			this.Controls.Add(this.tableLayoutPanel1);
 			this.Controls.Add(this.menuStrip1);
 			this.MainMenuStrip = this.menuStrip1;
@@ -697,6 +777,10 @@
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
+			this.viewGroupBox.ResumeLayout(false);
+			this.viewGroupBox.PerformLayout();
+			this.clickGroupBox.ResumeLayout(false);
+			this.clickGroupBox.PerformLayout();
 			this.groupBox3.ResumeLayout(false);
 			this.groupBox3.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.thicknessNumericUpDown)).EndInit();
@@ -772,6 +856,12 @@
 		private System.Windows.Forms.GroupBox groupBox3;
 		private System.Windows.Forms.Button ClearGbButton;
 		private System.Windows.Forms.Button showGbButton;
+		private System.Windows.Forms.GroupBox clickGroupBox;
+		private System.Windows.Forms.RadioButton grainsRadioButton;
+		private System.Windows.Forms.RadioButton bordersRadioButton;
+		private System.Windows.Forms.GroupBox viewGroupBox;
+		private System.Windows.Forms.RadioButton dualPhaseRadioButton;
+		private System.Windows.Forms.RadioButton substructureRadioButton;
 	}
 }
 

@@ -369,10 +369,19 @@ namespace MultiscaleModelling
 		{
 			if (gridControl.Matrix.SelectedCell?.Id is null)
 				return;
-			Trace.WriteLine($"cell.Id:{gridControl.Matrix.SelectedCell.Id}");
+			int selectedCellId = gridControl.Matrix.SelectedCell.Id;
+			Trace.WriteLine($"cell.Id:{selectedCellId}");
 
-			gridControl.Matrix.SetCellsBorders(ToInt32(thicknessNumericUpDown.Value), gridControl.Matrix.SelectedCell.Id);
-			gridControl.Draw();
+			if (bordersRadioButton.Checked)
+			{
+				gridControl.Matrix.SetCellsBorders(ToInt32(thicknessNumericUpDown.Value), selectedCellId);
+				gridControl.Draw(); 
+			}
+			else if(grainsRadioButton.Checked)
+			{
+				gridControl.Matrix.SetDualPhase(selectedCellId);
+				gridControl.Draw(null, dualPhase: true);
+			}
 		}
 		protected override void OnHandleCreated(EventArgs e)
 		{
@@ -400,6 +409,22 @@ namespace MultiscaleModelling
 		{
 			gridControl.Matrix.ClearCellsBorders();
 			gridControl.Draw();
+		}
+
+		private void ViewRadioButton_CheckedChanged(object sender, EventArgs e)
+		{
+			RadioButton radioButton = sender as RadioButton;
+			if (!radioButton.Checked)
+				return;
+
+			if(ReferenceEquals(sender, substructureRadioButton))
+			{
+				gridControl.Draw();
+			}
+			else if(ReferenceEquals(sender, dualPhaseRadioButton))
+			{
+				gridControl.Draw(null, dualPhase: true);
+			}
 		}
 	}
 }

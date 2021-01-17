@@ -80,7 +80,7 @@ namespace MultiscaleModelling
 		}
 
 		readonly Stopwatch sw = new Stopwatch();
-		public void PrintCells()
+		public void PrintCells(bool dualPhase = false)
 		{
 			sw.Restart();
 			for (int i = 0; i < Matrix.RowsCount; i++)
@@ -89,10 +89,15 @@ namespace MultiscaleModelling
 				{
 					Cell cell = Matrix.GetCell(i, j);
 					SolidBrush brush;
+
 					if (cell.IsOnBorder)
 						brush = Cell.Brushes[Cell.BorderColor];
 					else
 						brush = Cell.Brushes[cell.Color.ToArgb()];
+
+					// TODO: Refactorization
+					if (dualPhase && cell.Phase > 0)
+						brush = Cell.Brushes[Cell.DualPhaseColor];
 					try
 					{
 						graphics.FillRectangle(brush, Matrix.CellSize * cell.IndexX - 1, Matrix.CellSize * cell.IndexY - 1, Matrix.CellSize + 1, Matrix.CellSize + 1);
@@ -133,7 +138,7 @@ namespace MultiscaleModelling
 			Draw();
 		}
 
-		public void Draw(IEnumerable<Cell> cells = null)
+		public void Draw(IEnumerable<Cell> cells = null, bool dualPhase = false)
 		{
 			if (!IsHandleCreated)
 				return;
@@ -160,7 +165,7 @@ namespace MultiscaleModelling
 				{
 					Trace.WriteLine("Draw(IEnumerable<Cell> cells = null)" + ex.Message);
 				}
-				PrintCells();
+				PrintCells(dualPhase);
 			}
 
 			if (IsGridShowed)

@@ -669,7 +669,21 @@ namespace MultiscaleModelling
 				}
 			});
 
-			Parallel.ForEach(rows.SelectMany(x => x), cell =>
+
+			// cellOnBorders are not determistic
+			//Parallel.ForEach(rows.SelectMany(x => x), cell =>
+			//{
+			//	action.Invoke(0, cell);
+			//	action.Invoke(1, cell);
+			//	action.Invoke(2, cell);
+			//	action.Invoke(3, cell);
+			//	action.Invoke(4, cell);
+			//	action.Invoke(5, cell);
+			//	action.Invoke(6, cell);
+			//	action.Invoke(7, cell);
+			//});
+
+			foreach(Cell cell in rows.SelectMany(x => x))
 			{
 				action.Invoke(0, cell);
 				action.Invoke(1, cell);
@@ -679,7 +693,7 @@ namespace MultiscaleModelling
 				action.Invoke(5, cell);
 				action.Invoke(6, cell);
 				action.Invoke(7, cell);
-			});
+			}
 
 			return cellsOnBorder;
 		}
@@ -691,6 +705,21 @@ namespace MultiscaleModelling
 					cell.IsOnBorder = false;
 				else if (cellId.HasValue && cell.Id == cellId)
 					cell.IsOnBorder = false;
+			});
+		}
+		public void SetDualPhase(int cellId)
+		{
+			Parallel.ForEach(rows.SelectMany(x => x), cell =>
+			{
+				if (cell.Id == cellId)
+					cell.Phase = 1;
+			});
+		}
+		public void ClearDualPhase()
+		{
+			Parallel.ForEach(rows.SelectMany(x => x), cell =>
+			{
+				cell.Phase = 0;
 			});
 		}
 	}

@@ -9,13 +9,15 @@ namespace MultiscaleModelling
 		public static readonly int EmptySpaceColor = Color.White.ToArgb();
 		public static readonly int InclusionColor = Color.Black.ToArgb();
 		public static readonly int BorderColor = Color.Blue.ToArgb();
+		public static readonly int DualPhaseColor = Color.Pink.ToArgb();
 		public static readonly int GridColor = Color.Black.ToArgb();
 
 		public static readonly Dictionary<int, SolidBrush> Brushes = new Dictionary<int, SolidBrush>()
 		{
 			{ EmptySpaceColor, EmptySpaceColor.ToSolidBrush() },
 			{ InclusionColor, InclusionColor.ToSolidBrush() },
-			{ BorderColor, BorderColor.ToSolidBrush() }
+			{ BorderColor, BorderColor.ToSolidBrush() },
+			{ DualPhaseColor, DualPhaseColor.ToSolidBrush() }
 		};
 		private static long Counter = 0;
 		public long Identifier { get; private set; }
