@@ -587,7 +587,7 @@
 			this.randomNumericUpDown.Size = new System.Drawing.Size(87, 27);
 			this.randomNumericUpDown.TabIndex = 7;
 			this.randomNumericUpDown.Value = new decimal(new int[] {
-            30,
+            3,
             0,
             0,
             0});
@@ -658,7 +658,7 @@
 			this.SizeYNumericUpDown.Size = new System.Drawing.Size(109, 27);
 			this.SizeYNumericUpDown.TabIndex = 1;
 			this.SizeYNumericUpDown.Value = new decimal(new int[] {
-            500,
+            50,
             0,
             0,
             0});
@@ -681,7 +681,7 @@
 			this.SizeXNumericUpDown.Size = new System.Drawing.Size(109, 27);
 			this.SizeXNumericUpDown.TabIndex = 0;
 			this.SizeXNumericUpDown.Value = new decimal(new int[] {
-            500,
+            50,
             0,
             0,
             0});

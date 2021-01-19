@@ -642,21 +642,32 @@ namespace MultiscaleModelling
 
 			int cellsOnBorder = 0;
 
-			Action<int, Cell> action = new Action<int, Cell>((direction, cell) =>
+			Action<int, int, Cell> action = new Action<int, int, Cell>((direction, size, cell) =>
 			{
+				if (size == 0)
+					return;
+
 				Cell c = cell.NeighboringCells[direction];
 				if (c is Cell
 					&& (cellId == null && cell.Id != c.Id)
-					|| (cellId is int && cell.Id != c.Id && (c.Id == cellId.Value || cell.Id == cellId)))
+					|| (cellId is int && cell.Id != c.Id && (c.Id == cellId || cell.Id == cellId)))
 				{
-					if (!cell.IsOnBorder)
+
+					if (!cell.IsOnBorder 
+						//&& (direction == 1 && cell.NeighboringCells[1]?.IsOnBorder == false
+						//|| direction == 3 && cell.NeighboringCells[3]?.IsOnBorder == false
+						//|| direction == 5 && cell.NeighboringCells[5]?.IsOnBorder == false
+						//|| direction == 7 && cell.NeighboringCells[7]?.IsOnBorder == false)
+						//&& (cell.NeighboringCells[1]?.IsOnBorder == false && cell.NeighboringCells[3]?.IsOnBorder == false)
+						//|| (cell.NeighboringCells[5]?.IsOnBorder == false && cell.NeighboringCells[7]?.IsOnBorder == false)
+						)
 					{
 						cell.IsOnBorder = true;
 						cellsOnBorder++;
 					}
 
 					int i = 0;
-					while (i < thickness && c.NeighboringCells[(direction + 4) % 8] is Cell ce)
+					while (i < size - 1 && c.NeighboringCells[(direction + 4) % 8] is Cell ce)
 					{
 						c = ce;
 						i++;
@@ -669,30 +680,15 @@ namespace MultiscaleModelling
 				}
 			});
 
+			int floor = ToInt32(Math.Floor((1.0 * thickness) / 2));
+			int celing = ToInt32(Math.Ceiling((1.0 * thickness) / 2));
 
-			// cellOnBorders are not determistic
-			//Parallel.ForEach(rows.SelectMany(x => x), cell =>
-			//{
-			//	action.Invoke(0, cell);
-			//	action.Invoke(1, cell);
-			//	action.Invoke(2, cell);
-			//	action.Invoke(3, cell);
-			//	action.Invoke(4, cell);
-			//	action.Invoke(5, cell);
-			//	action.Invoke(6, cell);
-			//	action.Invoke(7, cell);
-			//});
-
-			foreach(Cell cell in rows.SelectMany(x => x))
+			foreach (Cell cell in rows.SelectMany(x => x))
 			{
-				action.Invoke(0, cell);
-				action.Invoke(1, cell);
-				action.Invoke(2, cell);
-				action.Invoke(3, cell);
-				action.Invoke(4, cell);
-				action.Invoke(5, cell);
-				action.Invoke(6, cell);
-				action.Invoke(7, cell);
+				action.Invoke(1, celing, cell);
+				action.Invoke(3, celing, cell);
+				action.Invoke(5, floor, cell);
+				action.Invoke(7, floor, cell);
 			}
 
 			return cellsOnBorder;

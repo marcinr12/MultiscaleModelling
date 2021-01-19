@@ -414,7 +414,6 @@ namespace MultiscaleModelling
 			gridControl.ViewMode = ViewMode.SubstractureWithBorders;
 			substrustureWithBordersRadioButton.Checked = true;
 		}
-
 		private void ViewModeRadioButton_CheckedChanged(object sender, EventArgs e)
 		{
 			RadioButton radioButton = sender as RadioButton;
@@ -440,13 +439,11 @@ namespace MultiscaleModelling
 				grainBoundaryPanel.Enabled = false;
 			}
 		}
-
 		private void ClearPhaseButton_Click(object sender, EventArgs e)
 		{
 			gridControl.Matrix.ClearDualPhase();
 			gridControl.ViewMode = ViewMode.DualPhase;
 		}
-
 		private void SecondGrowthButton_Click(object sender, EventArgs e)
 		{
 
