@@ -33,7 +33,6 @@ namespace MultiscaleModelling
 	public enum ViewMode
 	{
 		Substracture,
-		SubstractureWithBorders,
 		DualPhase
 	}
 

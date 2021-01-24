@@ -58,7 +58,7 @@ namespace MultiscaleModelling
 			animationCheckBox.Checked = false;
 			StartButton_Click(null, null);
 			_startTask.Wait();
-			animationCheckBox.Checked = true; 
+			animationCheckBox.Checked = true;
 #endif
 		}
 		private void ImportBmpToolStripMenuItem_Click(object sender, EventArgs e)
@@ -113,7 +113,7 @@ namespace MultiscaleModelling
 
 					sr.ReadLine(); // skip first txt line
 					while ((line = sr.ReadLine()) != null)
-					{			
+					{
 						string[] data = line.Split(" ");
 						if (data.Length != 4)
 							continue;
@@ -127,7 +127,7 @@ namespace MultiscaleModelling
 						if (!int.TryParse(data[3], out int id))
 							continue;
 
-						cells.Add((Id: id, Phase: phase, IndexX: indexX, IndexY: indexY));				
+						cells.Add((Id: id, Phase: phase, IndexX: indexX, IndexY: indexY));
 					}
 					gridControl.LoadMatrix(cells);
 					SizeYNumericUpDown.Value = gridControl.Matrix.RowsCount;
@@ -151,7 +151,7 @@ namespace MultiscaleModelling
 
 			if (saveFileDialog.ShowDialog() == DialogResult.OK)
 				using (StreamWriter sw = new StreamWriter(saveFileDialog.FileName))
-					sw.Write(gridControl.Matrix.ToString());		
+					sw.Write(gridControl.Matrix.ToString());
 		}
 		private void NumericUpDown_MouseWheel(object sender, MouseEventArgs e)
 		{
@@ -205,7 +205,7 @@ namespace MultiscaleModelling
 					}));
 				}
 			});
-			
+
 		}
 		private void ClearButton_Click(object sender, EventArgs e)
 		{
@@ -230,9 +230,9 @@ namespace MultiscaleModelling
 						iterationButton.Enabled = true;
 						startButton.Enabled = true;
 						gbLabel.Text = $"GB: ---";
-					}));		
+					}));
 				}
-			});	
+			});
 		}
 		private void IterationButton_Click(object sender, EventArgs e)
 		{
@@ -259,7 +259,7 @@ namespace MultiscaleModelling
 						startButton.Enabled = true;
 					}));
 				}
-			});		
+			});
 		}
 		private void StartButton_Click(object sender, EventArgs e)
 		{
@@ -303,7 +303,7 @@ namespace MultiscaleModelling
 				}
 				finally
 				{
-					if(IsHandleCreated)
+					if (IsHandleCreated)
 						startButton.Invoke(new Action(() =>
 						{
 							randomButton.Enabled = true;
@@ -341,7 +341,7 @@ namespace MultiscaleModelling
 				gridControl.Matrix.AddInclusions(ToInt32(inclusionsNumericUpDown.Value), ToInt32(radiusNumericUpDown.Value), InclusionsMode.Post, inclusionsType);
 				gridControl.Draw();
 			}
-			else if(!isAnyCellFilled)
+			else if (!isAnyCellFilled)
 			{
 				// Every cell is empty
 				gridControl.Matrix.AddInclusions(ToInt32(inclusionsNumericUpDown.Value), ToInt32(radiusNumericUpDown.Value), InclusionsMode.Pre, inclusionsType);
@@ -374,25 +374,16 @@ namespace MultiscaleModelling
 			int selectedCellId = gridControl.Matrix.SelectedCell.Id;
 			Trace.WriteLine($"cell.Id:{selectedCellId}");
 
-			if (substrustureWithBordersRadioButton.Checked)
+			if (pickGbRadioButton.Checked)
 			{
 				gridControl.Matrix.SetCellsBorders(ToInt32(thicknessNumericUpDown.Value), selectedCellId);
-				gridControl.ViewMode = ViewMode.SubstractureWithBorders;
+				gridControl.Draw();
 			}
-			else if(dualPhaseRadioButton.Checked)
+			else if (pickDualPhaseRadioButton.Checked)
 			{
 				gridControl.Matrix.SetDualPhase(selectedCellId);
 				gridControl.ViewMode = ViewMode.DualPhase;
 			}
-		}
-		protected override void OnHandleCreated(EventArgs e)
-		{
-			base.OnHandleCreated(e);
-
-			randomButton.Enabled = true;
-			clearButton.Enabled = true;
-			iterationButton.Enabled = true;
-			startButton.Enabled = true;
 		}
 		private void ShowGbButton_Click(object sender, EventArgs e)
 		{
@@ -404,15 +395,12 @@ namespace MultiscaleModelling
 
 			int gb = gridControl.Matrix.SetCellsBorders(ToInt32(thicknessNumericUpDown.Value));
 			gbLabel.Text = $"GB: {gb / (SizeXNumericUpDown.Value * SizeYNumericUpDown.Value) * 100}%";
-
-			gridControl.ViewMode = ViewMode.SubstractureWithBorders;
-			substrustureWithBordersRadioButton.Checked = true;
+			gridControl.Draw();
 		}
 		private void ClearGbButton_Click(object sender, EventArgs e)
 		{
 			gridControl.Matrix.ClearCellsBorders();
-			gridControl.ViewMode = ViewMode.SubstractureWithBorders;
-			substrustureWithBordersRadioButton.Checked = true;
+			gridControl.Draw();
 		}
 		private void ViewModeRadioButton_CheckedChanged(object sender, EventArgs e)
 		{
@@ -426,12 +414,6 @@ namespace MultiscaleModelling
 				dualPhasePanel.Enabled = false;
 				grainBoundaryPanel.Enabled = false;
 			}
-			else if (ReferenceEquals(sender, substrustureWithBordersRadioButton))
-			{
-				gridControl.ViewMode = ViewMode.SubstractureWithBorders;
-				dualPhasePanel.Enabled = false;
-				grainBoundaryPanel.Enabled = true;
-			}
 			else if (ReferenceEquals(sender, dualPhaseRadioButton))
 			{
 				gridControl.ViewMode = ViewMode.DualPhase;
@@ -439,14 +421,91 @@ namespace MultiscaleModelling
 				grainBoundaryPanel.Enabled = false;
 			}
 		}
+		private void GrainBoundariesCheckBox_CheckedChanged(object sender, EventArgs e)
+		{
+			grainBoundaryPanel.Enabled = grainBoundariesCheckBox.Checked;
+			gridControl.ShowGrainBoundaries = grainBoundariesCheckBox.Checked;
+		}
 		private void ClearPhaseButton_Click(object sender, EventArgs e)
 		{
 			gridControl.Matrix.ClearDualPhase();
 			gridControl.ViewMode = ViewMode.DualPhase;
 		}
+		private void PickGbRadioButton_CheckedChanged(object sender, EventArgs e)
+		{
+			if (pickGbRadioButton.Checked)
+				grainBoundariesCheckBox.Checked = true;
+		}
+		private void PickDualPhaseRadioButton_CheckedChanged(object sender, EventArgs e)
+		{
+			if (pickDualPhaseRadioButton.Checked)
+				dualPhaseRadioButton.Checked = true;
+		}
 		private void SecondGrowthButton_Click(object sender, EventArgs e)
 		{
+			randomButton.Enabled = false;
+			clearButton.Enabled = false;
+			iterationButton.Enabled = false;
+			startButton.Enabled = false;
+			SimulationCancellationTokenSource = new CancellationTokenSource();
 
+			_startTask = Task.Run(() =>
+			{
+				try
+				{
+					bool prevIsAnimation = animationCheckBox.Checked;
+					Stopwatch sw = new Stopwatch();
+					sw.Restart();
+					if (gridControl.Matrix.GetCells().Where(c => c.Id != 0).FirstOrDefault() is Cell)
+					{
+						gridControl.Matrix.AssignFirstPhaseGrains();
+						gridControl.Matrix.SetRandomCellsSecondGrainGrowth(ToInt32(randomNumericUpDown.Value));
+						gridControl.Matrix.InitialSecondGrowthCalculations();
+						gridControl.Draw();
+
+						while (gridControl.Matrix.GetCells().Where(c => c.Id == 0).FirstOrDefault() is Cell)
+						{
+							if (SimulationCancellationTokenSource.IsCancellationRequested)
+								break;
+
+							LinkedList<Cell> a = gridControl.Matrix.CalculateNextGenerationSecondGrowth(shapeControlCheckBox.Checked, rule1CheckBox.Checked, rule2CheckBox.Checked, rule3CheckBox.Checked, rule4checkBox.Checked, ToInt32(probabilityNumericUpDown.Value));
+							if (animationCheckBox.Checked && animationCheckBox.Checked == prevIsAnimation)
+							{
+								gridControl.Draw(a);
+							}
+							else if (animationCheckBox.Checked)
+							{
+								gridControl.Draw();
+								prevIsAnimation = animationCheckBox.Checked;
+							}
+							else
+								prevIsAnimation = animationCheckBox.Checked;
+						}
+						Trace.WriteLine($"Simulation took: {sw.ElapsedMilliseconds}ms");
+						gridControl.Draw();
+					}
+				}
+				finally
+				{
+					if (IsHandleCreated)
+						startButton.Invoke(new Action(() =>
+						{
+							randomButton.Enabled = true;
+							clearButton.Enabled = true;
+							iterationButton.Enabled = true;
+							startButton.Enabled = true;
+						}));
+				}
+			}, SimulationCancellationTokenSource.Token);
+		}
+		protected override void OnHandleCreated(EventArgs e)
+		{
+			base.OnHandleCreated(e);
+
+			randomButton.Enabled = true;
+			clearButton.Enabled = true;
+			iterationButton.Enabled = true;
+			startButton.Enabled = true;
 		}
 	}
 }

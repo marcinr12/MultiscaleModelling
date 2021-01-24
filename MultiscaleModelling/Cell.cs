@@ -43,7 +43,6 @@ namespace MultiscaleModelling
 			Matrix = matrix;
 			Color = EmptySpaceColor.ToColor();
 		}
-
 		public void SetId(int id)
 		{
 			Id = id;
@@ -56,7 +55,6 @@ namespace MultiscaleModelling
 			if (!Brushes.TryGetValue(color.ToArgb(), out SolidBrush _))
 				Brushes.Add(color.ToArgb(), new SolidBrush(color));
 		}
-
 		public void UpdateId()
 		{
 			Id = NewId;

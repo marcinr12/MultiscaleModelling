@@ -31,7 +31,11 @@
 			this.gridControl = new MultiscaleModelling.GridControl();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.pickModeGroupBox = new System.Windows.Forms.GroupBox();
+			this.pickDualPhaseRadioButton = new System.Windows.Forms.RadioButton();
+			this.pickGbRadioButton = new System.Windows.Forms.RadioButton();
 			this.viewGroupBox = new System.Windows.Forms.GroupBox();
+			this.grainBoundariesCheckBox = new System.Windows.Forms.CheckBox();
 			this.dualPhasePanel = new System.Windows.Forms.Panel();
 			this.secondGrowthButton = new System.Windows.Forms.Button();
 			this.clearPhaseButton = new System.Windows.Forms.Button();
@@ -40,7 +44,6 @@
 			this.showGbButton = new System.Windows.Forms.Button();
 			this.label8 = new System.Windows.Forms.Label();
 			this.ClearGbButton = new System.Windows.Forms.Button();
-			this.substrustureWithBordersRadioButton = new System.Windows.Forms.RadioButton();
 			this.dualPhaseRadioButton = new System.Windows.Forms.RadioButton();
 			this.substructureRadioButton = new System.Windows.Forms.RadioButton();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -86,6 +89,7 @@
 			this.exportBmpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.groupBox1.SuspendLayout();
+			this.pickModeGroupBox.SuspendLayout();
 			this.viewGroupBox.SuspendLayout();
 			this.dualPhasePanel.SuspendLayout();
 			this.grainBoundaryPanel.SuspendLayout();
@@ -112,7 +116,8 @@
 			this.gridControl.IsGridShowed = false;
 			this.gridControl.Location = new System.Drawing.Point(213, 3);
 			this.gridControl.Name = "gridControl";
-			this.gridControl.Size = new System.Drawing.Size(733, 971);
+			this.gridControl.ShowGrainBoundaries = false;
+			this.gridControl.Size = new System.Drawing.Size(733, 1000);
 			this.gridControl.TabIndex = 0;
 			this.gridControl.ViewMode = MultiscaleModelling.ViewMode.Substracture;
 			this.gridControl.MouseClick += new System.Windows.Forms.MouseEventHandler(this.GridControl_MouseClick);
@@ -131,11 +136,12 @@
 			this.tableLayoutPanel1.RowCount = 2;
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-			this.tableLayoutPanel1.Size = new System.Drawing.Size(949, 1017);
+			this.tableLayoutPanel1.Size = new System.Drawing.Size(949, 1046);
 			this.tableLayoutPanel1.TabIndex = 1;
 			// 
 			// groupBox1
 			// 
+			this.groupBox1.Controls.Add(this.pickModeGroupBox);
 			this.groupBox1.Controls.Add(this.viewGroupBox);
 			this.groupBox1.Controls.Add(this.groupBox2);
 			this.groupBox1.Controls.Add(this.label5);
@@ -156,30 +162,77 @@
 			this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.groupBox1.Location = new System.Drawing.Point(3, 3);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(204, 971);
+			this.groupBox1.Size = new System.Drawing.Size(204, 1000);
 			this.groupBox1.TabIndex = 1;
 			this.groupBox1.TabStop = false;
 			// 
+			// pickModeGroupBox
+			// 
+			this.pickModeGroupBox.Controls.Add(this.pickDualPhaseRadioButton);
+			this.pickModeGroupBox.Controls.Add(this.pickGbRadioButton);
+			this.pickModeGroupBox.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.pickModeGroupBox.Location = new System.Drawing.Point(3, 307);
+			this.pickModeGroupBox.Name = "pickModeGroupBox";
+			this.pickModeGroupBox.Size = new System.Drawing.Size(198, 83);
+			this.pickModeGroupBox.TabIndex = 22;
+			this.pickModeGroupBox.TabStop = false;
+			this.pickModeGroupBox.Text = "Pick mode";
+			// 
+			// pickDualPhaseRadioButton
+			// 
+			this.pickDualPhaseRadioButton.AutoSize = true;
+			this.pickDualPhaseRadioButton.Location = new System.Drawing.Point(6, 56);
+			this.pickDualPhaseRadioButton.Name = "pickDualPhaseRadioButton";
+			this.pickDualPhaseRadioButton.Size = new System.Drawing.Size(104, 24);
+			this.pickDualPhaseRadioButton.TabIndex = 1;
+			this.pickDualPhaseRadioButton.TabStop = true;
+			this.pickDualPhaseRadioButton.Text = "Dual phase";
+			this.pickDualPhaseRadioButton.UseVisualStyleBackColor = true;
+			this.pickDualPhaseRadioButton.CheckedChanged += new System.EventHandler(this.PickDualPhaseRadioButton_CheckedChanged);
+			// 
+			// pickGbRadioButton
+			// 
+			this.pickGbRadioButton.AutoSize = true;
+			this.pickGbRadioButton.Location = new System.Drawing.Point(6, 26);
+			this.pickGbRadioButton.Name = "pickGbRadioButton";
+			this.pickGbRadioButton.Size = new System.Drawing.Size(132, 24);
+			this.pickGbRadioButton.TabIndex = 0;
+			this.pickGbRadioButton.TabStop = true;
+			this.pickGbRadioButton.Text = "Grain boundary";
+			this.pickGbRadioButton.UseVisualStyleBackColor = true;
+			this.pickGbRadioButton.CheckedChanged += new System.EventHandler(this.PickGbRadioButton_CheckedChanged);
+			// 
 			// viewGroupBox
 			// 
+			this.viewGroupBox.Controls.Add(this.grainBoundariesCheckBox);
 			this.viewGroupBox.Controls.Add(this.dualPhasePanel);
 			this.viewGroupBox.Controls.Add(this.grainBoundaryPanel);
-			this.viewGroupBox.Controls.Add(this.substrustureWithBordersRadioButton);
 			this.viewGroupBox.Controls.Add(this.dualPhaseRadioButton);
 			this.viewGroupBox.Controls.Add(this.substructureRadioButton);
 			this.viewGroupBox.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.viewGroupBox.Location = new System.Drawing.Point(3, 361);
+			this.viewGroupBox.Location = new System.Drawing.Point(3, 390);
 			this.viewGroupBox.Name = "viewGroupBox";
 			this.viewGroupBox.Size = new System.Drawing.Size(198, 221);
 			this.viewGroupBox.TabIndex = 21;
 			this.viewGroupBox.TabStop = false;
 			this.viewGroupBox.Text = "View";
 			// 
+			// grainBoundariesCheckBox
+			// 
+			this.grainBoundariesCheckBox.AutoSize = true;
+			this.grainBoundariesCheckBox.Location = new System.Drawing.Point(6, 121);
+			this.grainBoundariesCheckBox.Name = "grainBoundariesCheckBox";
+			this.grainBoundariesCheckBox.Size = new System.Drawing.Size(144, 24);
+			this.grainBoundariesCheckBox.TabIndex = 6;
+			this.grainBoundariesCheckBox.Text = "Grain boundaries";
+			this.grainBoundariesCheckBox.UseVisualStyleBackColor = true;
+			this.grainBoundariesCheckBox.CheckedChanged += new System.EventHandler(this.GrainBoundariesCheckBox_CheckedChanged);
+			// 
 			// dualPhasePanel
 			// 
 			this.dualPhasePanel.Controls.Add(this.secondGrowthButton);
 			this.dualPhasePanel.Controls.Add(this.clearPhaseButton);
-			this.dualPhasePanel.Location = new System.Drawing.Point(35, 187);
+			this.dualPhasePanel.Location = new System.Drawing.Point(37, 85);
 			this.dualPhasePanel.Name = "dualPhasePanel";
 			this.dualPhasePanel.Size = new System.Drawing.Size(155, 30);
 			this.dualPhasePanel.TabIndex = 5;
@@ -210,7 +263,7 @@
 			this.grainBoundaryPanel.Controls.Add(this.showGbButton);
 			this.grainBoundaryPanel.Controls.Add(this.label8);
 			this.grainBoundaryPanel.Controls.Add(this.ClearGbButton);
-			this.grainBoundaryPanel.Location = new System.Drawing.Point(35, 86);
+			this.grainBoundaryPanel.Location = new System.Drawing.Point(37, 150);
 			this.grainBoundaryPanel.Name = "grainBoundaryPanel";
 			this.grainBoundaryPanel.Size = new System.Drawing.Size(155, 65);
 			this.grainBoundaryPanel.TabIndex = 4;
@@ -267,21 +320,10 @@
 			this.ClearGbButton.UseVisualStyleBackColor = true;
 			this.ClearGbButton.Click += new System.EventHandler(this.ClearGbButton_Click);
 			// 
-			// substrustureWithBordersRadioButton
-			// 
-			this.substrustureWithBordersRadioButton.AutoSize = true;
-			this.substrustureWithBordersRadioButton.Location = new System.Drawing.Point(8, 56);
-			this.substrustureWithBordersRadioButton.Name = "substrustureWithBordersRadioButton";
-			this.substrustureWithBordersRadioButton.Size = new System.Drawing.Size(182, 24);
-			this.substrustureWithBordersRadioButton.TabIndex = 2;
-			this.substrustureWithBordersRadioButton.Text = "Substrusture && borders";
-			this.substrustureWithBordersRadioButton.UseVisualStyleBackColor = true;
-			this.substrustureWithBordersRadioButton.CheckedChanged += new System.EventHandler(this.ViewModeRadioButton_CheckedChanged);
-			// 
 			// dualPhaseRadioButton
 			// 
 			this.dualPhaseRadioButton.AutoSize = true;
-			this.dualPhaseRadioButton.Location = new System.Drawing.Point(8, 157);
+			this.dualPhaseRadioButton.Location = new System.Drawing.Point(7, 55);
 			this.dualPhaseRadioButton.Name = "dualPhaseRadioButton";
 			this.dualPhaseRadioButton.Size = new System.Drawing.Size(104, 24);
 			this.dualPhaseRadioButton.TabIndex = 1;
@@ -305,7 +347,7 @@
 			this.groupBox2.Controls.Add(this.rulesPanel);
 			this.groupBox2.Controls.Add(this.shapeControlCheckBox);
 			this.groupBox2.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.groupBox2.Location = new System.Drawing.Point(3, 582);
+			this.groupBox2.Location = new System.Drawing.Point(3, 611);
 			this.groupBox2.Name = "groupBox2";
 			this.groupBox2.Size = new System.Drawing.Size(198, 223);
 			this.groupBox2.TabIndex = 15;
@@ -423,7 +465,7 @@
 			// terminateButton
 			// 
 			this.terminateButton.BackColor = System.Drawing.Color.Red;
-			this.terminateButton.Location = new System.Drawing.Point(7, 297);
+			this.terminateButton.Location = new System.Drawing.Point(7, 261);
 			this.terminateButton.Name = "terminateButton";
 			this.terminateButton.Size = new System.Drawing.Size(86, 29);
 			this.terminateButton.TabIndex = 13;
@@ -441,7 +483,7 @@
 			this.inclusionsGroupBox.Controls.Add(this.label4);
 			this.inclusionsGroupBox.Controls.Add(this.label3);
 			this.inclusionsGroupBox.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.inclusionsGroupBox.Location = new System.Drawing.Point(3, 805);
+			this.inclusionsGroupBox.Location = new System.Drawing.Point(3, 834);
 			this.inclusionsGroupBox.Name = "inclusionsGroupBox";
 			this.inclusionsGroupBox.Size = new System.Drawing.Size(198, 163);
 			this.inclusionsGroupBox.TabIndex = 12;
@@ -543,7 +585,7 @@
 			this.animationCheckBox.AutoSize = true;
 			this.animationCheckBox.Checked = true;
 			this.animationCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.animationCheckBox.Location = new System.Drawing.Point(99, 265);
+			this.animationCheckBox.Location = new System.Drawing.Point(99, 229);
 			this.animationCheckBox.Name = "animationCheckBox";
 			this.animationCheckBox.Size = new System.Drawing.Size(87, 24);
 			this.animationCheckBox.TabIndex = 10;
@@ -552,7 +594,7 @@
 			// 
 			// startButton
 			// 
-			this.startButton.Location = new System.Drawing.Point(7, 262);
+			this.startButton.Location = new System.Drawing.Point(7, 226);
 			this.startButton.Name = "startButton";
 			this.startButton.Size = new System.Drawing.Size(86, 29);
 			this.startButton.TabIndex = 9;
@@ -562,7 +604,7 @@
 			// 
 			// iterationButton
 			// 
-			this.iterationButton.Location = new System.Drawing.Point(7, 228);
+			this.iterationButton.Location = new System.Drawing.Point(7, 192);
 			this.iterationButton.Name = "iterationButton";
 			this.iterationButton.Size = new System.Drawing.Size(86, 29);
 			this.iterationButton.TabIndex = 8;
@@ -594,7 +636,7 @@
 			// 
 			// clearButton
 			// 
-			this.clearButton.Location = new System.Drawing.Point(7, 192);
+			this.clearButton.Location = new System.Drawing.Point(100, 192);
 			this.clearButton.Name = "clearButton";
 			this.clearButton.Size = new System.Drawing.Size(86, 29);
 			this.clearButton.TabIndex = 6;
@@ -658,7 +700,7 @@
 			this.SizeYNumericUpDown.Size = new System.Drawing.Size(109, 27);
 			this.SizeYNumericUpDown.TabIndex = 1;
 			this.SizeYNumericUpDown.Value = new decimal(new int[] {
-            50,
+            200,
             0,
             0,
             0});
@@ -681,7 +723,7 @@
 			this.SizeXNumericUpDown.Size = new System.Drawing.Size(109, 27);
 			this.SizeXNumericUpDown.TabIndex = 0;
 			this.SizeXNumericUpDown.Value = new decimal(new int[] {
-            50,
+            200,
             0,
             0,
             0});
@@ -691,7 +733,7 @@
 			// 
 			this.panel1.Controls.Add(this.gbLabel);
 			this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panel1.Location = new System.Drawing.Point(213, 981);
+			this.panel1.Location = new System.Drawing.Point(213, 1010);
 			this.panel1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.panel1.Name = "panel1";
 			this.panel1.Size = new System.Drawing.Size(733, 32);
@@ -771,7 +813,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(949, 1047);
+			this.ClientSize = new System.Drawing.Size(949, 1076);
 			this.Controls.Add(this.tableLayoutPanel1);
 			this.Controls.Add(this.menuStrip1);
 			this.MainMenuStrip = this.menuStrip1;
@@ -781,6 +823,8 @@
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
+			this.pickModeGroupBox.ResumeLayout(false);
+			this.pickModeGroupBox.PerformLayout();
 			this.viewGroupBox.ResumeLayout(false);
 			this.viewGroupBox.PerformLayout();
 			this.dualPhasePanel.ResumeLayout(false);
@@ -861,11 +905,14 @@
 		private System.Windows.Forms.GroupBox viewGroupBox;
 		private System.Windows.Forms.RadioButton dualPhaseRadioButton;
 		private System.Windows.Forms.RadioButton substructureRadioButton;
-		private System.Windows.Forms.RadioButton substrustureWithBordersRadioButton;
 		private System.Windows.Forms.Button clearPhaseButton;
 		private System.Windows.Forms.Panel grainBoundaryPanel;
 		private System.Windows.Forms.Panel dualPhasePanel;
 		private System.Windows.Forms.Button secondGrowthButton;
+		private System.Windows.Forms.CheckBox grainBoundariesCheckBox;
+		private System.Windows.Forms.GroupBox pickModeGroupBox;
+		private System.Windows.Forms.RadioButton pickDualPhaseRadioButton;
+		private System.Windows.Forms.RadioButton pickGbRadioButton;
 	}
 }
 
