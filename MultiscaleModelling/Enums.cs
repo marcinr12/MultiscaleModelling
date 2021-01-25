@@ -18,7 +18,7 @@ namespace MultiscaleModelling
 
 	public enum InclusionsType
 	{
-		Squre,
+		Square,
 		Round
 	}
 
@@ -52,7 +52,7 @@ namespace MultiscaleModelling
 
 		public static readonly Dictionary<InclusionsType, string> InclusionsTypeNames = new Dictionary<InclusionsType, string>()
 		{
-			{ InclusionsType.Squre, "Squre" },
+			{ InclusionsType.Square, "Square" },
 			{ InclusionsType.Round, "Round" }
 		};
 

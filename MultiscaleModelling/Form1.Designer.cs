@@ -154,7 +154,6 @@
 			this.groupBox1.Controls.Add(this.randomNumericUpDown);
 			this.groupBox1.Controls.Add(this.clearButton);
 			this.groupBox1.Controls.Add(this.randomButton);
-			this.groupBox1.Controls.Add(this.GridCheckBox);
 			this.groupBox1.Controls.Add(this.label2);
 			this.groupBox1.Controls.Add(this.label1);
 			this.groupBox1.Controls.Add(this.SizeYNumericUpDown);
@@ -171,7 +170,7 @@
 			this.pickModeGroupBox.Controls.Add(this.pickDualPhaseRadioButton);
 			this.pickModeGroupBox.Controls.Add(this.pickGbRadioButton);
 			this.pickModeGroupBox.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.pickModeGroupBox.Location = new System.Drawing.Point(3, 307);
+			this.pickModeGroupBox.Location = new System.Drawing.Point(3, 280);
 			this.pickModeGroupBox.Name = "pickModeGroupBox";
 			this.pickModeGroupBox.Size = new System.Drawing.Size(198, 83);
 			this.pickModeGroupBox.TabIndex = 22;
@@ -209,10 +208,11 @@
 			this.viewGroupBox.Controls.Add(this.grainBoundaryPanel);
 			this.viewGroupBox.Controls.Add(this.dualPhaseRadioButton);
 			this.viewGroupBox.Controls.Add(this.substructureRadioButton);
+			this.viewGroupBox.Controls.Add(this.GridCheckBox);
 			this.viewGroupBox.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.viewGroupBox.Location = new System.Drawing.Point(3, 390);
+			this.viewGroupBox.Location = new System.Drawing.Point(3, 363);
 			this.viewGroupBox.Name = "viewGroupBox";
-			this.viewGroupBox.Size = new System.Drawing.Size(198, 221);
+			this.viewGroupBox.Size = new System.Drawing.Size(198, 248);
 			this.viewGroupBox.TabIndex = 21;
 			this.viewGroupBox.TabStop = false;
 			this.viewGroupBox.Text = "View";
@@ -456,7 +456,7 @@
 			// label5
 			// 
 			this.label5.AutoSize = true;
-			this.label5.Location = new System.Drawing.Point(7, 126);
+			this.label5.Location = new System.Drawing.Point(6, 89);
 			this.label5.Name = "label5";
 			this.label5.Size = new System.Drawing.Size(30, 20);
 			this.label5.TabIndex = 14;
@@ -465,7 +465,7 @@
 			// terminateButton
 			// 
 			this.terminateButton.BackColor = System.Drawing.Color.Red;
-			this.terminateButton.Location = new System.Drawing.Point(7, 261);
+			this.terminateButton.Location = new System.Drawing.Point(6, 224);
 			this.terminateButton.Name = "terminateButton";
 			this.terminateButton.Size = new System.Drawing.Size(86, 29);
 			this.terminateButton.TabIndex = 13;
@@ -574,7 +574,7 @@
 			// 
 			this.bcComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.bcComboBox.FormattingEnabled = true;
-			this.bcComboBox.Location = new System.Drawing.Point(43, 124);
+			this.bcComboBox.Location = new System.Drawing.Point(42, 87);
 			this.bcComboBox.Name = "bcComboBox";
 			this.bcComboBox.Size = new System.Drawing.Size(143, 28);
 			this.bcComboBox.TabIndex = 11;
@@ -585,7 +585,7 @@
 			this.animationCheckBox.AutoSize = true;
 			this.animationCheckBox.Checked = true;
 			this.animationCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.animationCheckBox.Location = new System.Drawing.Point(99, 229);
+			this.animationCheckBox.Location = new System.Drawing.Point(98, 192);
 			this.animationCheckBox.Name = "animationCheckBox";
 			this.animationCheckBox.Size = new System.Drawing.Size(87, 24);
 			this.animationCheckBox.TabIndex = 10;
@@ -594,7 +594,7 @@
 			// 
 			// startButton
 			// 
-			this.startButton.Location = new System.Drawing.Point(7, 226);
+			this.startButton.Location = new System.Drawing.Point(6, 189);
 			this.startButton.Name = "startButton";
 			this.startButton.Size = new System.Drawing.Size(86, 29);
 			this.startButton.TabIndex = 9;
@@ -604,7 +604,7 @@
 			// 
 			// iterationButton
 			// 
-			this.iterationButton.Location = new System.Drawing.Point(7, 192);
+			this.iterationButton.Location = new System.Drawing.Point(6, 155);
 			this.iterationButton.Name = "iterationButton";
 			this.iterationButton.Size = new System.Drawing.Size(86, 29);
 			this.iterationButton.TabIndex = 8;
@@ -614,7 +614,7 @@
 			// 
 			// randomNumericUpDown
 			// 
-			this.randomNumericUpDown.Location = new System.Drawing.Point(99, 158);
+			this.randomNumericUpDown.Location = new System.Drawing.Point(98, 121);
 			this.randomNumericUpDown.Maximum = new decimal(new int[] {
             100000,
             0,
@@ -636,7 +636,7 @@
 			// 
 			// clearButton
 			// 
-			this.clearButton.Location = new System.Drawing.Point(100, 192);
+			this.clearButton.Location = new System.Drawing.Point(99, 155);
 			this.clearButton.Name = "clearButton";
 			this.clearButton.Size = new System.Drawing.Size(86, 29);
 			this.clearButton.TabIndex = 6;
@@ -646,7 +646,7 @@
 			// 
 			// randomButton
 			// 
-			this.randomButton.Location = new System.Drawing.Point(7, 157);
+			this.randomButton.Location = new System.Drawing.Point(6, 120);
 			this.randomButton.Name = "randomButton";
 			this.randomButton.Size = new System.Drawing.Size(86, 29);
 			this.randomButton.TabIndex = 5;
@@ -657,7 +657,7 @@
 			// GridCheckBox
 			// 
 			this.GridCheckBox.AutoSize = true;
-			this.GridCheckBox.Location = new System.Drawing.Point(9, 27);
+			this.GridCheckBox.Location = new System.Drawing.Point(6, 221);
 			this.GridCheckBox.Name = "GridCheckBox";
 			this.GridCheckBox.Size = new System.Drawing.Size(98, 24);
 			this.GridCheckBox.TabIndex = 4;
@@ -668,7 +668,7 @@
 			// label2
 			// 
 			this.label2.AutoSize = true;
-			this.label2.Location = new System.Drawing.Point(7, 92);
+			this.label2.Location = new System.Drawing.Point(6, 55);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(47, 20);
 			this.label2.TabIndex = 3;
@@ -677,7 +677,7 @@
 			// label1
 			// 
 			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(7, 60);
+			this.label1.Location = new System.Drawing.Point(6, 23);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(48, 20);
 			this.label1.TabIndex = 2;
@@ -685,7 +685,7 @@
 			// 
 			// SizeYNumericUpDown
 			// 
-			this.SizeYNumericUpDown.Location = new System.Drawing.Point(77, 90);
+			this.SizeYNumericUpDown.Location = new System.Drawing.Point(76, 53);
 			this.SizeYNumericUpDown.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -708,7 +708,7 @@
 			// 
 			// SizeXNumericUpDown
 			// 
-			this.SizeXNumericUpDown.Location = new System.Drawing.Point(77, 57);
+			this.SizeXNumericUpDown.Location = new System.Drawing.Point(76, 20);
 			this.SizeXNumericUpDown.Maximum = new decimal(new int[] {
             1000,
             0,

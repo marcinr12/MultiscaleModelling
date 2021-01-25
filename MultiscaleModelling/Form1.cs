@@ -332,8 +332,8 @@ namespace MultiscaleModelling
 
 			if (inclusionTypeComboBox.SelectedItem?.ToString() == EnumsNames.InclusionsTypeNames[InclusionsType.Round])
 				inclusionsType = InclusionsType.Round;
-			else if (inclusionTypeComboBox.SelectedItem?.ToString() == EnumsNames.InclusionsTypeNames[InclusionsType.Squre])
-				inclusionsType = InclusionsType.Squre;
+			else if (inclusionTypeComboBox.SelectedItem?.ToString() == EnumsNames.InclusionsTypeNames[InclusionsType.Square])
+				inclusionsType = InclusionsType.Square;
 
 			if (!isAnyCellEmpty)
 			{

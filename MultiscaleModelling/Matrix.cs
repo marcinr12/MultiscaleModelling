@@ -429,8 +429,6 @@ namespace MultiscaleModelling
 			return toReturn;
 			//Trace.WriteLine($"Iteration took: {sw.ElapsedMilliseconds}ms");
 		}
-
-		private object _syncObject = new object();
 		public LinkedList<Cell> CalculateNextGenerationSecondGrowth(bool shapeControl, bool r1, bool r2, bool r3, bool r4, int probability)
 		{
 			sw.Restart();
@@ -766,7 +764,7 @@ namespace MultiscaleModelling
 						_rows[i][j].SetColor(Cell.InclusionColor.ToColor());
 						_rows[i][j].SetId(-1);
 					}
-					else if (inclusionsType == InclusionsType.Squre)
+					else if (inclusionsType == InclusionsType.Square)
 					{
 						_rows[i][j].SetColor(Cell.InclusionColor.ToColor());
 						_rows[i][j].SetId(-1);
@@ -808,7 +806,7 @@ namespace MultiscaleModelling
 					foreach (int j in xIndexes)
 					{
 						if ((IsInRadius(columnIndex, rowIndex, j, i, size) && _rows[i][j].Id == -1)
-							|| (inclusionsType == InclusionsType.Squre && _rows[i][j].Id == -1))
+							|| (inclusionsType == InclusionsType.Square && _rows[i][j].Id == -1))
 						{
 							isFailed = true;
 							attempts++;
@@ -875,32 +873,25 @@ namespace MultiscaleModelling
 
 			int cellsOnBorder = 0;
 
-			Action<int, int, Cell> action = new Action<int, int, Cell>((direction, size, cell) =>
+			Action<int, int, Cell> action1 = new Action<int, int, Cell>((direction, size, cell) =>
 			{
 				if (size == 0)
 					return;
 
 				Cell c = cell.NeighboringCells[direction];
 				if (c is Cell
-					&& (cellId == null && cell.Id != c.Id)
-					|| (cellId is int && cell.Id != c.Id && (c.Id == cellId || cell.Id == cellId)))
+					&& (cellId == null && cell.Id > c.Id)
+					|| (cellId is int && cell.Id > c.Id && (c.Id == cellId || cell.Id == cellId)))
 				{
 
-					if (!cell.IsOnBorder
-						//&& (direction == 1 && cell.NeighboringCells[1]?.IsOnBorder == false
-						//|| direction == 3 && cell.NeighboringCells[3]?.IsOnBorder == false
-						//|| direction == 5 && cell.NeighboringCells[5]?.IsOnBorder == false
-						//|| direction == 7 && cell.NeighboringCells[7]?.IsOnBorder == false)
-						//&& (cell.NeighboringCells[1]?.IsOnBorder == false && cell.NeighboringCells[3]?.IsOnBorder == false)
-						//|| (cell.NeighboringCells[5]?.IsOnBorder == false && cell.NeighboringCells[7]?.IsOnBorder == false)
-						)
+					if (!cell.IsOnBorder)
 					{
 						cell.IsOnBorder = true;
 						cellsOnBorder++;
 					}
 
 					int i = 0;
-					while (i < size - 1 && c.NeighboringCells[(direction + 4) % 8] is Cell ce)
+					while (i < size && c.NeighboringCells[(direction + 4) % 8] is Cell ce)
 					{
 						c = ce;
 						i++;
@@ -913,15 +904,53 @@ namespace MultiscaleModelling
 				}
 			});
 
+			Action<int, int, Cell> action2 = new Action<int, int, Cell>((direction, size, cell) =>
+			{
+				if (size == 0)
+					return;
+
+				Cell c = cell.NeighboringCells[direction];
+				if (c is Cell
+					&& (cellId == null && cell.Id < c.Id)
+					|| (cellId is int && cell.Id < c.Id && (c.Id == cellId || cell.Id == cellId)))
+				{
+
+					if (!cell.IsOnBorder)
+					{
+						cell.IsOnBorder = true;
+						cellsOnBorder++;
+					}
+
+					int i = 0;
+					while (i < size && c.NeighboringCells[(direction + 4) % 8] is Cell ce)
+					{
+						c = ce;
+						i++;
+						if (!c.IsOnBorder)
+						{
+							c.IsOnBorder = true;
+							cellsOnBorder++;
+						}
+					}
+				}
+			});
+
+			var actions = new Action<int, int, Cell>[] { action1, action2 };
+
 			int floor = ToInt32(Math.Floor((1.0 * thickness) / 2));
 			int celing = ToInt32(Math.Ceiling((1.0 * thickness) / 2));
 
-			foreach (Cell cell in _rows.SelectMany(x => x))
+			for (int i = 0; i < thickness; i++)
 			{
-				action.Invoke(1, celing, cell);
-				action.Invoke(3, celing, cell);
-				action.Invoke(5, floor, cell);
-				action.Invoke(7, floor, cell);
+				foreach (Cell cell in _rows.SelectMany(x => x))
+				{
+					int x = i % 2 == 0 ? celing : floor;
+
+					actions[i % 2].Invoke(1, x, cell);
+					actions[i % 2].Invoke(3, x, cell);
+					actions[i % 2].Invoke(5, x, cell);
+					actions[i % 2].Invoke(7, x, cell);
+				}
 			}
 
 			return cellsOnBorder;

@@ -280,6 +280,7 @@ namespace MultiscaleModelling
 				Matrix.SelectedCell = Matrix.GetCell(yIndex, xIndex);
 			else
 				Matrix.SelectedCell = null;
+
 		}
 
 		protected override void OnHandleCreated(EventArgs e)
