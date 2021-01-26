@@ -194,11 +194,18 @@ namespace MultiscaleModelling
 				{
 					outputPictureBox.Invoke(new Action(() => graphics.Clear(EmptySpaceColor)));
 				}
-				catch (Exception ex)
+				catch (Exception exc)
 				{
-					Trace.WriteLine("Draw(IEnumerable<Cell> cells = null)" + ex.Message);
+					Trace.WriteLine("Draw(IEnumerable<Cell> cells = null)" + exc.GetBaseException().Message);
 				}
-				PrintCells();
+				try
+				{
+					PrintCells();
+				}
+				catch (Exception exc)
+				{
+					Trace.WriteLine("Draw(IEnumerable<Cell> cells = null)" + exc.GetBaseException().Message);
+				}
 			}
 
 			if (IsGridShowed)
@@ -257,8 +264,13 @@ namespace MultiscaleModelling
 					var list = colors.ToList();
 
 					var id = list.IndexOf(list.Find(x => x == colorArgb)) - 1;
-					Matrix.GetCell(i, j).SetId(id);
-					Matrix.GetCell(i, j).SetColor(color);
+
+					Cell cell = Matrix.GetCell(i, j);
+					cell.SetId(id);
+					cell.SetColor(color);
+
+					if (colorArgb == Cell.DualPhaseColor)
+						cell.Phase = 1;
 				}
 			}
 		}

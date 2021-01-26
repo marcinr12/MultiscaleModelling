@@ -351,9 +351,6 @@ namespace MultiscaleModelling
 		{
 			foreach (Cell cell in neighboringCells.Where(c => c is Cell && c.Id == 0))
 			{
-				if (!_secondGrowthPotentialGrains.TryGetValue(grainId, out _))
-					_secondGrowthPotentialGrains.Add(grainId, new Dictionary<long, Cell>());
-
 				IGrouping<int, Cell> grain = _firstPhaseGrains.First(g => g.Key == grainId);
 				if (grain.Select(c => c.Identifier).Contains(cell.Identifier))
 				{
@@ -380,6 +377,7 @@ namespace MultiscaleModelling
 			_secondGrowthPotentialGrains.Clear();
 			foreach (IGrouping<int, Cell> grain in _firstPhaseGrains)
 			{
+				_secondGrowthPotentialGrains.Add(grain.Key, new Dictionary<long, Cell>());
 				foreach (Cell cell in grain.ToList())
 				{
 					if (cell.Id > 0)
@@ -391,7 +389,7 @@ namespace MultiscaleModelling
 		}
 
 		readonly Stopwatch sw = new Stopwatch();
-		public LinkedList<Cell> CalculateNextGeneration(bool shapeControl, bool r1, bool r2, bool r3, bool r4, int probability)
+		public LinkedList<Cell> CalculateNextGeneration(bool shapeControl, int probability)
 		{
 			sw.Restart();
 
@@ -406,7 +404,7 @@ namespace MultiscaleModelling
 				if (!shapeControl)
 					GetCellIdAndColorR4(cell, out id, out color);
 				else
-					GetCellIdAndColorShapeControl(cell, r1, r2, r3, r4, probability, out id, out color);
+					GetCellIdAndColorShapeControl(cell, probability, out id, out color);
 
 				cell.NewId = id;
 				cell.NewColor = color;
@@ -429,7 +427,8 @@ namespace MultiscaleModelling
 			return toReturn;
 			//Trace.WriteLine($"Iteration took: {sw.ElapsedMilliseconds}ms");
 		}
-		public LinkedList<Cell> CalculateNextGenerationSecondGrowth(bool shapeControl, bool r1, bool r2, bool r3, bool r4, int probability)
+		Stopwatch stopwatch = new Stopwatch();
+		public LinkedList<Cell> CalculateNextGenerationSecondGrowth(bool shapeControl, int probability)
 		{
 			sw.Restart();
 			ConcurrentQueue<Cell> newColored = new ConcurrentQueue<Cell>();
@@ -516,7 +515,7 @@ namespace MultiscaleModelling
 			// for each grain
 			foreach (var grainId in _secondGrowthPotentialGrains.Keys)
 			{
-				int cd = 0;
+				//sw.Restart();
 				// for each cell in grain
 				Parallel.ForEach(_secondGrowthPotentialGrains[grainId].Keys, cellIdentifier =>
 				{
@@ -528,15 +527,15 @@ namespace MultiscaleModelling
 					if (!shapeControl)
 						GetCellIdAndColorR4(cell, out id, out color, grainId);
 					else
-						GetCellIdAndColorShapeControl(cell, r1, r2, r3, r4, probability, out id, out color, grainId);
+						GetCellIdAndColorShapeControl(cell, probability, out id, out color, grainId);
 
 					cell.NewId = id;
 					cell.NewColor = color;
 					if (cell.NewId > 0)
 						newColored.Enqueue(cell);
 				});
-
-				int a = 0;
+				//Trace.WriteLine($"Parallel: {sw.ElapsedMilliseconds}ms");
+				sw.Restart();
 
 				while (!newColored.IsEmpty)
 				{
@@ -544,22 +543,20 @@ namespace MultiscaleModelling
 					{
 						c.UpdateId();
 						TryAddPotentialGrainsSecondGrowth(grainId, c.NeighboringCells);
-
 						_secondGrowthPotentialGrains[grainId].Remove(c.Identifier);
 						toReturn.AddFirst(c);
 					}
 				}
+				//Trace.WriteLine($"While: {sw.ElapsedMilliseconds}ms");
 
-				int b = 0;
 			}
-
 
 			Trace.WriteLine($"Iteration took: {sw.ElapsedMilliseconds}ms");
 			return toReturn;
 		}
 		private bool IsCellIntoGrain(Cell cell, int grainId)
 		{
-			bool a = _firstPhaseGrains.Where(x => x.Key == grainId).First().Select(c => c.Identifier).Contains(cell.Identifier);
+			bool a = _firstPhaseGrains.First(x => x.Key == grainId).Any(c => c.Identifier == cell.Identifier);
 			return a;
 		}
 		private IEnumerable<Cell> GetEmptyCellsInNeighborhood(Cell cell, RuleType ruleType, int? grainId)
@@ -606,47 +603,28 @@ namespace MultiscaleModelling
 
 				if (max.Any())
 					c = max.ElementAt(RandomMachine.Next(max.Count)).First();
-				else
-				{
-
-				}
 			}
 
 			id = c.Id;
 			color = c.Color;
 		}
-		private void GetCellIdAndColorShapeControl(Cell cell, bool r1, bool r2, bool r3, bool r4, int probability, out int id, out Color color, int? grainId = null)
+		private void GetCellIdAndColorShapeControl(Cell cell, int probability, out int id, out Color color, int? grainId = null)
 		{
-			id = cell.Id;
-			color = cell.Color;
+			GetCellIdAndColorR1(cell, out id, out color, grainId);
+			if (id != 0)
+				return;
+	
+			GetCellIdAndColorR2(cell, out id, out color, grainId);
+			if (id != 0)
+				return;
 
-			if (r1)
-			{
-				GetCellIdAndColorR1(cell, out id, out color, grainId);
-				if (id != 0)
-					return;
-			}
+			GetCellIdAndColorR3(cell, out id, out color, grainId);
+			if (id != 0)
+				return;
 
-			if (r2)
-			{
-				GetCellIdAndColorR2(cell, out id, out color, grainId);
-				if (id != 0)
-					return;
-			}
-
-			if (r3)
-			{
-				GetCellIdAndColorR3(cell, out id, out color, grainId);
-				if (id != 0)
-					return;
-			}
-
-			if (r4)
-			{
-				GetCellIdAndColorR4(cell, probability, out id, out color, grainId);
-				if (id != 0)
-					return;
-			}
+			GetCellIdAndColorR4(cell, probability, out id, out color, grainId);
+			if (id != 0)
+				return;
 		}
 		private void GetCellIdAndColorR1(Cell cell, out int id, out Color color, int? grainId = null)
 		{
@@ -698,14 +676,26 @@ namespace MultiscaleModelling
 					stringBuilder.Append($"{cell.IndexX} {cell.IndexY} {cell.Phase} {cell.Id}\n");
 			return stringBuilder.ToString();
 		}
-		public Bitmap ToBitmap(int celSizeBmp)
+		public Bitmap ToBitmap(int celSizeBmp, bool isDualPhase = false)
 		{
 			Bitmap bitmap = new Bitmap(ColumnsCount * celSizeBmp, RowsCount * celSizeBmp);
 			Graphics graphics = Graphics.FromImage(bitmap);
 
 			for (int i = 0; i < _rows.Count; i++)
+			{
 				for (int j = 0; j < _rows[i].Count; j++)
-					graphics.FillRectangle(new SolidBrush(_rows[i][j].Color), j * celSizeBmp, i * celSizeBmp, celSizeBmp, celSizeBmp);
+				{
+					Cell cell = _rows[i][j];
+					SolidBrush solidBrush;
+
+					if (isDualPhase && cell.Phase > 0)
+						solidBrush = Cell.Brushes[Cell.DualPhaseColor];
+					else
+						solidBrush = cell.Color.ToSolidBrush();
+
+					graphics.FillRectangle(solidBrush, j * celSizeBmp, i * celSizeBmp, celSizeBmp, celSizeBmp);
+				}
+			}
 			return bitmap;
 		}
 		public void AddInclusions(int number, int radius, InclusionsMode inclusionsMode, InclusionsType inclusionsType)

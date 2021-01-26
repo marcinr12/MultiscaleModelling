@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 
 namespace MultiscaleModelling.Extensions
 {
-	public static class IntegersExtensions
+	public static class IntegerExtensions
 	{
 		public static Color ToColor(this int argb)
 		{
