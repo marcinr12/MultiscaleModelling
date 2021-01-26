@@ -47,7 +47,6 @@ namespace MultiscaleModelling
 				c.Click += SizeYNumericUpDown_Leave;
 			});
 
-			gridControl.Matrix.SetRandomCells(10);
 
 			bcComboBox.Items.AddRange(EnumsNames.BcNames.Values.ToArray());
 			bcComboBox.SelectedItem = EnumsNames.BcNames[Bc.Periodic];
@@ -56,6 +55,7 @@ namespace MultiscaleModelling
 			inclusionTypeComboBox.SelectedItem = EnumsNames.InclusionsTypeNames[InclusionsType.Round];
 
 #if DEBUG
+			gridControl.Matrix.SetRandomCells(10);
 			animationCheckBox.Checked = false;
 			StartButton_Click(null, null);
 			_startTask.Wait();

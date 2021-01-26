@@ -19,7 +19,7 @@ namespace MultiscaleModelling
 		// grain id, Cells
 		private List<IGrouping<int, Cell>> _firstPhaseGrains;
 		// grain id, cell identifier, cell
-		private readonly Dictionary<int, Dictionary<long, Cell>> _secondGrowthPotentialGrains = new Dictionary<int, Dictionary<long, Cell>>();
+		private readonly Dictionary<int, ConcurrentDictionary<long, Cell>> _secondGrowthPotentialGrains = new Dictionary<int, ConcurrentDictionary<long, Cell>>();
 
 		public int RowsCount => _rows.Count;
 		public int ColumnsCount => _rows.ElementAtOrDefault(0)?.Count ?? 0;
@@ -354,7 +354,7 @@ namespace MultiscaleModelling
 				IGrouping<int, Cell> grain = _firstPhaseGrains.First(g => g.Key == grainId);
 				if (grain.Select(c => c.Identifier).Contains(cell.Identifier))
 				{
-					_secondGrowthPotentialGrains[grainId].TryAdd(cell.Identifier, cell);
+					_secondGrowthPotentialGrains[grainId].TryAdd(cell.Identifier, cell); 
 				}
 			}
 		}
@@ -377,7 +377,7 @@ namespace MultiscaleModelling
 			_secondGrowthPotentialGrains.Clear();
 			foreach (IGrouping<int, Cell> grain in _firstPhaseGrains)
 			{
-				_secondGrowthPotentialGrains.Add(grain.Key, new Dictionary<long, Cell>());
+				_secondGrowthPotentialGrains.Add(grain.Key, new ConcurrentDictionary<long, Cell>());
 				foreach (Cell cell in grain.ToList())
 				{
 					if (cell.Id > 0)
@@ -428,10 +428,11 @@ namespace MultiscaleModelling
 			//Trace.WriteLine($"Iteration took: {sw.ElapsedMilliseconds}ms");
 		}
 		Stopwatch stopwatch = new Stopwatch();
+		private object _lock = new object();
 		public LinkedList<Cell> CalculateNextGenerationSecondGrowth(bool shapeControl, int probability)
 		{
 			sw.Restart();
-			ConcurrentQueue<Cell> newColored = new ConcurrentQueue<Cell>();
+			ConcurrentBag<Cell> newColored = new ConcurrentBag<Cell>();
 			LinkedList<Cell> toReturn = new LinkedList<Cell>();
 
 			// for each grain
@@ -532,23 +533,24 @@ namespace MultiscaleModelling
 					cell.NewId = id;
 					cell.NewColor = color;
 					if (cell.NewId > 0)
-						newColored.Enqueue(cell);
+						newColored.Add(cell);
 				});
 				//Trace.WriteLine($"Parallel: {sw.ElapsedMilliseconds}ms");
-				sw.Restart();
+				//sw.Restart();
 
-				while (!newColored.IsEmpty)
+				Parallel.ForEach(newColored, c =>
 				{
-					if (newColored.TryDequeue(out Cell c))
+					c.UpdateId();
+					TryAddPotentialGrainsSecondGrowth(grainId, c.NeighboringCells);
+					lock (_lock)
 					{
-						c.UpdateId();
-						TryAddPotentialGrainsSecondGrowth(grainId, c.NeighboringCells);
-						_secondGrowthPotentialGrains[grainId].Remove(c.Identifier);
-						toReturn.AddFirst(c);
+						_secondGrowthPotentialGrains[grainId].Remove(c.Identifier, out _);
 					}
-				}
-				//Trace.WriteLine($"While: {sw.ElapsedMilliseconds}ms");
+					toReturn.AddFirst(c); 
+				});
 
+				newColored.Clear();
+				//Trace.WriteLine($"While: {sw.ElapsedMilliseconds}ms");
 			}
 
 			Trace.WriteLine($"Iteration took: {sw.ElapsedMilliseconds}ms");
