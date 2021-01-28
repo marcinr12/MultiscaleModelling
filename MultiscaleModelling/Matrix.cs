@@ -158,14 +158,14 @@ namespace MultiscaleModelling
 		}
 		public void AssignFirstPhaseGrains()
 		{
-			_firstPhaseGrains = _rows.SelectMany(x => x).Where(c => c.Phase == 0).GroupBy(x => x.Id).ToList();
+			_firstPhaseGrains = _rows.SelectMany(x => x).Where(c => c.Phase == 0 && c.Id > 0).GroupBy(x => x.Id).ToList();
 		}
 		public void SetRandomCellsSecondGrainGrowth(int number)
 		{
 			List<int> takenIds = _rows.SelectMany(x => x).Where(c => c.Phase != 0).Select(x => x.Id).Distinct().ToList();
 			IEnumerable<int> possibleIds = Enumerable.Range(1, int.MaxValue);
 
-			//Parallel.ForEach(zeroPhaseCells, group =>
+			//Parallel.ForEach(_firstPhaseGrains, group =>
 			foreach (IGrouping<int, Cell> group in _firstPhaseGrains)
 			{
 
@@ -871,9 +871,8 @@ namespace MultiscaleModelling
 					return;
 
 				Cell c = cell.NeighboringCells[direction];
-				if (c is Cell
-					&& (cellId == null && cell.Id > c.Id)
-					|| (cellId is int && cell.Id > c.Id && (c.Id == cellId || cell.Id == cellId)))
+				if (c is Cell && 
+					((cellId == null && cell.Id > c.Id) || (cellId is int && cell.Id > c.Id && (c.Id == cellId || cell.Id == cellId))))
 				{
 
 					if (!cell.IsOnBorder)
@@ -903,8 +902,7 @@ namespace MultiscaleModelling
 
 				Cell c = cell.NeighboringCells[direction];
 				if (c is Cell
-					&& (cellId == null && cell.Id < c.Id)
-					|| (cellId is int && cell.Id < c.Id && (c.Id == cellId || cell.Id == cellId)))
+					&& ((cellId == null && cell.Id < c.Id) || (cellId is int && cell.Id < c.Id && (c.Id == cellId || cell.Id == cellId))))
 				{
 
 					if (!cell.IsOnBorder)

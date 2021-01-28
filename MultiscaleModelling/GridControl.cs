@@ -192,11 +192,21 @@ namespace MultiscaleModelling
 				//graphics.Clear(EmptySpaceColor);
 				try
 				{
-					outputPictureBox.Invoke(new Action(() => graphics.Clear(EmptySpaceColor)));
+					outputPictureBox.Invoke(new Action(() =>
+					{
+						try
+						{
+							graphics.Clear(EmptySpaceColor);
+						}
+						catch (Exception exc)
+						{
+							Trace.WriteLine("Draw(IEnumerable<Cell> cells = null) - ACTION: " + exc.GetBaseException().Message);
+						}
+					}));
 				}
 				catch (Exception exc)
 				{
-					Trace.WriteLine("Draw(IEnumerable<Cell> cells = null)" + exc.GetBaseException().Message);
+					Trace.WriteLine("Draw(IEnumerable<Cell> cells = null): " + exc.GetBaseException().Message);
 				}
 				try
 				{
@@ -204,7 +214,7 @@ namespace MultiscaleModelling
 				}
 				catch (Exception exc)
 				{
-					Trace.WriteLine("Draw(IEnumerable<Cell> cells = null)" + exc.GetBaseException().Message);
+					Trace.WriteLine("Draw(IEnumerable<Cell> cells = null): " + exc.GetBaseException().Message);
 				}
 			}
 

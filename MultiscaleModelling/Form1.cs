@@ -55,7 +55,7 @@ namespace MultiscaleModelling
 			inclusionTypeComboBox.SelectedItem = EnumsNames.InclusionsTypeNames[InclusionsType.Round];
 
 #if DEBUG
-			gridControl.Matrix.SetRandomCells(10);
+			gridControl.Matrix.SetRandomCells(30);
 			animationCheckBox.Checked = false;
 			StartButton_Click(null, null);
 			_startTask.Wait();
@@ -509,6 +509,13 @@ namespace MultiscaleModelling
 			base.OnHandleCreated(e);
 
 			SetControlsState(true);
+		}
+		private void BcComboBox_SelectedValueChanged(object sender, EventArgs e)
+		{
+			if (gridControl.Matrix.GetCells().Any(c => c.Id != 0))
+				bcComboBox.SelectedItem = bcComboBox.Tag;
+
+			bcComboBox.Tag = bcComboBox.SelectedItem;
 		}
 	}
 }

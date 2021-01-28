@@ -709,6 +709,7 @@
 			this.bcComboBox.Size = new System.Drawing.Size(150, 28);
 			this.bcComboBox.TabIndex = 11;
 			this.bcComboBox.SelectedIndexChanged += new System.EventHandler(this.BcComboBox_SelectedIndexChanged);
+			this.bcComboBox.SelectedValueChanged += new System.EventHandler(this.BcComboBox_SelectedValueChanged);
 			// 
 			// label5
 			// 
