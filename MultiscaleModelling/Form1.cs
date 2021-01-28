@@ -95,7 +95,16 @@ namespace MultiscaleModelling
 			};
 
 			if (saveFileDialog.ShowDialog() == DialogResult.OK)
-				gridControl.Matrix.ToBitmap(_cellSizeBmp, dualPhaseRadioButton.Checked).Save(saveFileDialog.FileName, ImageFormat.Bmp);
+			{
+				try
+				{
+					gridControl.Matrix.ToBitmap(_cellSizeBmp).Save(saveFileDialog.FileName);
+				}
+				catch (Exception exc)
+				{
+					MessageBox.Show(exc.GetBaseException().Message, "Error");
+				}
+			}
 		}
 		private void ImportTextToolStripMenuItem_Click(object sender, EventArgs e)
 		{

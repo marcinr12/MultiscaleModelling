@@ -678,9 +678,9 @@ namespace MultiscaleModelling
 					stringBuilder.Append($"{cell.IndexX} {cell.IndexY} {cell.Phase} {cell.Id}\n");
 			return stringBuilder.ToString();
 		}
-		public Bitmap ToBitmap(int celSizeBmp, bool isDualPhase = false)
+		public Bitmap ToBitmap(int celSizeBmp)
 		{
-			Bitmap bitmap = new Bitmap(ColumnsCount * celSizeBmp, RowsCount * celSizeBmp);
+			Bitmap bitmap = new Bitmap(ColumnsCount * celSizeBmp, RowsCount * celSizeBmp, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 			Graphics graphics = Graphics.FromImage(bitmap);
 
 			for (int i = 0; i < _rows.Count; i++)
@@ -690,8 +690,8 @@ namespace MultiscaleModelling
 					Cell cell = _rows[i][j];
 					SolidBrush solidBrush;
 
-					if (isDualPhase && cell.Phase > 0)
-						solidBrush = Cell.Brushes[Cell.DualPhaseColor];
+					if (cell.Phase > 0)
+						solidBrush = new SolidBrush(Color.FromArgb(255 - cell.Phase, cell.Color.R, cell.Color.G, cell.Color.B));
 					else
 						solidBrush = cell.Color.ToSolidBrush();
 

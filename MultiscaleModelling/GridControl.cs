@@ -268,19 +268,24 @@ namespace MultiscaleModelling
 				for (int j = 0; j < columnsCount; j++)
 				{
 					Color color = bitmap.GetPixel(j * cellSizeBmp, i * cellSizeBmp);
-					int colorArgb = color.ToArgb();
-					colors.Add(colorArgb);
+					int alpha = color.A;
+					int red = color.R;
+					int green = color.G;
+					int blue = color.B;
+
+					int colorArbg = Color.FromArgb(red, green, blue).ToArgb();
+					colors.Add(colorArbg);
 
 					var list = colors.ToList();
 
-					var id = list.IndexOf(list.Find(x => x == colorArgb)) - 1;
+					var id = list.IndexOf(list.Find(x => x == colorArbg)) - 1;
 
 					Cell cell = Matrix.GetCell(i, j);
 					cell.SetId(id);
 					cell.SetColor(color);
 
-					if (colorArgb == Cell.DualPhaseColor)
-						cell.Phase = 1;
+					if (alpha < 255)
+						cell.Phase = 255 - alpha;
 				}
 			}
 		}
