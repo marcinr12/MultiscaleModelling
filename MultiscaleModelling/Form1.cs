@@ -453,6 +453,8 @@ namespace MultiscaleModelling
 		private void SecondGrowthButton_Click(object sender, EventArgs e)
 		{
 			SetControlsState(false);
+			grainBoundariesCheckBox.Checked = false;
+
 			SimulationCancellationTokenSource = new CancellationTokenSource();
 
 			_startTask = Task.Run(() =>
@@ -469,7 +471,7 @@ namespace MultiscaleModelling
 						gridControl.Matrix.InitialSecondGrowthCalculations();
 						gridControl.Draw();
 
-						while (gridControl.Matrix.GetCells().Where(c => c.Id == 0).FirstOrDefault() is Cell)
+						while (gridControl.Matrix.GetCells().Where(c => c.Id == 0).Any())
 						{
 							if (SimulationCancellationTokenSource.IsCancellationRequested)
 								break;

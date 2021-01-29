@@ -111,13 +111,13 @@ namespace MultiscaleModelling
 
 					if (ShowGrainBoundaries)
 					{
-						if (cell.IsOnBorder)
+						if (cell.IsOnBorder && cell.Id > 0)
 							brush = Cell.Brushes[Cell.BorderColor];
 						else
 						{
 							if (ViewMode == ViewMode.DualPhase)
 							{
-								if (cell.Phase > 0)
+								if (cell.Phase > 0 && cell.Id > 0)
 									brush = Cell.Brushes[Cell.DualPhaseColor];
 								else
 									brush = Cell.Brushes[cell.Color.ToArgb()];
@@ -130,7 +130,7 @@ namespace MultiscaleModelling
 					{
 						if (ViewMode == ViewMode.DualPhase)
 						{
-							if (cell.Phase > 0)
+							if (cell.Phase > 0 && cell.Id > 0)
 								brush = Cell.Brushes[Cell.DualPhaseColor];
 							else
 								brush = Cell.Brushes[cell.Color.ToArgb()];
@@ -272,6 +272,7 @@ namespace MultiscaleModelling
 					int red = color.R;
 					int green = color.G;
 					int blue = color.B;
+
 
 					int colorArbg = Color.FromArgb(red, green, blue).ToArgb();
 					colors.Add(colorArbg);
