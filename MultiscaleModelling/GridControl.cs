@@ -1,9 +1,10 @@
-﻿using System;
+﻿using MultiscaleModelling.Extensions;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Convert;
 
@@ -27,7 +28,7 @@ namespace MultiscaleModelling
 				{
 					_gridCellWidth = value;
 					Matrix.Rearange(_gridCellWidth, _gridCellHeight);
-					Draw(); 
+					Draw();
 				}
 			}
 		}
@@ -42,7 +43,7 @@ namespace MultiscaleModelling
 				{
 					_gridCellHeight = value;
 					Matrix.Rearange(_gridCellWidth, _gridCellHeight);
-					Draw(); 
+					Draw();
 				}
 			}
 		}
@@ -58,7 +59,28 @@ namespace MultiscaleModelling
 			}
 		}
 
-		private readonly Pen blackPen = new Pen(Color.Black);
+		private ViewMode _viewMode;
+		public ViewMode ViewMode
+		{
+			get => _viewMode;
+			set
+			{
+				_viewMode = value;
+				Draw();
+			}
+		}
+
+		private bool _showGrainBoundaries;
+		public bool ShowGrainBoundaries
+		{
+			get => _showGrainBoundaries;
+			set
+			{
+				_showGrainBoundaries = value;
+				Draw();
+			}
+		}
+		private readonly Pen blackPen = new Pen(Cell.GridColor.ToColor());
 		public GridControl()
 		{
 			InitializeComponent();
@@ -76,7 +98,6 @@ namespace MultiscaleModelling
 			for (int i = 0; i <= GridCellHeight; i++)
 				graphics.DrawLine(blackPen, 0, ToSingle(i * cellSize) - 1, ToSingle(GridCellWidth * cellSize), ToSingle(i * cellSize) - 1);
 		}
-
 		readonly Stopwatch sw = new Stopwatch();
 		public void PrintCells()
 		{
@@ -86,17 +107,62 @@ namespace MultiscaleModelling
 				for (int j = 0; j < Matrix.ColumnsCount; j++)
 				{
 					Cell cell = Matrix.GetCell(i, j);
-					SolidBrush brush = Cell.Brushes[cell.Color.ToArgb()];
-					graphics.FillRectangle(brush, Matrix.CellSize * cell.IndexX - 1, Matrix.CellSize * cell.IndexY - 1, Matrix.CellSize + 1, Matrix.CellSize + 1);
+					SolidBrush brush = null;
+
+					if (ShowGrainBoundaries)
+					{
+						if (cell.IsOnBorder && cell.Id > 0)
+							brush = Cell.Brushes[Cell.BorderColor];
+						else
+						{
+							if (ViewMode == ViewMode.DualPhase)
+							{
+								if (cell.Phase > 0 && cell.Id > 0)
+									brush = Cell.Brushes[Cell.DualPhaseColor];
+								else
+									brush = Cell.Brushes[cell.Color.ToArgb()];
+							}
+							else if (ViewMode == ViewMode.Substracture)
+								brush = Cell.Brushes[cell.Color.ToArgb()];
+						}
+					}
+					else
+					{
+						if (ViewMode == ViewMode.DualPhase)
+						{
+							if (cell.Phase > 0 && cell.Id > 0)
+								brush = Cell.Brushes[Cell.DualPhaseColor];
+							else
+								brush = Cell.Brushes[cell.Color.ToArgb()];
+						}
+						else if (ViewMode == ViewMode.Substracture)
+							brush = Cell.Brushes[cell.Color.ToArgb()];
+					}
+
+					try
+					{
+						graphics.FillRectangle(brush, Matrix.CellSize * cell.IndexX - 1, Matrix.CellSize * cell.IndexY - 1, Matrix.CellSize + 1, Matrix.CellSize + 1);
+					}
+					catch (Exception e)
+					{
+						Trace.WriteLine("Exeption: PrintCells(): " + e.Message);
+					}
 				}
 			}
 		}
 		public void PrintCells(IEnumerable<Cell> cells)
 		{
-			foreach(Cell cell in cells)
+			foreach (Cell cell in cells)
 			{
 				SolidBrush brush = Cell.Brushes[cell.Color.ToArgb()];
-				graphics.FillRectangle(brush, Matrix.CellSize * cell.IndexX - 1, Matrix.CellSize * cell.IndexY - 1, Matrix.CellSize + 1, Matrix.CellSize + 1);
+				try
+				{
+					graphics.FillRectangle(brush, Matrix.CellSize * cell.IndexX - 1, Matrix.CellSize * cell.IndexY - 1, Matrix.CellSize + 1, Matrix.CellSize + 1);
+				}
+				catch (Exception e)
+				{
+					Trace.WriteLine("Exeption: PrintCells(IEnumerable<Cell> cells): " + e.Message);
+				}
 			}
 		}
 		private void CalculateCellSize()
@@ -105,14 +171,6 @@ namespace MultiscaleModelling
 			float cellHeight = 1.0f * outputPictureBox.Height / GridCellHeight;
 			Matrix.SetCellSize(cellHeight < cellWidth ? cellHeight : cellWidth);
 		}
-		protected override void OnResize(EventArgs e)
-		{
-			base.OnResize(e);
-			bitmap = new Bitmap(outputPictureBox.Width, outputPictureBox.Height);
-			graphics = Graphics.FromImage(bitmap);
-			Draw();
-		}
-
 		public void Draw(IEnumerable<Cell> cells = null)
 		{
 			if (!IsHandleCreated)
@@ -132,19 +190,38 @@ namespace MultiscaleModelling
 			else
 			{
 				//graphics.Clear(EmptySpaceColor);
-				outputPictureBox.Invoke(new Action(() => graphics.Clear(EmptySpaceColor)));
-				PrintCells();
+				try
+				{
+					outputPictureBox.Invoke(new Action(() =>
+					{
+						try
+						{
+							graphics.Clear(EmptySpaceColor);
+						}
+						catch (Exception exc)
+						{
+							Trace.WriteLine("Draw(IEnumerable<Cell> cells = null) - ACTION: " + exc.GetBaseException().Message);
+						}
+					}));
+				}
+				catch (Exception exc)
+				{
+					Trace.WriteLine("Draw(IEnumerable<Cell> cells = null): " + exc.GetBaseException().Message);
+				}
+				try
+				{
+					PrintCells();
+				}
+				catch (Exception exc)
+				{
+					Trace.WriteLine("Draw(IEnumerable<Cell> cells = null): " + exc.GetBaseException().Message);
+				}
 			}
 
 			if (IsGridShowed)
 				PrintGrid();
-		
+
 			outputPictureBox.Invoke(new Action(() => outputPictureBox.Image = bitmap));
-		}
-		protected override void OnHandleCreated(EventArgs e)
-		{
-			base.OnHandleCreated(e);
-			Draw();
 		}
 		public void LoadMatrix(List<(int Id, int Phase, int IndexX, int IndexY)> cells)
 		{
@@ -156,12 +233,12 @@ namespace MultiscaleModelling
 
 			HashSet<int> colors = new HashSet<int>()
 			{
-				Color.Black.ToArgb(),
-				Color.White.ToArgb()
+				Cell.InclusionColor,
+				Cell.EmptySpaceColor
 			};
 
 			int coloredCells = cells.Select(c => c.Id).Where(id => id > 0).Distinct().Count();
-			while(colors.Count < coloredCells + 2)
+			while (colors.Count < coloredCells + 2)
 				colors.Add(Color.FromArgb(RandomMachine.Next(255), RandomMachine.Next(255), RandomMachine.Next(255)).ToArgb());
 
 			foreach ((int Id, int Phase, int IndexX, int IndexY) in cells)
@@ -182,8 +259,8 @@ namespace MultiscaleModelling
 
 			HashSet<int> colors = new HashSet<int>()
 			{
-				Color.Black.ToArgb(),
-				Color.White.ToArgb()
+				Cell.EmptySpaceColor,
+				Cell.InclusionColor
 			};
 
 			for (int i = 0; i < rowsCount; i++)
@@ -191,16 +268,60 @@ namespace MultiscaleModelling
 				for (int j = 0; j < columnsCount; j++)
 				{
 					Color color = bitmap.GetPixel(j * cellSizeBmp, i * cellSizeBmp);
-					int colorArgb = color.ToArgb();
-					colors.Add(colorArgb);
+					int alpha = color.A;
+					int red = color.R;
+					int green = color.G;
+					int blue = color.B;
+
+
+					int colorArbg = Color.FromArgb(red, green, blue).ToArgb();
+					colors.Add(colorArbg);
 
 					var list = colors.ToList();
 
-					var id = list.IndexOf(list.Find(x => x == colorArgb)) - 1;
-					Matrix.GetCell(i, j).SetId(id);
-					Matrix.GetCell(i, j).SetColor(color);
+					var id = list.IndexOf(list.Find(x => x == colorArbg)) - 1;
+
+					Cell cell = Matrix.GetCell(i, j);
+					cell.SetId(id);
+					cell.SetColor(color);
+
+					if (alpha < 255)
+						cell.Phase = 255 - alpha;
 				}
 			}
+		}
+
+
+		[Browsable(true)]
+		[Category("Action")]
+		public new event MouseEventHandler MouseClick
+		{
+			add { outputPictureBox.MouseClick += value; }
+			remove { outputPictureBox.MouseClick -= value; }
+		}
+		private void OutputPictureBox_MouseClick(object sender, MouseEventArgs e)
+		{
+			int xIndex = ToInt32(Math.Floor(e.X / Matrix.CellSize));
+			int yIndex = ToInt32(Math.Floor(e.Y / Matrix.CellSize));
+
+			if (xIndex < Matrix.ColumnsCount && yIndex < Matrix.RowsCount)
+				Matrix.SelectedCell = Matrix.GetCell(yIndex, xIndex);
+			else
+				Matrix.SelectedCell = null;
+
+		}
+
+		protected override void OnHandleCreated(EventArgs e)
+		{
+			base.OnHandleCreated(e);
+			Draw();
+		}
+		protected override void OnResize(EventArgs e)
+		{
+			base.OnResize(e);
+			bitmap = new Bitmap(outputPictureBox.Width, outputPictureBox.Height);
+			graphics = Graphics.FromImage(bitmap);
+			Draw();
 		}
 	}
 }

@@ -18,8 +18,22 @@ namespace MultiscaleModelling
 
 	public enum InclusionsType
 	{
-		Squre,
+		Square,
 		Round
+	}
+
+	public enum RuleType
+	{
+		Moor,
+		VonNeumann,
+		FurtherMoor,
+		MoorWithProbability
+	}
+
+	public enum ViewMode
+	{
+		Substracture,
+		DualPhase
 	}
 
 	public static class EnumsNames
@@ -38,8 +52,16 @@ namespace MultiscaleModelling
 
 		public static readonly Dictionary<InclusionsType, string> InclusionsTypeNames = new Dictionary<InclusionsType, string>()
 		{
-			{ InclusionsType.Squre, "Squre" },
+			{ InclusionsType.Square, "Square" },
 			{ InclusionsType.Round, "Round" }
+		};
+
+		public static readonly Dictionary<RuleType, string> RuleTypeNames = new Dictionary<RuleType, string>()
+		{
+			{ RuleType.Moor, "Moor" },
+			{ RuleType.VonNeumann, "VonNeumann" },
+			{ RuleType.FurtherMoor, "FurtherMoor" },
+			{ RuleType.MoorWithProbability, "MoorWithProbability" }
 		};
 	}
 }

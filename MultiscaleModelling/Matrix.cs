@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MultiscaleModelling.Extensions;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,12 +13,19 @@ namespace MultiscaleModelling
 {
 	public class Matrix
 	{
-		private readonly List<List<Cell>> rows;
-		private readonly Dictionary<long, Cell> PotentialGrains = new Dictionary<long, Cell>();
+		private readonly List<List<Cell>> _rows;
+		private readonly Dictionary<long, Cell> _potentialGrains = new Dictionary<long, Cell>();
 
-		public int RowsCount => rows.Count;
-		public int ColumnsCount => rows.ElementAtOrDefault(0)?.Count ?? 0;
+		// grain id, Cells
+		private List<IGrouping<int, Cell>> _firstPhaseGrains;
+		// grain id, cell identifier, cell
+		private readonly Dictionary<int, ConcurrentDictionary<long, Cell>> _secondGrowthPotentialGrains = new Dictionary<int, ConcurrentDictionary<long, Cell>>();
+
+		public int RowsCount => _rows.Count;
+		public int ColumnsCount => _rows.ElementAtOrDefault(0)?.Count ?? 0;
 		public float CellSize { get; private set; }
+		public Cell SelectedCell { get; set; }
+
 		private Bc _boundaryContition;
 		public Bc BoundaryCondition
 		{
@@ -31,16 +39,16 @@ namespace MultiscaleModelling
 
 		public Matrix()
 		{
-			rows = new List<List<Cell>>() { new List<Cell>() { new Cell(0, 0, this) } };
+			_rows = new List<List<Cell>>() { new List<Cell>() { new Cell(0, 0, this) } };
 			BoundaryCondition = Bc.Absorbing;
 		}
 		public Cell GetCell(int row, int column)
 		{
-			return rows[row][column];
+			return _rows[row][column];
 		}
 		public IEnumerable<Cell> GetCells()
 		{
-			return rows.SelectMany(x => x);
+			return _rows.SelectMany(x => x);
 		}
 		public void AddRow()
 		{
@@ -49,23 +57,23 @@ namespace MultiscaleModelling
 			for (int i = 0; i < ColumnsCount; i++)
 			{
 				row.Add(new Cell(indexY: RowsCount, indexX: i, matrix: this));
-				c.Add((Id: 0, Color: Color.White));
+				c.Add((Id: 0, Color: Cell.EmptySpaceColor.ToColor()));
 			}
-			rows.Add(row);
+			_rows.Add(row);
 		}
 		public void AddColumn()
 		{
 			int indexX = ColumnsCount;
 			for (int i = 0; i < RowsCount; i++)
 			{
-				rows[i].Add(new Cell(indexY: i, indexX: indexX, matrix: this));
+				_rows[i].Add(new Cell(indexY: i, indexX: indexX, matrix: this));
 			}
 		}
 		public void RemoveLastRow()
 		{
 			if (RowsCount == 1)
 				throw new Exception("Last row");
-			rows.RemoveAt(RowsCount - 1);
+			_rows.RemoveAt(RowsCount - 1);
 		}
 		public void RemoveLastColumn()
 		{
@@ -74,7 +82,7 @@ namespace MultiscaleModelling
 			int indexX = ColumnsCount;
 			for (int i = 0; i < RowsCount; i++)
 			{
-				rows[i].RemoveAt(indexX - 1);
+				_rows[i].RemoveAt(indexX - 1);
 			}
 		}
 		public void Rearange(int targetSizeX, int targetSizeY)
@@ -96,22 +104,33 @@ namespace MultiscaleModelling
 		private void SetBoundaryCondition()
 		{
 			if (BoundaryCondition == Bc.Absorbing)
-				SetNeighborsAbsorbing("moor");
+				SetNeighborsAbsorbing();
 			else if (BoundaryCondition == Bc.Periodic)
-				SetNeighborsPeriodic("moor");
+				SetNeighborsPeriodic();
 			else
-				SetNeighborsAbsorbing("moor");
+				SetNeighborsAbsorbing();
 		}
 		public void Erase()
 		{
-			for (int i = 0; i < rows.Count; i++)
+			for (int i = 0; i < _rows.Count; i++)
 			{
-				for (int j = 0; j < rows[i].Count; j++)
+				for (int j = 0; j < _rows[i].Count; j++)
 				{
-					rows[i][j].SetId(0);
-					rows[i][j].SetColor(Color.White);
+					_rows[i][j].SetId(0);
+					_rows[i][j].SetColor(Cell.EmptySpaceColor.ToColor());
 				}
 			}
+		}
+		public void EraseFirstPhase()
+		{
+			Parallel.ForEach(_rows.SelectMany(x => x), cell =>
+			{
+				if (cell.Phase == 0)
+				{
+					cell.SetId(0);
+					cell.SetColor(Cell.EmptySpaceColor.ToColor());
+				}
+			});
 		}
 		public void SetCellSize(float cellSize)
 		{
@@ -137,14 +156,53 @@ namespace MultiscaleModelling
 				attempts++;
 			}
 		}
-		private void SetNeighborsAbsorbing(string selectedNeighborhoodPattern)
+		public void AssignFirstPhaseGrains()
 		{
-			int sizeY = rows.Count;
+			_firstPhaseGrains = _rows.SelectMany(x => x).Where(c => c.Phase == 0 && c.Id > 0).GroupBy(x => x.Id).ToList();
+		}
+		public void SetRandomCellsSecondGrainGrowth(int number)
+		{
+			List<int> takenIds = _rows.SelectMany(x => x).Where(c => c.Phase != 0).Select(x => x.Id).Distinct().ToList();
+			IEnumerable<int> possibleIds = Enumerable.Range(1, int.MaxValue);
+
+			//Parallel.ForEach(_firstPhaseGrains, group =>
+			foreach (IGrouping<int, Cell> group in _firstPhaseGrains)
+			{
+
+				List<Cell> grain = group.Select(x => x).ToList();
+				grain.ForEach(c =>
+				{
+					c.SetColor(Cell.EmptySpaceColor.ToColor());
+					c.SetId(0);
+				});
+
+				int attempts = 0;
+				int i = 1;
+				while (i <= number && attempts < 100_000)
+				{
+					Cell cell = grain.ElementAt(RandomMachine.Next(grain.Count));
+					if (cell.Id == 0)
+					{
+						int id = possibleIds.Except(takenIds).FirstOrDefault();
+						takenIds.Add(id);
+						cell.SetId(id);
+						cell.SetColor(Color.FromArgb(RandomMachine.Next(1, 255), RandomMachine.Next(1, 255), RandomMachine.Next(1, 255)));
+
+						i++;
+						attempts = 0;
+					}
+					attempts++;
+				}
+			}
+		}
+		private void SetNeighborsAbsorbing()
+		{
+			int sizeY = _rows.Count;
 			int sizeX;
 
 			for (int i = 0; i < RowsCount; i++)     // rows
 			{
-				sizeX = rows[i].Count;
+				sizeX = _rows[i].Count;
 				for (int j = 0; j < ColumnsCount; j++) // columns
 				{
 					Cell cell = GetCell(i, j);
@@ -153,63 +211,63 @@ namespace MultiscaleModelling
 					// i+/- and j+/- -> cell's potential heighbor
 
 					// Top left
-					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][0] == 1 && i + 1 < sizeY && j + 1 < sizeX)
-						cell.NeighboringCells[0] = rows[i + 1][j + 1];
+					if (i + 1 < sizeY && j + 1 < sizeX)
+						cell.NeighboringCells[0] = _rows[i + 1][j + 1];
 					else
 						cell.NeighboringCells[0] = null;
 
 					// Top
-					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][1] == 1 && i + 1 < sizeY)
-						cell.NeighboringCells[1] = rows[i + 1][j];
+					if (i + 1 < sizeY)
+						cell.NeighboringCells[1] = _rows[i + 1][j];
 					else
 						cell.NeighboringCells[1] = null;
 
 					// Top right
-					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][2] == 1 && i + 1 < sizeY && j - 1 >= 0)
-						cell.NeighboringCells[2] = rows[i + 1][j - 1];
+					if (i + 1 < sizeY && j - 1 >= 0)
+						cell.NeighboringCells[2] = _rows[i + 1][j - 1];
 					else
 						cell.NeighboringCells[2] = null;
 
 					// Right
-					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][3] == 1 && j - 1 >= 0)
-						cell.NeighboringCells[3] = rows[i][j - 1];
+					if (j - 1 >= 0)
+						cell.NeighboringCells[3] = _rows[i][j - 1];
 					else
 						cell.NeighboringCells[3] = null;
 
 					// Bottom right
-					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][4] == 1 && i - 1 >= 0 && j - 1 >= 0)
-						cell.NeighboringCells[4] = rows[i - 1][j - 1];
+					if (i - 1 >= 0 && j - 1 >= 0)
+						cell.NeighboringCells[4] = _rows[i - 1][j - 1];
 					else
 						cell.NeighboringCells[4] = null;
 
 					// Bottom
-					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][5] == 1 && i - 1 >= 0)
-						cell.NeighboringCells[5] = rows[i - 1][j];
+					if (i - 1 >= 0)
+						cell.NeighboringCells[5] = _rows[i - 1][j];
 					else
 						cell.NeighboringCells[5] = null;
 
 					// Bottom left
-					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][6] == 1 && i - 1 >= 0 && j + 1 < sizeX)
-						cell.NeighboringCells[6] = rows[i - 1][j + 1];
+					if (i - 1 >= 0 && j + 1 < sizeX)
+						cell.NeighboringCells[6] = _rows[i - 1][j + 1];
 					else
 						cell.NeighboringCells[6] = null;
 
 					// Left
-					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][7] == 1 && j + 1 < sizeX)
-						cell.NeighboringCells[7] = rows[i][j + 1];
+					if (j + 1 < sizeX)
+						cell.NeighboringCells[7] = _rows[i][j + 1];
 					else
 						cell.NeighboringCells[7] = null;
 				}
 			}
 		}
-		private void SetNeighborsPeriodic(string selectedNeighborhoodPattern)
+		private void SetNeighborsPeriodic()
 		{
-			int sizeY = rows.Count;
+			int sizeY = _rows.Count;
 			int sizeX;
 
 			for (int i = 0; i < sizeY; i++)
 			{
-				sizeX = rows[i].Count;
+				sizeX = _rows[i].Count;
 				for (int j = 0; j < sizeX; j++)
 				{
 					Cell cell = GetCell(i, j);
@@ -217,101 +275,68 @@ namespace MultiscaleModelling
 					// cell -> current cell
 					// i+/- and j+/- -> cell's potential heighbor
 
-					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][0] == 1)
-					{
-						if (i + 1 < sizeY && j + 1 < sizeX)
-							cell.NeighboringCells[0] = rows[i + 1][j + 1];
-						else if (i + 1 < sizeY && j + 1 >= sizeX)
-							cell.NeighboringCells[0] = rows[i + 1][0];
-						else if (i + 1 >= sizeY && j + 1 < sizeX)
-							cell.NeighboringCells[0] = rows[0][j + 1];
-						else
-							cell.NeighboringCells[0] = rows[0][0];
-					}
+					if (i + 1 < sizeY && j + 1 < sizeX)
+						cell.NeighboringCells[0] = _rows[i + 1][j + 1];
+					else if (i + 1 < sizeY && j + 1 >= sizeX)
+						cell.NeighboringCells[0] = _rows[i + 1][0];
+					else if (i + 1 >= sizeY && j + 1 < sizeX)
+						cell.NeighboringCells[0] = _rows[0][j + 1];
 					else
-						cell.NeighboringCells[0] = null;
+						cell.NeighboringCells[0] = _rows[0][0];
 
-					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][1] == 1)
-					{
-						if (i + 1 < sizeY)
-							cell.NeighboringCells[1] = rows[i + 1][j];
-						else
-							cell.NeighboringCells[1] = rows[0][j];
-					}
-					else
-						cell.NeighboringCells[1] = null;
 
-					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][2] == 1)
-					{
-						if (i + 1 < sizeY && j - 1 >= 0)
-							cell.NeighboringCells[2] = rows[i + 1][j - 1];
-						else if (i + 1 < sizeY && j - 1 < 0)
-							cell.NeighboringCells[2] = rows[i + 1][sizeX - 1];
-						else if (i + 1 >= sizeY && j - 1 >= 0)
-							cell.NeighboringCells[2] = rows[0][j - 1];
-						else
-							cell.NeighboringCells[2] = rows[0][sizeX - 1];
-					}
+					if (i + 1 < sizeY)
+						cell.NeighboringCells[1] = _rows[i + 1][j];
 					else
-						cell.NeighboringCells[2] = null;
+						cell.NeighboringCells[1] = _rows[0][j];
 
-					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][3] == 1)
-					{
-						if (j - 1 >= 0)
-							cell.NeighboringCells[3] = rows[i][j - 1];
-						else
-							cell.NeighboringCells[3] = rows[i][sizeX - 1];
-					}
-					else
-						cell.NeighboringCells[3] = null;
 
-					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][4] == 1)
-					{
-						if (i - 1 >= 0 && j - 1 >= 0)
-							cell.NeighboringCells[4] = rows[i - 1][j - 1];
-						else if (i - 1 >= 0 && j - 1 < 0)
-							cell.NeighboringCells[4] = rows[i - 1][sizeX - 1];
-						else if (i - 1 < 0 && j - 1 >= 0)
-							cell.NeighboringCells[4] = rows[sizeY - 1][j - 1];
-						else
-							cell.NeighboringCells[4] = rows[sizeY - 1][sizeX - 1];
-					}
+					if (i + 1 < sizeY && j - 1 >= 0)
+						cell.NeighboringCells[2] = _rows[i + 1][j - 1];
+					else if (i + 1 < sizeY && j - 1 < 0)
+						cell.NeighboringCells[2] = _rows[i + 1][sizeX - 1];
+					else if (i + 1 >= sizeY && j - 1 >= 0)
+						cell.NeighboringCells[2] = _rows[0][j - 1];
 					else
-						cell.NeighboringCells[4] = null;
+						cell.NeighboringCells[2] = _rows[0][sizeX - 1];
 
-					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][5] == 1)
-					{
-						if (i - 1 >= 0)
-							cell.NeighboringCells[5] = rows[i - 1][j];
-						else
-							cell.NeighboringCells[5] = rows[sizeY - 1][j];
-					}
-					else
-						cell.NeighboringCells[5] = null;
 
-					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][6] == 1)
-					{
-						if (i - 1 >= 0 && j + 1 < sizeX)
-							cell.NeighboringCells[6] = rows[i - 1][j + 1];
-						else if (i - 1 >= 0 && j + 1 >= sizeX)
-							cell.NeighboringCells[6] = rows[i - 1][0];
-						else if (i - 1 < 0 && j + 1 < sizeX)
-							cell.NeighboringCells[6] = rows[sizeY - 1][j + 1];
-						else
-							cell.NeighboringCells[6] = rows[sizeY - 1][0];
-					}
+					if (j - 1 >= 0)
+						cell.NeighboringCells[3] = _rows[i][j - 1];
 					else
-						cell.NeighboringCells[6] = null;
+						cell.NeighboringCells[3] = _rows[i][sizeX - 1];
 
-					if (Neighbourhood.Patterns[selectedNeighborhoodPattern][7] == 1)
-					{
-						if (j + 1 < sizeX)
-							cell.NeighboringCells[7] = rows[i][j + 1];
-						else
-							cell.NeighboringCells[7] = rows[i][0];
-					}
+
+					if (i - 1 >= 0 && j - 1 >= 0)
+						cell.NeighboringCells[4] = _rows[i - 1][j - 1];
+					else if (i - 1 >= 0 && j - 1 < 0)
+						cell.NeighboringCells[4] = _rows[i - 1][sizeX - 1];
+					else if (i - 1 < 0 && j - 1 >= 0)
+						cell.NeighboringCells[4] = _rows[sizeY - 1][j - 1];
 					else
-						cell.NeighboringCells[7] = null;
+						cell.NeighboringCells[4] = _rows[sizeY - 1][sizeX - 1];
+
+
+					if (i - 1 >= 0)
+						cell.NeighboringCells[5] = _rows[i - 1][j];
+					else
+						cell.NeighboringCells[5] = _rows[sizeY - 1][j];
+
+
+					if (i - 1 >= 0 && j + 1 < sizeX)
+						cell.NeighboringCells[6] = _rows[i - 1][j + 1];
+					else if (i - 1 >= 0 && j + 1 >= sizeX)
+						cell.NeighboringCells[6] = _rows[i - 1][0];
+					else if (i - 1 < 0 && j + 1 < sizeX)
+						cell.NeighboringCells[6] = _rows[sizeY - 1][j + 1];
+					else
+						cell.NeighboringCells[6] = _rows[sizeY - 1][0];
+
+
+					if (j + 1 < sizeX)
+						cell.NeighboringCells[7] = _rows[i][j + 1];
+					else
+						cell.NeighboringCells[7] = _rows[i][0];
 				}
 			}
 		}
@@ -319,51 +344,73 @@ namespace MultiscaleModelling
 		{
 			foreach (Cell n in cells.Where(c => c is Cell && c.NewId == 0))
 			{
-				PotentialGrains.TryAdd(n.Identifier, n);
+				_potentialGrains.TryAdd(n.Identifier, n);
+			}
+		}
+		public void TryAddPotentialGrainsSecondGrowth(int grainId, IEnumerable<Cell> neighboringCells)
+		{
+			foreach (Cell cell in neighboringCells.Where(c => c is Cell && c.Id == 0))
+			{
+				IGrouping<int, Cell> grain = _firstPhaseGrains.First(g => g.Key == grainId);
+				if (grain.Select(c => c.Identifier).Contains(cell.Identifier))
+				{
+					_secondGrowthPotentialGrains[grainId].TryAdd(cell.Identifier, cell); 
+				}
 			}
 		}
 		public void InitialCalculations()
 		{
-			PotentialGrains.Clear();
-			for (int i = 0; i < rows.Count; i++)
+			_potentialGrains.Clear();
+			for (int i = 0; i < _rows.Count; i++)
 			{
-				for (int j = 0; j < rows[i].Count; j++)
+				for (int j = 0; j < _rows[i].Count; j++)
 				{
-					if (rows[i][j].Id > 0)
+					if (_rows[i][j].Id > 0)
 					{
-						TryAddPotentialGrains(rows[i][j].NeighboringCells);
+						TryAddPotentialGrains(_rows[i][j].NeighboringCells);
+					}
+				}
+			}
+		}
+		public void InitialSecondGrowthCalculations()
+		{
+			_secondGrowthPotentialGrains.Clear();
+			foreach (IGrouping<int, Cell> grain in _firstPhaseGrains)
+			{
+				_secondGrowthPotentialGrains.Add(grain.Key, new ConcurrentDictionary<long, Cell>());
+				foreach (Cell cell in grain.ToList())
+				{
+					if (cell.Id > 0)
+					{
+						TryAddPotentialGrainsSecondGrowth(grain.Key, cell.NeighboringCells);
 					}
 				}
 			}
 		}
 
 		readonly Stopwatch sw = new Stopwatch();
-		public LinkedList<Cell> CalculateNextGeneration()
+		public LinkedList<Cell> CalculateNextGeneration(bool shapeControl, int probability)
 		{
 			sw.Restart();
 
 			ConcurrentQueue<Cell> newColored = new ConcurrentQueue<Cell>();
-			Parallel.ForEach(PotentialGrains.Keys, i =>
+			Parallel.ForEach(_potentialGrains.Keys, i =>
 			{
-				Cell cell = PotentialGrains[i];
-				Cell mostCommonCell = GetMostCommonNeighboringCellById(cell);
-				cell.NewId = mostCommonCell.Id;
-				cell.NewColor = mostCommonCell.Color;
+				Cell cell = _potentialGrains[i];
+
+				int id;
+				Color color;
+
+				if (!shapeControl)
+					GetCellIdAndColorR4(cell, out id, out color);
+				else
+					GetCellIdAndColorShapeControl(cell, probability, out id, out color);
+
+				cell.NewId = id;
+				cell.NewColor = color;
 				if (cell.NewId > 0)
 					newColored.Enqueue(cell);
 			});
-
-			//PotentialGrains.ToList().ForEach(x => Trace.WriteLine($"X:{x.Value.IndexX} Y:{x.Value.IndexY}"));
-
-			//foreach(var i in PotentialGrains.Keys)
-			//{
-			//	Cell cell = PotentialGrains[i];
-			//	Cell mostCommonCell = GetMostCommonNeighboringCellById(cell);
-			//	cell.NewId = mostCommonCell.Id;
-			//	cell.NewColor = mostCommonCell.Color;
-			//	if (cell.NewId > 0)
-			//		newColored.Enqueue(cell);
-			//}
 
 			LinkedList<Cell> toReturn = new LinkedList<Cell>();
 			while (!newColored.IsEmpty)
@@ -373,17 +420,171 @@ namespace MultiscaleModelling
 					c.UpdateId();
 					TryAddPotentialGrains(c.NeighboringCells);
 
-					PotentialGrains.Remove(c.Identifier);
+					_potentialGrains.Remove(c.Identifier);
 					toReturn.AddLast(c);
 				}
 			}
 			return toReturn;
 			//Trace.WriteLine($"Iteration took: {sw.ElapsedMilliseconds}ms");
 		}
-		private static Cell GetMostCommonNeighboringCellById(Cell cell)
+		Stopwatch stopwatch = new Stopwatch();
+		private object _lock = new object();
+		public LinkedList<Cell> CalculateNextGenerationSecondGrowth(bool shapeControl, int probability)
 		{
-			IEnumerable<Cell> notNullCells = cell.NeighboringCells.Where(c => c?.Id >= 0);
-			Cell c = notNullCells.First();
+			sw.Restart();
+			ConcurrentBag<Cell> newColored = new ConcurrentBag<Cell>();
+			LinkedList<Cell> toReturn = new LinkedList<Cell>();
+
+			// for each grain
+			//Parallel.ForEach(_secondGrowthPotentialGrains.Keys, grainId =>
+			//{
+			//	// for each cell in grain
+			//	Parallel.ForEach(_secondGrowthPotentialGrains[grainId].Keys, cellIdentifier =>
+			//	{
+			//		Cell cell = _secondGrowthPotentialGrains[grainId][cellIdentifier];
+
+			//		if (cell.Id > 0)
+			//		{
+
+			//		}
+
+			//		int id;
+			//		Color color;
+
+			//		if (!shapeControl)
+			//			GetCellIdAndColorR4(cell, out id, out color, grainId);
+			//		else
+			//			GetCellIdAndColorShapeControl(cell, r1, r2, r3, r4, probability, out id, out color);
+
+			//		cell.NewId = id;
+			//		cell.NewColor = color;
+			//		if (cell.NewId > 0)
+			//			newColored.Enqueue(cell);
+			//	});
+
+			//	while (!newColored.IsEmpty)
+			//	{
+			//		if (newColored.TryDequeue(out Cell c))
+			//		{
+			//			c.UpdateId();
+			//			TryAddPotentialGrainsSecondGrowth(grainId, c.NeighboringCells);
+
+			//			_secondGrowthPotentialGrains[grainId].Remove(c.Identifier);
+			//			toReturn.AddLast(c);
+			//		}
+			//	}
+			//});
+
+
+			// for each grain
+			//foreach (var grainId in _secondGrowthPotentialGrains.Keys)
+			//{
+			//	// for each cell in grain
+			//	foreach (var cellIdentifier in _secondGrowthPotentialGrains[grainId].Keys)
+			//	{
+			//		Cell cell = _secondGrowthPotentialGrains[grainId][cellIdentifier];
+
+			//		int id;
+			//		Color color;
+
+			//		if (!shapeControl)
+			//			GetCellIdAndColorR4(cell, out id, out color, grainId);
+			//		else
+			//			GetCellIdAndColorShapeControl(cell, r1, r2, r3, r4, probability, out id, out color);
+
+			//		cell.NewId = id;
+			//		cell.NewColor = color;
+			//		if (cell.NewId > 0)
+			//			newColored.Enqueue(cell);
+			//	}
+
+			//	while (!newColored.IsEmpty)
+			//	{
+			//		if (newColored.TryDequeue(out Cell c))
+			//		{
+			//			c.UpdateId();
+			//			TryAddPotentialGrainsSecondGrowth(grainId, c.NeighboringCells);
+
+			//			_secondGrowthPotentialGrains[grainId].Remove(c.Identifier);
+			//			toReturn.AddFirst(c);
+			//		}
+			//	}
+			//}
+
+
+
+			// for each grain
+			foreach (var grainId in _secondGrowthPotentialGrains.Keys)
+			{
+				//sw.Restart();
+				// for each cell in grain
+				Parallel.ForEach(_secondGrowthPotentialGrains[grainId].Keys, cellIdentifier =>
+				{
+					Cell cell = _secondGrowthPotentialGrains[grainId][cellIdentifier];
+
+					int id;
+					Color color;
+
+					if (!shapeControl)
+						GetCellIdAndColorR4(cell, out id, out color, grainId);
+					else
+						GetCellIdAndColorShapeControl(cell, probability, out id, out color, grainId);
+
+					cell.NewId = id;
+					cell.NewColor = color;
+					if (cell.NewId > 0)
+						newColored.Add(cell);
+				});
+				//Trace.WriteLine($"Parallel: {sw.ElapsedMilliseconds}ms");
+				//sw.Restart();
+
+				Parallel.ForEach(newColored, c =>
+				{
+					c.UpdateId();
+					TryAddPotentialGrainsSecondGrowth(grainId, c.NeighboringCells);
+					lock (_lock)
+					{
+						_secondGrowthPotentialGrains[grainId].Remove(c.Identifier, out _);
+					}
+					toReturn.AddFirst(c); 
+				});
+
+				newColored.Clear();
+				//Trace.WriteLine($"While: {sw.ElapsedMilliseconds}ms");
+			}
+
+			Trace.WriteLine($"Iteration took: {sw.ElapsedMilliseconds}ms");
+			return toReturn;
+		}
+		private bool IsCellIntoGrain(Cell cell, int grainId)
+		{
+			bool a = _firstPhaseGrains.First(x => x.Key == grainId).Any(c => c.Identifier == cell.Identifier);
+			return a;
+		}
+		private IEnumerable<Cell> GetEmptyCellsInNeighborhood(Cell cell, RuleType ruleType, int? grainId)
+		{
+			int i = 0;
+			foreach (int isNeighor in Neighbourhood.Patterns[ruleType])
+			{
+				if (grainId is null)
+				{
+					if (isNeighor == 1 && cell.NeighboringCells[i] is Cell ce && ce.Id > 0 && ce.Phase == 0)
+						yield return ce;
+				}
+				else
+				{
+					if (isNeighor == 1 && cell.NeighboringCells[i] is Cell ce && ce.Id > 0 && ce.Phase == 0 && IsCellIntoGrain(ce, grainId.Value))
+						yield return ce;
+				}
+				i++;
+			}
+		}
+		private void GetCellIdAndColorR4(Cell cell, out int id, out Color color, int? grainId = null)
+		{
+			IEnumerable<Cell> cells = GetEmptyCellsInNeighborhood(cell, RuleType.Moor, grainId);
+
+			//Cell c = cells.First();
+			Cell c = cell;
 
 			// WITHOUT RANDOM
 			//int count = 0;
@@ -397,36 +598,106 @@ namespace MultiscaleModelling
 			//	}
 			//}
 
-			IEnumerable<IGrouping<int, Cell>> groups = notNullCells.Where(x => x.Id > 0).GroupBy(c => c.Id).OrderByDescending(x => x.Count());
+			IEnumerable<IGrouping<int, Cell>> groups = cells.GroupBy(c => c.Id).OrderByDescending(x => x.Count());
 			if (groups.Any())
 			{
-				IEnumerable<IGrouping<int, Cell>> max = groups.Where(x => x.Count() == groups.First().Count());
-				c = max.ElementAt(RandomMachine.Next(max.Count())).First();
+				List<IGrouping<int, Cell>> max = groups.Where(x => x.Count() == groups.First().Count()).ToList();
+
+				if (max.Any())
+					c = max.ElementAt(RandomMachine.Next(max.Count)).First();
 			}
 
-			//Trace.WriteLine($"--------------------------------------------------------");
-			//Trace.WriteLine($"Checking - X:{cell.IndexX} Y:{cell.IndexY} Id:{cell.Id}");
-			//Trace.WriteLine($"Neighbor - X:{c.IndexX} Y:{c.IndexY} Id:{c.Id}");
-			return c;
+			id = c.Id;
+			color = c.Color;
+		}
+		private void GetCellIdAndColorShapeControl(Cell cell, int probability, out int id, out Color color, int? grainId = null)
+		{
+			GetCellIdAndColorR1(cell, out id, out color, grainId);
+			if (id != 0)
+				return;
+	
+			GetCellIdAndColorR2(cell, out id, out color, grainId);
+			if (id != 0)
+				return;
+
+			GetCellIdAndColorR3(cell, out id, out color, grainId);
+			if (id != 0)
+				return;
+
+			GetCellIdAndColorR4(cell, probability, out id, out color, grainId);
+			if (id != 0)
+				return;
+		}
+		private void GetCellIdAndColorR1(Cell cell, out int id, out Color color, int? grainId = null)
+		{
+			var cells = GetEmptyCellsInNeighborhood(cell, RuleType.Moor, grainId);
+
+			Cell c = cells.GroupBy(c => c.Id).OrderByDescending(x => x.Count()).Where(x => x.Count() >= 5).FirstOrDefault()?.FirstOrDefault();
+
+			id = c?.Id ?? 0;
+			color = c?.Color ?? Cell.EmptySpaceColor.ToColor();
+		}
+		private void GetCellIdAndColorR2(Cell cell, out int id, out Color color, int? grainId = null)
+		{
+			var cells = GetEmptyCellsInNeighborhood(cell, RuleType.VonNeumann, grainId);
+
+			Cell c = cells.GroupBy(c => c.Id).OrderByDescending(x => x.Count()).Where(x => x.Count() >= 3).FirstOrDefault()?.FirstOrDefault();
+
+			id = c?.Id ?? 0;
+			color = c?.Color ?? Cell.EmptySpaceColor.ToColor();
+		}
+		private void GetCellIdAndColorR3(Cell cell, out int id, out Color color, int? grainId = null)
+		{
+			var cells = GetEmptyCellsInNeighborhood(cell, RuleType.FurtherMoor, grainId);
+
+			Cell c = cells.GroupBy(c => c.Id).OrderByDescending(x => x.Count()).Where(x => x.Count() >= 3).FirstOrDefault()?.FirstOrDefault();
+
+			id = c?.Id ?? 0;
+			color = c?.Color ?? Cell.EmptySpaceColor.ToColor();
+		}
+		private void GetCellIdAndColorR4(Cell cell, int probability, out int id, out Color color, int? grainId = null)
+		{
+			if (probability < 1 || probability > 100)
+				throw new ArgumentOutOfRangeException("GetCellIdAndColorR4");
+
+			GetCellIdAndColorR4(cell, out id, out color, grainId);
+
+			if (RandomMachine.Next(1, 101) > probability)
+			{
+				id = cell.Id;
+				color = cell.Color;
+			}
 		}
 		public override string ToString()
 		{
-			int uniquePhases = rows.SelectMany(x => x).Select(x => x.Phase).Distinct().Count();
+			int uniquePhases = _rows.SelectMany(x => x).Select(x => x.Phase).Distinct().Count();
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.Append($"{ColumnsCount} {RowsCount} {uniquePhases}\n");
-			foreach (List<Cell> row in rows)
+			foreach (List<Cell> row in _rows)
 				foreach (Cell cell in row)
 					stringBuilder.Append($"{cell.IndexX} {cell.IndexY} {cell.Phase} {cell.Id}\n");
 			return stringBuilder.ToString();
 		}
 		public Bitmap ToBitmap(int celSizeBmp)
 		{
-			Bitmap bitmap = new Bitmap(ColumnsCount * celSizeBmp, RowsCount * celSizeBmp);
+			Bitmap bitmap = new Bitmap(ColumnsCount * celSizeBmp, RowsCount * celSizeBmp, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 			Graphics graphics = Graphics.FromImage(bitmap);
 
-			for (int i = 0; i < rows.Count; i++)
-				for (int j = 0; j < rows[i].Count; j++)
-					graphics.FillRectangle(new SolidBrush(rows[i][j].Color), j * celSizeBmp, i * celSizeBmp, celSizeBmp, celSizeBmp);
+			for (int i = 0; i < _rows.Count; i++)
+			{
+				for (int j = 0; j < _rows[i].Count; j++)
+				{
+					Cell cell = _rows[i][j];
+					SolidBrush solidBrush;
+
+					if (cell.Phase > 0)
+						solidBrush = new SolidBrush(Color.FromArgb(255 - cell.Phase, cell.Color.R, cell.Color.G, cell.Color.B));
+					else
+						solidBrush = cell.Color.ToSolidBrush();
+
+					graphics.FillRectangle(solidBrush, j * celSizeBmp, i * celSizeBmp, celSizeBmp, celSizeBmp);
+				}
+			}
 			return bitmap;
 		}
 		public void AddInclusions(int number, int radius, InclusionsMode inclusionsMode, InclusionsType inclusionsType)
@@ -480,15 +751,15 @@ namespace MultiscaleModelling
 			{
 				Parallel.ForEach(xIndexes, j =>
 				{
-					if (inclusionsType == InclusionsType.Round && IsInRadius(center.IndexX, center.IndexY, rows[i][j].IndexX, rows[i][j].IndexY, size))
+					if (inclusionsType == InclusionsType.Round && IsInRadius(center.IndexX, center.IndexY, _rows[i][j].IndexX, _rows[i][j].IndexY, size))
 					{
-						rows[i][j].SetColor(Color.Black);
-						rows[i][j].SetId(-1);
+						_rows[i][j].SetColor(Cell.InclusionColor.ToColor());
+						_rows[i][j].SetId(-1);
 					}
-					else if(inclusionsType == InclusionsType.Squre)
+					else if (inclusionsType == InclusionsType.Square)
 					{
-						rows[i][j].SetColor(Color.Black);
-						rows[i][j].SetId(-1);
+						_rows[i][j].SetColor(Cell.InclusionColor.ToColor());
+						_rows[i][j].SetId(-1);
 					}
 				});
 			});
@@ -507,37 +778,37 @@ namespace MultiscaleModelling
 				int columnIndex = RandomMachine.Next(ColumnsCount);
 
 
-				if (rows[rowIndex][columnIndex].Id == -1)
+				if (_rows[rowIndex][columnIndex].Id == -1)
 				{
 					isFailed = true;
 					attempts++;
 				}
 				// checking if cell is on border if needed
 				else if (inclusionsMode == InclusionsMode.Post
-					&& rows[rowIndex][columnIndex].NeighboringCells.Where(c => c is Cell && c?.Id != -1 && c?.Id != 0).Select(c => c.Id).Distinct().Count() < 2)
+					&& _rows[rowIndex][columnIndex].NeighboringCells.Where(c => c is Cell && c?.Id != -1 && c?.Id != 0).Select(c => c.Id).Distinct().Count() < 2)
 				{
 					isFailed = true;
 					attempts++;
 				}
 
 				// square wth circle inside
-				GetIndexesInsideCircumscribedSquare(rows[rowIndex][columnIndex], size, out IEnumerable<int> xIndexes, out IEnumerable<int> yIndexes);
+				GetIndexesInsideCircumscribedSquare(_rows[rowIndex][columnIndex], size, out IEnumerable<int> xIndexes, out IEnumerable<int> yIndexes);
 				foreach (int i in yIndexes)
 				{
 					foreach (int j in xIndexes)
 					{
-						if ((IsInRadius(columnIndex, rowIndex, j, i, size) && rows[i][j].Id == -1)
-							|| (inclusionsType == InclusionsType.Squre && rows[i][j].Id == -1))
+						if ((IsInRadius(columnIndex, rowIndex, j, i, size) && _rows[i][j].Id == -1)
+							|| (inclusionsType == InclusionsType.Square && _rows[i][j].Id == -1))
 						{
 							isFailed = true;
 							attempts++;
 						}
 					}
-				} 
+				}
 
 				if (!isFailed)
 				{
-					SetInclusion(rows[rowIndex][columnIndex], size, inclusionsType);
+					SetInclusion(_rows[rowIndex][columnIndex], size, inclusionsType);
 					attempts = 0;
 					successfulTries++;
 				}
@@ -583,6 +854,121 @@ namespace MultiscaleModelling
 			}
 			else
 				throw new Exception();
+		}
+		public int SetCellsBorders(int thickness, int? cellId = null)
+		{
+			if (thickness < 1)
+				throw new ArgumentException("Thickness cannot be less then 1");
+
+			if (cellId is null)
+				ClearCellsBorders();
+
+			int cellsOnBorder = 0;
+
+			Action<int, int, Cell> action1 = new Action<int, int, Cell>((direction, size, cell) =>
+			{
+				if (size == 0)
+					return;
+
+				Cell c = cell.NeighboringCells[direction];
+				if (c is Cell && 
+					((cellId == null && cell.Id > c.Id) || (cellId is int && cell.Id > c.Id && (c.Id == cellId || cell.Id == cellId))))
+				{
+
+					if (!cell.IsOnBorder)
+					{
+						cell.IsOnBorder = true;
+						cellsOnBorder++;
+					}
+
+					int i = 0;
+					while (i < size && c.NeighboringCells[(direction + 4) % 8] is Cell ce)
+					{
+						c = ce;
+						i++;
+						if (!c.IsOnBorder)
+						{
+							c.IsOnBorder = true;
+							cellsOnBorder++;
+						}
+					}
+				}
+			});
+
+			Action<int, int, Cell> action2 = new Action<int, int, Cell>((direction, size, cell) =>
+			{
+				if (size == 0)
+					return;
+
+				Cell c = cell.NeighboringCells[direction];
+				if (c is Cell
+					&& ((cellId == null && cell.Id < c.Id) || (cellId is int && cell.Id < c.Id && (c.Id == cellId || cell.Id == cellId))))
+				{
+
+					if (!cell.IsOnBorder)
+					{
+						cell.IsOnBorder = true;
+						cellsOnBorder++;
+					}
+
+					int i = 0;
+					while (i < size && c.NeighboringCells[(direction + 4) % 8] is Cell ce)
+					{
+						c = ce;
+						i++;
+						if (!c.IsOnBorder)
+						{
+							c.IsOnBorder = true;
+							cellsOnBorder++;
+						}
+					}
+				}
+			});
+
+			var actions = new Action<int, int, Cell>[] { action1, action2 };
+
+			int floor = ToInt32(Math.Floor((1.0 * thickness) / 2));
+			int celing = ToInt32(Math.Ceiling((1.0 * thickness) / 2));
+
+			for (int i = 0; i < thickness; i++)
+			{
+				foreach (Cell cell in _rows.SelectMany(x => x))
+				{
+					int x = i % 2 == 0 ? celing : floor;
+
+					actions[i % 2].Invoke(1, x, cell);
+					actions[i % 2].Invoke(3, x, cell);
+					actions[i % 2].Invoke(5, x, cell);
+					actions[i % 2].Invoke(7, x, cell);
+				}
+			}
+
+			return cellsOnBorder;
+		}
+		public void ClearCellsBorders(int? cellId = null)
+		{
+			Parallel.ForEach(_rows.SelectMany(x => x), cell =>
+			{
+				if (!cellId.HasValue)
+					cell.IsOnBorder = false;
+				else if (cellId.HasValue && cell.Id == cellId)
+					cell.IsOnBorder = false;
+			});
+		}
+		public void SetDualPhase(int cellId)
+		{
+			Parallel.ForEach(_rows.SelectMany(x => x), cell =>
+			{
+				if (cell.Id == cellId)
+					cell.Phase = 1;
+			});
+		}
+		public void ClearDualPhase()
+		{
+			Parallel.ForEach(_rows.SelectMany(x => x), cell =>
+			{
+				cell.Phase = 0;
+			});
 		}
 	}
 }
